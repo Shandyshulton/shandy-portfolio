@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://shandy-shulton-shihab.vercel.app/sitemap.xml
+Sitemap: https://shandyshultonshihab.my.id/sitemap.xml
