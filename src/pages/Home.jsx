@@ -15,12 +15,12 @@ export default function Home() {
         <title>Shandy Shulton Shihab | Full Stack Developer Portfolio</title>
         <meta name="description" content="Computer Science undergraduate at Binus University with hands-on experience in building responsive, high-performance web applications." />
         
-        {/* Open Graph untuk Preview Sosmed seperti LinkedIn / WhatsApp */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Shandy Shulton Shihab | Full Stack Developer" />
         <meta property="og:description" content="Computer Science student at Binus University specializing in full-stack web development." />
         <meta property="og:image" content="/images/PP.jpeg" />
       </Helmet>
+      
       {/* Hero */}
       <section className="hero">
         <div className="hero-content">
