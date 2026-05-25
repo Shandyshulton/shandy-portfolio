@@ -1,0 +1,147 @@
+.exp-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.exp-item {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 20px;
+  opacity: 0;
+}
+
+.exp-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 6px;
+}
+
+.exp-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.exp-connector {
+  width: 2px;
+  flex: 1;
+  background: linear-gradient(to bottom, var(--border), transparent);
+  min-height: 40px;
+  margin-top: 8px;
+}
+
+.exp-card {
+  padding-bottom: 32px;
+}
+
+.exp-card-top {
+  background: var(--surface);
+  border: 1.5px solid var(--card-border);
+  border-left: 3px solid;
+  border-radius: 0 16px 16px 0;
+  padding: 28px 28px 24px;
+  transition: box-shadow 0.2s, border-right-color 0.2s;
+}
+.exp-card-top:hover {
+  box-shadow: var(--shadow);
+}
+
+.exp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.exp-type-badge {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+  margin-bottom: 10px;
+}
+
+.exp-role {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.exp-company {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.exp-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+.exp-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.exp-desc {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.75;
+  margin-bottom: 20px;
+}
+
+.exp-responsibilities {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.exp-responsibilities li {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.resp-arrow {
+  font-family: 'DM Mono', monospace;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.exp-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 700px) {
+  .exp-item { grid-template-columns: 1fr; }
+  .exp-marker { display: none; }
+  .exp-card-top { border-left: 3px solid; border-radius: 12px; }
+  .exp-header { flex-direction: column; }
+  .exp-meta { align-items: flex-start; }
+}
