@@ -1,0 +1,175 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "projects": "Proyek",
+    "education": "Pendidikan",
+    "experience": "Pengalaman",
+    "contact": "Kontak"
+  },
+  "home": {
+    "greeting": "<hello world />",
+    "role": "Full Stack Developer",
+    "bio": "Mahasiswa Ilmu Komputer di <strong>Binus University</strong> dengan pengalaman langsung membangun aplikasi web yang responsif dan berperforma tinggi. Berdedikasi untuk menghadirkan implementasi UI yang bersih, struktur kode yang mudah dipelihara, dan sistem desain yang skalabel untuk mengoptimalkan pengalaman pengguna.",
+    "downloadCV": "Unduh CV",
+    "getInTouch": "Hubungi Saya",
+    "available": "Tersedia untuk Magang",
+    "scroll": "GULIR",
+    "skills": {
+      "label": "Yang Saya Lakukan",
+      "title": "Keahlian & Stack"
+    },
+    "about": {
+      "label": "Tentang Saya",
+      "title": "Membangun web,\nsatu komponen dalam satu waktu.",
+      "p1": "Saya lulusan Rekayasa Perangkat Lunak dari SMK Telkom Jakarta, kini menempuh Ilmu Komputer (spesialisasi Teknologi Basis Data) di Universitas Bina Nusantara.",
+      "p2": "Perjalanan saya dimulai dari membangun UI dan berkembang menjadi pengembangan full-stack — dari frontend React hingga backend Laravel dan database MySQL. Saya bangga menulis kode yang bersih dan mudah dipelihara serta menerjemahkan desain menjadi antarmuka yang pixel-perfect.",
+      "stats": {
+        "projects": "Proyek Dibangun",
+        "years": "Tahun Coding",
+        "stacks": "Tech Stack",
+        "certs": "Sertifikasi"
+      }
+    }
+  },
+  "projects": {
+    "sectionLabel": "Karya Saya",
+    "title": "Proyek",
+    "github": "GitHub",
+    "liveDemo": "Demo Langsung",
+    "items": {
+      "imoca": {
+        "desc": "Website company profile lengkap dengan UI modern dan manajemen konten dinamis. Dibangun dengan frontend React.js yang terhubung ke backend Golang dengan database MySQL.",
+        "highlights": [
+          "Tampilan company profile yang responsif",
+          "Konten dinamis via Golang REST API",
+          "Manajemen data berbasis MySQL",
+          "UI modern dengan Tailwind CSS"
+        ]
+      },
+      "petly": {
+        "desc": "Platform e-commerce perawatan hewan lengkap dengan daftar produk, keranjang belanja, dan alur checkout. Mengintegrasikan antarmuka Tailwind CSS yang responsif dengan backend Laravel untuk rendering konten dinamis.",
+        "highlights": [
+          "Daftar produk responsif dengan filter/pencarian",
+          "Komponen UI keranjang belanja & checkout",
+          "Integrasi seamless dengan backend Laravel",
+          "Rendering data dinamis via panggilan API"
+        ]
+      },
+      "portfolio": {
+        "desc": "Portfolio pribadi yang responsif menampilkan proyek, keahlian, dan informasi kontak. Dibangun dengan React.js dan Vite untuk performa tinggi, menampilkan komponen yang dapat digunakan kembali, desain modern, dan animasi yang halus.",
+        "highlights": [
+          "Layout responsif di semua ukuran layar",
+          "Arsitektur komponen React yang reusable",
+          "Transisi halaman dan animasi scroll yang halus",
+          "Deploy dan live di Vercel"
+        ]
+      },
+      "ps": {
+        "desc": "Sistem manajemen rental PlayStation berbasis web dengan autentikasi multi-pengguna, operasi CRUD lengkap, pemantauan transaksi, dan manajemen database relasional untuk pelanggan dan catatan sewa.",
+        "highlights": [
+          "Autentikasi multi-pengguna dengan kontrol akses berbasis peran",
+          "Dashboard pemantauan transaksi dengan statistik real-time",
+          "Desain database relasional untuk pelanggan & sewa",
+          "Mengurangi pencatatan manual dengan otomasi digital"
+        ]
+      }
+    }
+  },
+  "education": {
+    "sectionLabel": "Latar Belakang Akademik",
+    "title": "Pendidikan",
+    "certLabel": "Kredensial",
+    "certTitle": "Sertifikasi",
+    "items": {
+      "binus": {
+        "desc": "Menempuh gelar Sarjana Ilmu Komputer dengan spesialisasi Teknologi Basis Data. Terlibat dalam berbagai proyek akademik, kegiatan klub, dan pekerjaan pengembangan web secara langsung di samping studi.",
+        "highlights": ["Spesialisasi Teknologi Basis Data", "Anggota Aktif BNCC", "Pengembangan Proyek Full-Stack"]
+      },
+      "smk": {
+        "desc": "Menyelesaikan program vokasi 3 tahun yang berfokus pada dasar-dasar Rekayasa Perangkat Lunak, termasuk pemrograman, pengembangan web, dan manajemen proyek perangkat lunak. Lulus dengan fondasi teknis yang kuat.",
+        "highlights": ["Dasar-dasar Rekayasa Perangkat Lunak", "Dasar Pengembangan Web", "Aktif di OSIS"]
+      }
+    },
+    "certs": {
+      "bnsp": { "title": "Sertifikat Junior Web Developer BNSP" },
+      "lia": { "title": "English Conversation for Employees: Upper-Intermediate" },
+      "ai": { "title": "Belajar Dasar Artificial Intelligence" }
+    }
+  },
+  "experience": {
+    "sectionLabel": "Perjalanan Saya",
+    "title": "Pengalaman",
+    "types": {
+      "internship": "Magang",
+      "course": "Kursus",
+      "organization": "Organisasi"
+    },
+    "items": {
+      "ina17": {
+        "role": "Full Stack Developer Intern",
+        "desc": "Berkontribusi signifikan dalam pengembangan aplikasi web full-stack, bertanggung jawab atas logika sistem backend, optimasi database, dan integrasi fitur modern.",
+        "responsibilities": [
+          "Mengembangkan dan mengoptimalkan arsitektur backend serta RESTful API menggunakan Go (Gin framework) dan Laravel.",
+          "Merancang skema database relasional MySQL yang skalabel untuk meningkatkan alur kerja sistem internal.",
+          "Mengimplementasikan lokalisasi multi-bahasa dinamis (struktur JSON dinamis) dan meningkatkan modul CMS internal.",
+          "Memperkuat keamanan ekosistem API melalui implementasi mekanisme kedaluwarsa token dan penanganan 401 unauthorized yang tepat.",
+          "Berkolaborasi efektif dalam tim pengembangan menggunakan alat version control (Git/GitLab) dan pelacakan proyek Agile."
+        ]
+      },
+      "dunamis": {
+        "role": "Video Editor Intern",
+        "desc": "Magang sebagai Video Editor di Dunamis Indonesia, perusahaan konsultan manajemen terkemuka. Bertanggung jawab memproduksi dan mengedit konten video untuk komunikasi internal, materi pelatihan, dan presentasi perusahaan.",
+        "responsibilities": [
+          "Mengedit dan memproduksi video pelatihan dan komunikasi perusahaan",
+          "Membuat motion graphics dan aset visual untuk presentasi",
+          "Mengelola jadwal proyek video dan pengorganisasian aset",
+          "Berkolaborasi dengan tim komunikasi dalam arahan konten",
+          "Memastikan konsistensi brand di semua konten visual"
+        ]
+      },
+      "lia": {
+        "role": "Kursus Bahasa Inggris",
+        "desc": "Menyelesaikan kursus percakapan bahasa Inggris tingkat Upper-Intermediate di LB LIA, salah satu lembaga bahasa paling terkemuka di Indonesia. Meningkatkan kemampuan komunikasi profesional dalam bahasa Inggris untuk lingkungan kerja.",
+        "responsibilities": [
+          "Menyelesaikan kurikulum bahasa Inggris tingkat Upper-Intermediate",
+          "Berlatih komunikasi bahasa Inggris bisnis dan profesional",
+          "Meningkatkan keterampilan presentasi dan komunikasi verbal",
+          "Terlibat dalam diskusi, debat, dan skenario role-play"
+        ]
+      },
+      "bncc": {
+        "role": "Anggota — Team Project Management (TPM)",
+        "desc": "Anggota aktif BNCC, ditugaskan di divisi Team Project Management. Berkontribusi sebagai Back-End Developer dan mendapat pengalaman tambahan di pengembangan front-end dalam lingkungan tim yang kolaboratif.",
+        "responsibilities": [
+          "Ditugaskan sebagai Back-End Developer menggunakan framework Laravel",
+          "Mendapat pengalaman Front-End development dan integrasi UI",
+          "Mempelajari penjadwalan proyek dan manajemen tugas dengan Jira",
+          "Berkolaborasi dengan tim lintas fungsi dalam proyek mahasiswa"
+        ]
+      }
+    }
+  },
+  "contact": {
+    "sectionLabel": "Hubungi Saya",
+    "title": "Kontak",
+    "intro": "Saat ini saya terbuka untuk peluang magang, proyek freelance, dan kolaborasi. Jangan ragu untuk menghubungi saya — senang bisa terhubung!",
+    "form": {
+      "name": "Nama Anda",
+      "namePlaceholder": "John Doe",
+      "email": "Alamat Email",
+      "emailPlaceholder": "john@example.com",
+      "subject": "Subjek",
+      "subjectPlaceholder": "Peluang Magang / Kolaborasi",
+      "message": "Pesan",
+      "messagePlaceholder": "Halo Shandy, saya ingin...",
+      "send": "Kirim Pesan",
+      "sending": "Mengirim...",
+      "successTitle": "Pesan Terkirim!",
+      "successText": "Terima kasih sudah menghubungi, Shandy akan segera membalas.",
+      "sendAnother": "Kirim Lagi"
+    }
+  },
+  "footer": {
+    "tagline": "Membangun web, satu komponen dalam satu waktu."
+  }
+}

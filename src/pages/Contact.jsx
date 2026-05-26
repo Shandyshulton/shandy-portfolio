@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Mail, GitFork, Globe, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import './Contact.css';
 
 export default function Contact() {
+  const { t } = useTranslation();
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -14,7 +16,7 @@ export default function Contact() {
     setLoading(true);
 
     const formData = new FormData();
-    formData.append("access_key", "764e5437-356e-42f6-9887-98a4df81f2a5"); 
+    formData.append("access_key", "764e5437-356e-42f6-9887-98a4df81f2a5");
     formData.append("name", form.name);
     formData.append("email", form.email);
     formData.append("subject", form.subject);
@@ -25,67 +27,37 @@ export default function Contact() {
         method: "POST",
         body: formData
       });
-
       const data = await response.json();
-
       if (data.success) {
-        setSent(true); 
+        setSent(true);
       } else {
-        alert("Terjadi kesalahan: " + data.message);
+        alert("Error: " + data.message);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("Gagal mengirim pesan. Silakan periksa koneksi internet Anda.");
+      alert("Failed to send. Please check your internet connection.");
     } finally {
       setLoading(false);
     }
   };
 
   const contacts = [
-    {
-      icon: <Mail size={20} />,
-      label: 'Email',
-      value: 'ssshandy60@gmail.com',
-      href: 'mailto:ssshandy60@gmail.com',
-    },
-    {
-      icon: <Phone size={20} />,
-      label: 'Phone',
-      value: '+62 812-1218-1182',
-      href: 'tel:+6281212181182',
-    },
-    {
-      icon: <MapPin size={20} />,
-      label: 'Location',
-      value: 'Jakarta, Indonesia',
-      href: null,
-    },
-    {
-      icon: <GitFork size={20} />,
-      label: 'GitHub',
-      value: 'Shandyshulton',
-      href: 'https://github.com/Shandyshulton',
-    },
-    {
-      icon: <Globe size={20} />,
-      label: 'LinkedIn',
-      value: 'shandy-shulton-shihab',
-      href: 'https://www.linkedin.com/in/shandy-shulton-shihab-73a25922a/',
-    },
+    { icon: <Mail size={20} />, label: 'Email', value: 'ssshandy60@gmail.com', href: 'mailto:ssshandy60@gmail.com' },
+    { icon: <Phone size={20} />, label: 'Phone', value: '+62 812-1218-1182', href: 'tel:+6281212181182' },
+    { icon: <MapPin size={20} />, label: 'Location', value: 'Jakarta, Indonesia', href: null },
+    { icon: <GitFork size={20} />, label: 'GitHub', value: 'Shandyshulton', href: 'https://github.com/Shandyshulton' },
+    { icon: <Globe size={20} />, label: 'LinkedIn', value: 'shandy-shulton-shihab', href: 'https://www.linkedin.com/in/shandy-shulton-shihab-73a25922a/' },
   ];
 
   return (
     <div className="page contact-page">
-      <p className="section-label">Get in Touch</p>
-      <h1 className="section-title">Contact Me</h1>
+      <p className="section-label">{t('contact.sectionLabel')}</p>
+      <h1 className="section-title">{t('contact.title')}</h1>
 
       <div className="contact-grid">
         {/* Left — Info */}
         <div className="contact-info animate-slideLeft">
-          <p className="contact-intro">
-            I'm currently open to internship opportunities, freelance projects, and
-            collaborations. Feel free to reach out — I'd love to connect!
-          </p>
+          <p className="contact-intro">{t('contact.intro')}</p>
 
           <div className="contact-list">
             {contacts.map(c => (
@@ -120,37 +92,37 @@ export default function Contact() {
           {sent ? (
             <div className="form-success">
               <CheckCircle size={48} color="var(--accent)" />
-              <h3>Message Sent!</h3>
-              <p>Thanks for reaching out, Shandy will get back to you soon.</p>
+              <h3>{t('contact.form.successTitle')}</h3>
+              <p>{t('contact.form.successText')}</p>
               <button className="btn btn-outline" onClick={() => { setSent(false); setForm({ name:'', email:'', subject:'', message:'' }); }}>
-                Send Another
+                {t('contact.form.sendAnother')}
               </button>
             </div>
           ) : (
             <form className="contact-form" onSubmit={handleSubmit}>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="name">Your Name</label>
-                  <input id="name" name="name" type="text" placeholder="John Doe" required value={form.name} onChange={handleChange} />
+                  <label htmlFor="name">{t('contact.form.name')}</label>
+                  <input id="name" name="name" type="text" placeholder={t('contact.form.namePlaceholder')} required value={form.name} onChange={handleChange} />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="email">Email Address</label>
-                  <input id="email" name="email" type="email" placeholder="john@example.com" required value={form.email} onChange={handleChange} />
+                  <label htmlFor="email">{t('contact.form.email')}</label>
+                  <input id="email" name="email" type="email" placeholder={t('contact.form.emailPlaceholder')} required value={form.email} onChange={handleChange} />
                 </div>
               </div>
               <div className="form-group">
-                <label htmlFor="subject">Subject</label>
-                <input id="subject" name="subject" type="text" placeholder="Internship Opportunity / Collaboration" required value={form.subject} onChange={handleChange} />
+                <label htmlFor="subject">{t('contact.form.subject')}</label>
+                <input id="subject" name="subject" type="text" placeholder={t('contact.form.subjectPlaceholder')} required value={form.subject} onChange={handleChange} />
               </div>
               <div className="form-group">
-                <label htmlFor="message">Message</label>
-                <textarea id="message" name="message" rows="6" placeholder="Hello Shandy, I'd like to..." required value={form.message} onChange={handleChange} />
+                <label htmlFor="message">{t('contact.form.message')}</label>
+                <textarea id="message" name="message" rows="6" placeholder={t('contact.form.messagePlaceholder')} required value={form.message} onChange={handleChange} />
               </div>
               <button type="submit" className="btn btn-primary submit-btn" disabled={loading}>
                 {loading ? (
                   <span className="spinner" />
                 ) : (
-                  <><Send size={16} /> Send Message</>
+                  <><Send size={16} /> {t('contact.form.send')}</>
                 )}
               </button>
             </form>

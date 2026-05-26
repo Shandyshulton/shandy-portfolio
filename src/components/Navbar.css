@@ -70,6 +70,39 @@
   gap: 8px;
 }
 
+/* ── Language switcher ── */
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+.lang-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.lang-flag {
+  font-size: 16px;
+  line-height: 1;
+}
+.lang-code {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+.lang-btn:hover .lang-code {
+  color: var(--accent);
+}
+
 .theme-btn {
   width: 38px;
   height: 38px;
@@ -109,6 +142,31 @@
 
 @media (max-width: 768px) {
   .menu-btn { display: flex; }
+
+  .navbar-inner {
+    padding: 0 16px;
+    gap: 8px;
+  }
+
+  .navbar-actions {
+    gap: 6px;
+  }
+
+  /* Tombol lang mobile: hanya flag, tanpa teks kode */
+  .lang-btn {
+    height: 34px;
+    padding: 0 8px;
+    gap: 4px;
+  }
+  .lang-code {
+    display: none;
+  }
+
+  .theme-btn,
+  .menu-btn {
+    width: 34px;
+    height: 34px;
+  }
 
   .navbar-links {
     position: fixed;

@@ -1,0 +1,175 @@
+{
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "education": "Education",
+    "experience": "Experience",
+    "contact": "Contact"
+  },
+  "home": {
+    "greeting": "<hello world />",
+    "role": "Full Stack Developer",
+    "bio": "Computer Science undergraduate at <strong>Binus University</strong> with hands-on experience in building responsive, high-performance web applications. Dedicated to delivering clean UI implementation, maintainable code structures, and scalable design systems that optimize user experience.",
+    "downloadCV": "Download CV",
+    "getInTouch": "Get in Touch",
+    "available": "Available for Internship",
+    "scroll": "SCROLL",
+    "skills": {
+      "label": "What I Do",
+      "title": "Skills & Stack"
+    },
+    "about": {
+      "label": "About Me",
+      "title": "Building the web,\none component at a time.",
+      "p1": "I'm a Software Engineering graduate from SMK Telkom Jakarta, now pursuing Computer Science (Database Technology specialization) at Bina Nusantara University.",
+      "p2": "My journey started with building UIs and grew into full-stack development — from React frontends to Laravel backends and MySQL databases. I take pride in writing clean, maintainable code and translating designs into pixel-perfect interfaces.",
+      "stats": {
+        "projects": "Projects Built",
+        "years": "Years Coding",
+        "stacks": "Tech Stacks",
+        "certs": "Certifications"
+      }
+    }
+  },
+  "projects": {
+    "sectionLabel": "My Work",
+    "title": "Projects",
+    "github": "GitHub",
+    "liveDemo": "Live Demo",
+    "items": {
+      "imoca": {
+        "desc": "A full-featured company profile website with modern UI and dynamic content management. Built with React.js frontend connected to a Golang backend with MySQL database.",
+        "highlights": [
+          "Responsive company profile layout",
+          "Dynamic content via Golang REST API",
+          "MySQL-backed data management",
+          "Modern UI with Tailwind CSS"
+        ]
+      },
+      "petly": {
+        "desc": "A full-featured pet care e-commerce platform with product listings, shopping cart, and checkout flows. Integrated responsive Tailwind CSS interfaces with a Laravel back-end for dynamic content rendering.",
+        "highlights": [
+          "Responsive product listing with filter/search",
+          "Shopping cart & checkout UI components",
+          "Seamless Laravel back-end integration",
+          "Dynamic data rendering via API calls"
+        ]
+      },
+      "portfolio": {
+        "desc": "A responsive personal portfolio showcasing projects, skills, and contact information. Built with React.js and Vite for fast performance, featuring reusable components, modern design, and smooth animations.",
+        "highlights": [
+          "Fully responsive layout across all screen sizes",
+          "Reusable React component architecture",
+          "Smooth page transitions and scroll animations",
+          "Deployed and live on Vercel"
+        ]
+      },
+      "ps": {
+        "desc": "A web-based PlayStation rental management system featuring multi-user authentication, comprehensive CRUD operations, transaction monitoring, and relational database management for customers and rental records.",
+        "highlights": [
+          "Multi-user authentication with role-based access control",
+          "Transaction monitoring dashboard with real-time stats",
+          "Relational database design for customers & rentals",
+          "Reduced manual record-keeping with digital automation"
+        ]
+      }
+    }
+  },
+  "education": {
+    "sectionLabel": "Academic Background",
+    "title": "Education",
+    "certLabel": "Credentials",
+    "certTitle": "Certifications",
+    "items": {
+      "binus": {
+        "desc": "Pursuing a Bachelor's degree in Computer Science with a specialization in Database Technology. Engaged in various academic projects, club activities, and hands-on web development work alongside studies.",
+        "highlights": ["Database Technology Specialization", "Active Member of BNCC", "Full-Stack Project Development"]
+      },
+      "smk": {
+        "desc": "Completed a 3-year vocational program focused on Software Engineering fundamentals, including programming, web development, and software project management. Graduated with a strong technical foundation.",
+        "highlights": ["Software Engineering Fundamentals", "Web Development Basics", "Active in Student Council (OSIS)"]
+      }
+    },
+    "certs": {
+      "bnsp": { "title": "BNSP Junior Web Developer Certificate" },
+      "lia": { "title": "English Conversation for Employees: Upper-Intermediate" },
+      "ai": { "title": "Belajar Dasar Artificial Intelligence" }
+    }
+  },
+  "experience": {
+    "sectionLabel": "My Journey",
+    "title": "Experience",
+    "types": {
+      "internship": "Internship",
+      "course": "Course",
+      "organization": "Organization"
+    },
+    "items": {
+      "ina17": {
+        "role": "Full Stack Developer Intern",
+        "desc": "Contributed significantly to full-stack web application development, taking charge of backend system logic, database optimization, and modern feature integration.",
+        "responsibilities": [
+          "Developed and optimized backend architectures and RESTful APIs utilizing Go (Gin framework) and Laravel.",
+          "Designed and engineered scalable MySQL relational database schemas to enhance internal system workflows.",
+          "Implemented dynamic multi-language localization (dynamic JSON structures) and enhanced internal CMS modules.",
+          "Strengthened API ecosystem security through the implementation of token expiration mechanisms and proper 401 unauthorized handling.",
+          "Collaborated effectively within a development team using version control tools (Git/GitLab) and Agile project tracking."
+        ]
+      },
+      "dunamis": {
+        "role": "Video Editor Intern",
+        "desc": "Interned as a Video Editor at Dunamis Indonesia, a leading management consulting firm. Responsible for producing and editing video content for internal communications, training materials, and corporate presentations.",
+        "responsibilities": [
+          "Edited and produced corporate training and communication videos",
+          "Created motion graphics and visual assets for presentations",
+          "Managed video project timelines and asset organization",
+          "Collaborated with the communications team on content direction",
+          "Ensured brand consistency across all visual content"
+        ]
+      },
+      "lia": {
+        "role": "English Language Course",
+        "desc": "Completed an English conversation course at Upper-Intermediate level at LB LIA, one of Indonesia's most reputable language institutes. Enhanced professional communication skills in English for workplace settings.",
+        "responsibilities": [
+          "Completed Upper-Intermediate level English curriculum",
+          "Practiced business and professional English communication",
+          "Improved presentation and verbal communication skills",
+          "Engaged in discussions, debates, and role-play scenarios"
+        ]
+      },
+      "bncc": {
+        "role": "Member — Team Project Management (TPM)",
+        "desc": "Active member of BNCC, assigned to the Team Project Management division. Contributed as a Back-End Developer and gained additional exposure to front-end development within a collaborative team environment.",
+        "responsibilities": [
+          "Assigned as Back-End Developer using Laravel framework",
+          "Gained exposure to Front-End development and UI integration",
+          "Learned project scheduling and task management with Jira",
+          "Collaborated with cross-functional teams on student projects"
+        ]
+      }
+    }
+  },
+  "contact": {
+    "sectionLabel": "Get in Touch",
+    "title": "Contact Me",
+    "intro": "I'm currently open to internship opportunities, freelance projects, and collaborations. Feel free to reach out — I'd love to connect!",
+    "form": {
+      "name": "Your Name",
+      "namePlaceholder": "John Doe",
+      "email": "Email Address",
+      "emailPlaceholder": "john@example.com",
+      "subject": "Subject",
+      "subjectPlaceholder": "Internship Opportunity / Collaboration",
+      "message": "Message",
+      "messagePlaceholder": "Hello Shandy, I'd like to...",
+      "send": "Send Message",
+      "sending": "Sending...",
+      "successTitle": "Message Sent!",
+      "successText": "Thanks for reaching out, Shandy will get back to you soon.",
+      "sendAnother": "Send Another"
+    }
+  },
+  "footer": {
+    "tagline": "Building the web, one component at a time."
+  }
+}

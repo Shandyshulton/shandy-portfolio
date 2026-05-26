@@ -1,7 +1,10 @@
 import { GitFork, Mail, Globe, Heart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import './Footer.css';
 
 export default function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="footer">
       <div className="footer-inner">
@@ -9,7 +12,7 @@ export default function Footer() {
           <span className="footer-logo">
             <span style={{ color: 'var(--accent)' }}>S</span>handy<span style={{ color: 'var(--accent)' }}> SS.</span>
           </span>
-          <p className="footer-tagline">Building the web, one component at a time.</p>
+          <p className="footer-tagline">{t('footer.tagline')}</p>
         </div>
 
         <div className="footer-links">
