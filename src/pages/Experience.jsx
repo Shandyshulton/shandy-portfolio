@@ -1,177 +1,156 @@
-import { useState } from 'react';
-import { Mail, GitFork, Globe, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
-import { Helmet } from 'react-helmet-async'; // <-- 1. Import Helmet untuk SEO
-import './Contact.css';
+import { Briefcase, Calendar, MapPin } from 'lucide-react'; // Di-trim ExternalLink yang tidak terpakai agar bebas warning ESLint
+import { Helmet } from 'react-helmet-async'; // <-- 1. Import Helmet di paling atas
+import './Experience.css';
 
-export default function Contact() {
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
-  const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useState(false);
+const experiences = [
+  {
+    id: 1,
+    role: 'Full Stack Developer Intern',
+    company: 'PT Indonesia Satu Tujuh (INA17)', // Diperjelas sesuai nama resmi perusahaan
+    period: 'Feb 2026 – Present',
+    location: 'Jakarta, Indonesia',
+    type: 'Internship',
+    color: '#c8522a',
+    description:
+      'Contributed significantly to full-stack web application development, taking charge of backend system logic, database optimization, and modern feature integration.',
+    responsibilities: [
+      'Developed and optimized backend architectures and RESTful APIs utilizing Go (Gin framework) and Laravel.',
+      'Designed and engineered scalable MySQL relational database schemas to enhance internal system workflows.',
+      'Implemented dynamic multi-language localization (dynamic JSON structures) and enhanced internal CMS modules.',
+      'Strengthened API ecosystem security through the implementation of token expiration mechanisms and proper 401 unauthorized handling.',
+      'Collaborated effectively within a development team using version control tools (Git/GitLab) and Agile project tracking.',
+    ],
+    stack: ['Go', 'Gin', 'Laravel', 'MySQL', 'React.js', 'Git', 'REST API'],
+  },
+  {
+    id: 2,
+    role: 'Video Editor Intern',
+    company: 'Dunamis Indonesia',
+    period: '2025',
+    location: 'Jakarta, Indonesia',
+    type: 'Internship',
+    color: '#2a7cc8',
+    description:
+      'Interned as a Video Editor at Dunamis Indonesia, a leading management consulting firm. Responsible for producing and editing video content for internal communications, training materials, and corporate presentations.',
+    responsibilities: [
+      'Edited and produced corporate training and communication videos',
+      'Created motion graphics and visual assets for presentations',
+      'Managed video project timelines and asset organization',
+      'Collaborated with the communications team on content direction',
+      'Ensured brand consistency across all visual content',
+    ],
+    stack: ['Adobe Premiere', 'After Effects', 'Figma', 'Content Creation'],
+  },
+  {
+    id: 3,
+    role: 'English Language Course',
+    company: 'LB LIA Language Institute',
+    period: 'Completed Feb 2024',
+    location: 'Jakarta, Indonesia',
+    type: 'Course',
+    color: '#2ac87a',
+    description:
+      'Completed an English conversation course at Upper-Intermediate level at LB LIA, one of Indonesia\'s most reputable language institutes. Enhanced professional communication skills in English for workplace settings.',
+    responsibilities: [
+      'Completed Upper-Intermediate level English curriculum',
+      'Practiced business and professional English communication',
+      'Improved presentation and verbal communication skills',
+      'Engaged in discussions, debates, and role-play scenarios',
+    ],
+    stack: ['English Communication', 'Business Writing', 'Professional Presentation'],
+  },
+  {
+    id: 4,
+    role: 'Member — Team Project Management (TPM)',
+    company: 'BNCC (Bina Nusantara Computer Club)',
+    period: 'During University Studies',
+    location: 'BINUS University',
+    type: 'Organization',
+    color: '#8b2ac8',
+    description:
+      'Active member of BNCC, assigned to the Team Project Management division. Contributed as a Back-End Developer and gained additional exposure to front-end development within a collaborative team environment.',
+    responsibilities: [
+      'Assigned as Back-End Developer using Laravel framework',
+      'Gained exposure to Front-End development and UI integration',
+      'Learned project scheduling and task management with Jira',
+      'Collaborated with cross-functional teams on student projects',
+    ],
+    stack: ['Laravel', 'Jira', 'Team Collaboration', 'Project Management'],
+  },
+];
 
-  const handleChange = e => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const formData = new FormData();
-    formData.append("access_key", "764e5437-356e-42f6-9887-98a4df81f2a5"); 
-    formData.append("name", form.name);
-    formData.append("email", form.email);
-    formData.append("subject", form.subject);
-    formData.append("message", form.message);
-
-    try {
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        body: formData
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setSent(true); 
-      } else {
-        alert("Terjadi kesalahan: " + data.message);
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Gagal mengirim pesan. Silakan periksa koneksi internet Anda.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const contacts = [
-    {
-      icon: <Mail size={20} />,
-      label: 'Email',
-      value: 'ssshandy60@gmail.com',
-      href: 'mailto:ssshandy60@gmail.com',
-    },
-    {
-      icon: <Phone size={20} />,
-      label: 'Phone',
-      value: '+62 812-1218-1182',
-      href: 'tel:+6281212181182',
-    },
-    {
-      icon: <MapPin size={20} />,
-      label: 'Location',
-      value: 'Jakarta, Indonesia',
-      href: null,
-    },
-    {
-      icon: <GitFork size={20} />,
-      label: 'GitHub',
-      value: 'Shandyshulton',
-      href: 'https://github.com/Shandyshulton',
-    },
-    {
-      icon: <Globe size={20} />,
-      label: 'LinkedIn',
-      value: 'shandy-shulton-shihab',
-      href: 'https://www.linkedin.com/in/shandy-shulton-shihab-73a25922a/',
-    },
-  ];
-
+export default function Experience() {
   return (
-    <div className="page contact-page">
+    <div className="page exp-page">
+      {/* 2. Tambahkan block Helmet SEO ini */}
       <Helmet>
-        <title>Contact | Shandy Shulton Shihab</title>
-        <meta name="description" content="Get in touch with Shandy Shulton Shihab for internship opportunities, full-stack web engineering roles, or collaboration projects." />
+        <title>Experience | Shandy Shulton Shihab</title>
+        <meta name="description" content="Professional experience and career history of Shandy Shulton Shihab, including Full Stack Developer Internships, corporate video editing, and technical organization tracking." />
         
+        {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Contact | Shandy Shulton Shihab" />
-        <meta property="og:description" content="Reach out to connect or discuss full-stack development and database projects." />
+        <meta property="og:title" content="Experience | Shandy Shulton Shihab" />
+        <meta property="og:description" content="Professional journey and full-stack development internship achievements." />
         <meta property="og:image" content="/images/PP.jpeg" />
       </Helmet>
 
-      <p className="section-label">Get in Touch</p>
-      <h1 className="section-title">Contact Me</h1>
+      <p className="section-label">My Journey</p>
+      <h1 className="section-title">Experience</h1>
 
-      <div className="contact-grid">
-        {/* Left — Info */}
-        <div className="contact-info animate-slideLeft">
-          <p className="contact-intro">
-            I'm currently open to internship opportunities, freelance projects, and
-            collaborations. Feel free to reach out — I'd love to connect!
-          </p>
-
-          <div className="contact-list">
-            {contacts.map(c => (
-              <div key={c.label} className="contact-item">
-                <div className="contact-item-icon">{c.icon}</div>
-                <div>
-                  <p className="contact-item-label">{c.label}</p>
-                  {c.href ? (
-                    <a 
-                      href={c.href} 
-                      target={c.href.startsWith('http') ? '_blank' : '_self'} 
-                      rel="noreferrer" 
-                      className="contact-item-value link"
-                    >
-                      {c.value}
-                    </a>
-                  ) : (
-                    <p className="contact-item-value">{c.value}</p>
-                  )}
-                </div>
+      <div className="exp-timeline">
+        {experiences.map((exp, i) => (
+          <div
+            key={exp.id}
+            className="exp-item animate-fadeUp"
+            style={{ animationDelay: `${i * 0.15}s` }}
+          >
+            <div className="exp-marker">
+              <div className="exp-dot" style={{ borderColor: exp.color, background: exp.color + '20' }}>
+                <Briefcase size={16} style={{ color: exp.color }} />
               </div>
-            ))}
-          </div>
-
-          <div className="contact-socials">
-            <a href="https://github.com/Shandyshulton" target="_blank" rel="noreferrer" className="social-btn">
-              <GitFork size={18} /> GitHub
-            </a>
-            <a href="https://www.linkedin.com/in/shandy-shulton-shihab-73a25922a/" target="_blank" rel="noreferrer" className="social-btn social-btn-linkedin">
-              <Globe size={18} /> LinkedIn
-            </a>
-          </div>
-        </div>
-
-        {/* Right — Form */}
-        <div className="contact-form-wrap animate-fadeUp delay-2">
-          {sent ? (
-            <div className="form-success">
-              <CheckCircle size={48} color="var(--accent)" />
-              <h3>Message Sent!</h3>
-              <p>Thanks for reaching out, Shandy will get back to you soon.</p>
-              <button className="btn btn-outline" onClick={() => { setSent(false); setForm({ name:'', email:'', subject:'', message:'' }); }}>
-                Send Another
-              </button>
+              {i < experiences.length - 1 && <div className="exp-connector" />}
             </div>
-          ) : (
-            <form className="contact-form" onSubmit={handleSubmit}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="name">Your Name</label>
-                  <input id="name" name="name" type="text" placeholder="John Doe" required value={form.name} onChange={handleChange} />
+
+            <div className="exp-card">
+              <div className="exp-card-top" style={{ borderLeftColor: exp.color }}>
+                <div className="exp-header">
+                  <div>
+                    <span className="exp-type-badge" style={{ background: exp.color + '18', color: exp.color, borderColor: exp.color + '44' }}>
+                      {exp.type}
+                    </span>
+                    <h2 className="exp-role">{exp.role}</h2>
+                    <p className="exp-company">{exp.company}</p>
+                  </div>
+                  <div className="exp-meta">
+                    <span className="exp-meta-item">
+                      <Calendar size={13} /> {exp.period}
+                    </span>
+                    <span className="exp-meta-item">
+                      <MapPin size={13} /> {exp.location}
+                    </span>
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label htmlFor="email">Email Address</label>
-                  <input id="email" name="email" type="email" placeholder="john@example.com" required value={form.email} onChange={handleChange} />
+
+                <p className="exp-desc">{exp.description}</p>
+
+                <ul className="exp-responsibilities">
+                  {exp.responsibilities.map(r => (
+                    <li key={r}>
+                      <span className="resp-arrow" style={{ color: exp.color }}>→</span>
+                      {r}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="exp-stack">
+                  {exp.stack.map(s => (
+                    <span key={s} className="tag">{s}</span>
+                  ))}
                 </div>
               </div>
-              <div className="form-group">
-                <label htmlFor="subject">Subject</label>
-                <input id="subject" name="subject" type="text" placeholder="Internship Opportunity / Collaboration" required value={form.subject} onChange={handleChange} />
-              </div>
-              <div className="form-group">
-                <label htmlFor="message">Message</label>
-                <textarea id="message" name="message" rows="6" placeholder="Hello Shandy, I'd like to..." required value={form.message} onChange={handleChange} />
-              </div>
-              <button type="submit" className="btn btn-primary submit-btn" disabled={loading}>
-                {loading ? (
-                  <span className="spinner" />
-                ) : (
-                  <><Send size={16} /> Send Message</>
-                )}
-              </button>
-            </form>
-          )}
-        </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
