@@ -1,9 +1,11 @@
 import { GitFork, Mail, Globe, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useCmsProfile } from '../lib/useCmsProfile.js';
 import './Footer.css';
 
 export default function Footer() {
   const { t } = useTranslation();
+  const profile = useCmsProfile();
 
   return (
     <footer className="footer">
@@ -16,19 +18,19 @@ export default function Footer() {
         </div>
 
         <div className="footer-links">
-          <a href="https://github.com/Shandyshulton" target="_blank" rel="noreferrer" className="footer-social">
+          <a href={profile.github} target="_blank" rel="noreferrer" className="footer-social" aria-label="GitHub">
             <GitFork size={18} />
           </a>
-          <a href="mailto:ssshandy60@gmail.com" className="footer-social">
+          <a href={`mailto:${profile.email}`} className="footer-social" aria-label="Email">
             <Mail size={18} />
           </a>
-          <a href="https://www.linkedin.com/in/shandy-shulton-shihab-73a25922a/" target="_blank" rel="noreferrer" className="footer-social">
+          <a href={profile.linkedin} target="_blank" rel="noreferrer" className="footer-social" aria-label="LinkedIn">
             <Globe size={18} />
           </a>
         </div>
 
         <p className="footer-copy">
-          © {new Date().getFullYear()} Shandy Shulton Shihab · Made with <Heart size={12} color="var(--accent)" fill="var(--accent)" style={{ display: 'inline', verticalAlign: 'middle' }} />
+          © {new Date().getFullYear()} {profile.name} · Made with <Heart size={12} color="var(--accent)" fill="var(--accent)" style={{ display: 'inline', verticalAlign: 'middle' }} />
         </p>
       </div>
     </footer>

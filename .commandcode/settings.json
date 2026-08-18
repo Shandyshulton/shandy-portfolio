@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(npm:*)",
+      "Shell(curl -s --max-time 8 http://127.0.0.1:8000/api/public/projects 2 >& 1)",
+      "Shell(python -c import sys,json; data=json.load(sys.stdin); [print(p['slug'], '->', [(i['image_type'], i.get('is_cover'), i['sort_order']) for i in p['images']]) for p in data])",
+      "Shell(python -c  import sys,json data=json.load(sys.stdin) for p in data: print('===', p['slug']) for i in sorted(p['images'], key=lambda x: (x['sort_order'], x['id'])): print(' ', i['image_type'], 'cover=' + str(i['is_cover']), 'sort=' + str(i['sort_order']), 'id=' + str(i['id'])) )",
+      "Shell(curl -s --max-time 8 http://127.0.0.1:8000/api/public/projects -o C:laragonwwwshandy-portfolioprojects.json)",
+      "Shell(node -e \"const d=require('./projects.json'); for (const p of d){ console.log('===', p.slug); const imgs=[...p.images].sort((a,b)=>(a.sort_order-b.sort_order)||(a.id-b.id)); for (const i of imgs) console.log(' ', i.image_type, 'cover='+i.is_cover, 'sort='+i.sort_order, 'id='+i.id); }\")",
+      "Shell(curl -s -o NUL -w \"%{http_code}\" --max-time 8 \"http://127.0.0.1:8000/storage/uploads/projects/0e691da3-d9ce-456c-97fd-7d450120040f.png\")",
+      "Shell(agent-browser:*)",
+      "Shell(timeout 5 >NUL 2>&1 & curl -s --max-time 4 http://localhost:5173/projects -o NUL -w \"%{http_code}\")",
+      "Shell(curl -s -o NUL -w imoca-home: %{http_code}\\n http://localhost:5173/images/projects/imoca-home.png)",
+      "Shell(curl -s -o NUL -w imoca-about: %{http_code}\\n http://localhost:5173/images/projects/imoca-about.png)",
+      "Shell(curl -s -o NUL -w petly-products: %{http_code}\\n http://localhost:5173/images/projects/petly-products.png)",
+      "Shell(dir /b C:\\laragon\\www\\shandy-portfolio\\.env* 2>NUL)",
+      "Shell(powershell -Command \"Get-Content .env | ForEach-Object { if ($_ -match '^VITE_CMS_API_URL') { 'VITE_CMS_API_URL=' + ($_ -replace '^VITE_CMS_API_URL=','') } else { $_ -replace '=.*','=***' } }\")",
+      "Shell(where chrome 2>NUL & where msedge 2>NUL & where chromium 2>NUL)",
+      "Shell(node -e \"try{require.resolve('playwright');console.log('playwright OK')}catch(e){console.log('no playwright')} try{require.resolve('puppeteer');console.log('puppeteer OK')}catch(e){console.log('no puppeteer')}\")",
+      "Shell(for:*)",
+      "Shell(C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe:*)",
+      "Shell(do:*)",
+      "Shell(node --version)",
+      "Shell(node C:\\Users\\Shandy\\AppData\\Local\\Temp\\commandcode\\C--laragon-www-shandy-portfolio\\82c876e9-287e-44dc-b854-5f91027e682a\\scratchpad\\test-gallery.mjs 2>&1)",
+      "Shell(node C:\\Users\\Shandy\\AppData\\Local\\Temp\\commandcode\\C--laragon-www-shandy-portfolio\\82c876e9-287e-44dc-b854-5f91027e682a\\scratchpad\\test-gallery2.mjs 2>&1)",
+      "Shell(node C:\\Users\\Shandy\\AppData\\Local\\Temp\\commandcode\\C--laragon-www-shandy-portfolio\\82c876e9-287e-44dc-b854-5f91027e682a\\scratchpad\\test-click.mjs 2>&1)",
+      "Shell(node C:\\Users\\Shandy\\AppData\\Local\\Temp\\commandcode\\C--laragon-www-shandy-portfolio\\82c876e9-287e-44dc-b854-5f91027e682a\\scratchpad\\test-fallback.mjs 2>&1)",
+      "Shell(curl -s --max-time 8 http://127.0.0.1:8000/api/public/projects -o projects.json)",
+      "Shell(node -e const d=require('./projects.json'); for (const p of d){ console.log('=== '+p.slug); for (const i of p.images) console.log(i.image_type, i.image_url); })",
+      "Shell(vercel:*)",
+      "Shell(node C:\\Users\\Shandy\\AppData\\Local\\Temp\\commandcode\\C--laragon-www-shandy-portfolio\\82c876e9-287e-44dc-b854-5f91027e682a\\scratchpad\\verify-fallback.mjs 2>&1)",
+      "Shell(node C:\\Users\\Shandy\\AppData\\Local\\Temp\\commandcode\\C--laragon-www-shandy-portfolio\\82c876e9-287e-44dc-b854-5f91027e682a\\scratchpad\\verify-fallback-fail.mjs 2>&1)",
+      "Shell(del C:\\laragon\\www\\shandy-portfolio\\projects.json 2>NUL & echo done)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

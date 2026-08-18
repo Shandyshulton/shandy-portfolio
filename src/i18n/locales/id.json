@@ -32,12 +32,39 @@
     }
   },
   "projects": {
+    "meta": {
+      "title": "Proyek | Shandy Shulton Shihab",
+      "description": "Jelajahi aplikasi web full-stack yang dikembangkan oleh Shandy Shulton Shihab.",
+      "ogDescription": "Showcase project web, full-stack, dan database development profesional."
+    },
     "sectionLabel": "Karya Saya",
     "title": "Proyek",
+    "intro": "Kumpulan project web yang pernah saya kerjakan, lengkap dengan konteks pekerjaan, stack, highlight fitur, dan area screenshot yang bisa diisi beberapa gambar untuk setiap project.",
     "github": "GitHub",
     "liveDemo": "Demo Langsung",
+    "screenshotList": "Screenshot {{title}}",
+    "showShot": "Tampilkan {{label}}",
+    "shots": {
+      "home": "Beranda",
+      "about": "Tentang",
+      "admin": "Admin CMS",
+      "productList": "Daftar Produk",
+      "cart": "Keranjang",
+      "checkout": "Checkout",
+      "dashboard": "Dashboard",
+      "savingGoals": "Target Tabungan",
+      "history": "Riwayat",
+      "transactions": "Transaksi",
+      "customers": "Pelanggan"
+    },
     "items": {
       "imoca": {
+        "title": "IMOCA Company Profile Website",
+        "type": "Company Profile",
+        "role": "Full Stack Developer",
+        "date": "Mei 2026",
+        "status": "Selesai",
+        "summary": "Company profile dengan website publik, alur konten dinamis, dan pengelolaan data melalui backend.",
         "desc": "Website company profile lengkap dengan UI modern dan manajemen konten dinamis. Dibangun dengan frontend React.js yang terhubung ke backend Golang dengan database MySQL.",
         "highlights": [
           "Tampilan company profile yang responsif",
@@ -47,6 +74,12 @@
         ]
       },
       "petly": {
+        "title": "Petly - Pet Care E-Commerce",
+        "type": "E-Commerce",
+        "role": "Front-End Developer",
+        "date": "Desember 2025",
+        "status": "Selesai",
+        "summary": "Antarmuka toko perawatan hewan yang berfokus pada browsing produk, interaksi keranjang, dan pengalaman checkout.",
         "desc": "Platform e-commerce perawatan hewan lengkap dengan daftar produk, keranjang belanja, dan alur checkout. Mengintegrasikan antarmuka Tailwind CSS yang responsif dengan backend Laravel untuk rendering konten dinamis.",
         "highlights": [
           "Daftar produk responsif dengan filter/pencarian",
@@ -55,16 +88,28 @@
           "Rendering data dinamis via panggilan API"
         ]
       },
-      "portfolio": {
-        "desc": "Portfolio pribadi yang responsif menampilkan proyek, keahlian, dan informasi kontak. Dibangun dengan React.js dan Vite untuk performa tinggi, menampilkan komponen yang dapat digunakan kembali, desain modern, dan animasi yang halus.",
+      "easysaving": {
+        "title": "EasySaving",
+        "type": "Pelacak Keuangan",
+        "role": "Front-End Developer",
+        "date": "Oktober 2025",
+        "status": "Live di VPS",
+        "summary": "Antarmuka pencatat tabungan untuk merencanakan target, memantau saldo, dan melihat riwayat transaksi.",
+        "desc": "Aplikasi web untuk membantu pengguna mencatat tabungan, memantau progress target finansial, dan melihat riwayat transaksi dalam tampilan yang sederhana dan mudah dipahami.",
         "highlights": [
-          "Layout responsif di semua ukuran layar",
-          "Arsitektur komponen React yang reusable",
-          "Transisi halaman dan animasi scroll yang halus",
-          "Deploy dan live di Vercel"
+          "Dashboard ringkas untuk melihat total tabungan dan progress target",
+          "Pengelolaan target tabungan dengan status pencapaian",
+          "Riwayat pemasukan dan pengeluaran yang mudah dipindai",
+          "UI responsif dengan komponen yang reusable"
         ]
       },
       "ps": {
+        "title": "PlayStation Rental Management System",
+        "type": "Sistem Manajemen",
+        "role": "Full Stack Developer",
+        "date": "Juni 2025",
+        "status": "Selesai",
+        "summary": "Dashboard rental untuk mengelola unit PlayStation, pelanggan, transaksi, dan catatan operasional.",
         "desc": "Sistem manajemen rental PlayStation berbasis web dengan autentikasi multi-pengguna, operasi CRUD lengkap, pemantauan transaksi, dan manajemen database relasional untuk pelanggan dan catatan sewa.",
         "highlights": [
           "Autentikasi multi-pengguna dengan kontrol akses berbasis peran",

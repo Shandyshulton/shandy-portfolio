@@ -1,9 +1,11 @@
+import { useEffect, useMemo, useState } from 'react';
 import { GraduationCap, Award, Calendar } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { fetchCms, formatPeriod, getTranslation } from '../lib/cmsApi.js';
 import './Education.css';
 
-const education = [
+const fallbackEducation = [
   {
     degree: 'Computer Science — Database Technology',
     institution: 'Bina Nusantara University (BINUS)',
@@ -22,7 +24,7 @@ const education = [
   },
 ];
 
-const certifications = [
+const fallbackCertifications = [
   {
     titleKey: 'education.certs.bnsp.title',
     issuer: 'Telkom DigiUp',
@@ -43,8 +45,64 @@ const certifications = [
   },
 ];
 
+const certificationColors = ['#c8522a', '#2a7cc8', '#8b2ac8', '#2ac87a'];
+
+function normalizeCmsEducation(education, locale) {
+  const translation = getTranslation(education, locale);
+
+  return {
+    id: education.id,
+    degree: education.degree,
+    institution: education.institution_name,
+    period: formatPeriod(education.start_date, education.end_date, false, locale),
+    type: education.field_of_study ?? 'Education',
+    desc: translation.description ?? '',
+    highlights: translation.highlights ?? [],
+  };
+}
+
+function normalizeCmsCertification(certification, locale, index) {
+  return {
+    id: certification.id,
+    title: certification.name,
+    issuer: certification.issuer,
+    date: formatPeriod(certification.issued_at, null, false, locale),
+    color: certificationColors[index % certificationColors.length],
+  };
+}
+
 export default function Education() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [cmsEducation, setCmsEducation] = useState([]);
+  const [cmsCertifications, setCmsCertifications] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+
+    Promise.allSettled([
+      fetchCms('/public/educations'),
+      fetchCms('/public/certifications'),
+    ]).then(([educations, certifications]) => {
+      if (!active) return;
+
+      setCmsEducation(educations.status === 'fulfilled' && Array.isArray(educations.value) ? educations.value : []);
+      setCmsCertifications(certifications.status === 'fulfilled' && Array.isArray(certifications.value) ? certifications.value : []);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const education = useMemo(() => {
+    if (cmsEducation.length === 0) return fallbackEducation;
+    return cmsEducation.map((item) => normalizeCmsEducation(item, i18n.language));
+  }, [cmsEducation, i18n.language]);
+
+  const certifications = useMemo(() => {
+    if (cmsCertifications.length === 0) return fallbackCertifications;
+    return cmsCertifications.map((item, index) => normalizeCmsCertification(item, i18n.language, index));
+  }, [cmsCertifications, i18n.language]);
 
   return (
     <div className="page edu-page">
@@ -61,10 +119,10 @@ export default function Education() {
 
       <div className="edu-list">
         {education.map((e, i) => {
-          const desc = t(e.descKey, { defaultValue: '' });
-          const highlights = t(e.highlightsKey, { returnObjects: true, defaultValue: [] });
+          const desc = e.desc ?? t(e.descKey, { defaultValue: '' });
+          const highlights = e.highlights ?? t(e.highlightsKey, { returnObjects: true, defaultValue: [] });
           return (
-            <div key={e.degree} className="edu-card animate-fadeUp" style={{ animationDelay: `${i * 0.15}s` }}>
+            <div key={e.id ?? e.degree} className="edu-card animate-fadeUp" style={{ animationDelay: `${i * 0.15}s` }}>
               <div className="edu-timeline">
                 <div className="edu-icon-wrap">
                   <GraduationCap size={22} />
@@ -97,11 +155,11 @@ export default function Education() {
         <h2 style={{ fontFamily: 'Syne', fontSize: '1.8rem', marginBottom: 32 }}>{t('education.certTitle')}</h2>
         <div className="cert-grid">
           {certifications.map((c) => (
-            <div key={c.titleKey} className="cert-card">
+            <div key={c.id ?? c.titleKey} className="cert-card">
               <div className="cert-icon" style={{ background: c.color + '18', color: c.color }}>
                 <Award size={20} />
               </div>
-              <h3 className="cert-title">{t(c.titleKey, { defaultValue: c.titleKey })}</h3>
+              <h3 className="cert-title">{c.title ?? t(c.titleKey, { defaultValue: c.titleKey })}</h3>
               <p className="cert-issuer">{c.issuer}</p>
               <span className="cert-date mono">{c.date}</span>
               <div className="cert-bar" style={{ background: c.color }} />

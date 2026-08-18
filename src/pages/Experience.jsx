@@ -1,9 +1,11 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Briefcase, Calendar, MapPin } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { fetchCms, formatPeriod, getTranslation } from '../lib/cmsApi.js';
 import './Experience.css';
 
-const experiences = [
+const fallbackExperiences = [
   {
     id: 1,
     roleKey: 'experience.items.ina17.role',
@@ -54,8 +56,49 @@ const experiences = [
   },
 ];
 
+const experienceColors = ['#c8522a', '#2a7cc8', '#2ac87a', '#8b2ac8'];
+
+function normalizeCmsExperience(experience, locale, index) {
+  const translation = getTranslation(experience, locale);
+
+  return {
+    id: experience.id,
+    role: experience.role,
+    company: experience.company_name,
+    period: formatPeriod(experience.start_date, experience.end_date, experience.is_current, locale),
+    location: experience.location,
+    type: experience.work_model,
+    color: experienceColors[index % experienceColors.length],
+    desc: translation.description ?? '',
+    responsibilities: translation.highlights ?? [],
+    stack: experience.skills ?? [],
+  };
+}
+
 export default function Experience() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [cmsExperiences, setCmsExperiences] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+
+    fetchCms('/public/experiences')
+      .then((payload) => {
+        if (active) setCmsExperiences(Array.isArray(payload) ? payload : []);
+      })
+      .catch(() => {
+        if (active) setCmsExperiences([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const experiences = useMemo(() => {
+    if (cmsExperiences.length === 0) return fallbackExperiences;
+    return cmsExperiences.map((experience, index) => normalizeCmsExperience(experience, i18n.language, index));
+  }, [cmsExperiences, i18n.language]);
 
   return (
     <div className="page exp-page">
@@ -73,10 +116,10 @@ export default function Experience() {
 
       <div className="exp-timeline">
         {experiences.map((exp, i) => {
-          const role = t(exp.roleKey, { defaultValue: exp.roleKey });
-          const type = t(exp.typeKey, { defaultValue: exp.typeKey });
-          const desc = t(exp.descKey, { defaultValue: '' });
-          const responsibilities = t(exp.responsibilitiesKey, { returnObjects: true, defaultValue: [] });
+          const role = exp.role ?? t(exp.roleKey, { defaultValue: exp.roleKey });
+          const type = exp.type ?? t(exp.typeKey, { defaultValue: exp.typeKey });
+          const desc = exp.desc ?? t(exp.descKey, { defaultValue: '' });
+          const responsibilities = exp.responsibilities ?? t(exp.responsibilitiesKey, { returnObjects: true, defaultValue: [] });
 
           return (
             <div

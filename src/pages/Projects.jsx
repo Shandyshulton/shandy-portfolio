@@ -1,76 +1,178 @@
-import { ExternalLink, GitFork, Code2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ExternalLink, GitFork, Code2, Image, Layers, Calendar, UserRound, CheckCircle2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { fetchCms, getTranslation } from '../lib/cmsApi.js';
 import './Projects.css';
 
-const projects = [
+const fallbackProjects = [
   {
     id: 1,
-    title: 'IMOCA Company Profile Website',
-    role: 'Full Stack Developer',
-    date: 'May 2026',
+    key: 'imoca',
+    slug: 'imoca-company-profile',
     stack: ['Tailwind CSS', 'React.js', 'Golang', 'MySQL'],
-    descKey: 'projects.items.imoca.desc',
-    highlightsKey: 'projects.items.imoca.highlights',
     color: '#9e2ac8',
     github: 'https://github.com/Shandyshulton/petly',
+    images: [
+      { src: '/images/projects/imoca-home.png', labelKey: 'shots.home' },
+      { src: '/images/projects/imoca-about.png', labelKey: 'shots.about' },
+      { src: '/images/projects/imoca-admin.png', labelKey: 'shots.admin' },
+    ],
   },
   {
     id: 2,
-    title: 'Petly – Pet Care E-Commerce',
-    role: 'Front-End Developer',
-    date: 'December 2025',
+    key: 'petly',
+    slug: 'petly-pet-care-ecommerce',
     stack: ['Tailwind CSS', 'Laravel', 'MySQL'],
-    descKey: 'projects.items.petly.desc',
-    highlightsKey: 'projects.items.petly.highlights',
     color: '#2ac87a',
     github: 'https://github.com/Shandyshulton/petly',
+    images: [
+      { src: '/images/projects/petly-products.png', labelKey: 'shots.productList' },
+      { src: '/images/projects/petly-cart.png', labelKey: 'shots.cart' },
+      { src: '/images/projects/petly-checkout.png', labelKey: 'shots.checkout' },
+    ],
   },
   {
     id: 3,
-    title: 'Personal Portfolio Website',
-    role: 'Front-End Developer',
-    date: 'October 2025',
-    stack: ['React.js', 'Vite', 'Tailwind CSS'],
-    descKey: 'projects.items.portfolio.desc',
-    highlightsKey: 'projects.items.portfolio.highlights',
+    key: 'easysaving',
+    slug: 'easy-saving',
+    stack: ['React.js', 'Vite', 'Tailwind CSS', 'JavaScript'],
     color: '#2a7cc8',
-    github: 'https://github.com/Shandyshulton',
-    live: 'https://shandy-shulton-shihab.vercel.app/',
+    live: 'https://easysaving.asia/',
+    images: [
+      { src: '/images/projects/easysaving-dashboard.png', labelKey: 'shots.dashboard' },
+      { src: '/images/projects/easysaving-goals.png', labelKey: 'shots.savingGoals' },
+      { src: '/images/projects/easysaving-history.png', labelKey: 'shots.history' },
+    ],
   },
   {
     id: 4,
-    title: 'PlayStation Rental Management System',
-    role: 'Full Stack Developer',
-    date: 'June 2025',
+    key: 'ps',
+    slug: 'playstation-rental-management-system',
     stack: ['Laravel', 'MySQL', 'Bootstrap'],
-    descKey: 'projects.items.ps.desc',
-    highlightsKey: 'projects.items.ps.highlights',
     color: '#c8522a',
     github: 'https://github.com/Shandyshulton/Sistem-Manajemen-Rental-PS',
+    images: [
+      { src: '/images/projects/ps-dashboard.png', labelKey: 'shots.dashboard' },
+      { src: '/images/projects/ps-transactions.png', labelKey: 'shots.transactions' },
+      { src: '/images/projects/ps-customers.png', labelKey: 'shots.customers' },
+    ],
   },
 ];
 
+const projectColors = ['#9e2ac8', '#2ac87a', '#2a7cc8', '#c8522a', '#8b2ac8'];
+
+function normalizeCmsProject(project, locale, index) {
+  const translation = getTranslation(project, locale);
+  const heroImage = project.images?.find((image) => image.image_type === 'hero') ?? project.images?.find((image) => image.is_cover);
+  const galleryImages = project.images?.filter((image) => image.image_type === 'gallery') ?? [];
+  const images = [heroImage, ...galleryImages].filter(Boolean);
+  const descriptionParts = (translation.description ?? '').split(/\n\n+/);
+  const fallback = fallbackProjects.find((fp) => fp.slug === project.slug) ?? fallbackProjects.find((fp) => fp.key === project.slug);
+
+  return {
+    id: project.id,
+    key: project.slug,
+    slug: project.slug,
+    title: translation.title ?? project.slug,
+    type: project.category ?? 'Project',
+    role: project.client_name ?? 'Developer',
+    date: project.published_at ? new Date(project.published_at).getFullYear().toString() : '-',
+    status: project.live_url ? 'Live' : project.status,
+    summary: translation.summary ?? '',
+    desc: descriptionParts[0] ?? translation.description ?? '',
+    highlights: translation.highlights ?? [],
+    stack: project.stacks ?? [],
+    color: projectColors[index % projectColors.length],
+    github: project.repository_url,
+    live: project.live_url,
+    images: (images.length > 0 ? images : fallback?.images ?? []).map((image) => ({
+      src: image.image_url ?? image.src,
+      label: image.caption || image.alt_text || image.label || '',
+      labelKey: image.labelKey ?? '',
+    })),
+  };
+}
+
+function ProjectShot({ projectColor, projectTitle, shot, shotLabel, compact = false }) {
+  const [failedSrc, setFailedSrc] = useState('');
+  const hasImage = Boolean(shot.src) && failedSrc !== shot.src;
+
+  return (
+    <div className={`project-shot ${compact ? 'project-shot--compact' : ''}`}>
+      {hasImage && shot.src && (
+        <img
+          src={shot.src}
+          alt={`${projectTitle} - ${shotLabel}`}
+          onError={() => setFailedSrc(shot.src)}
+        />
+      )}
+      {!hasImage && (
+        <div className="project-shot-fallback" style={{ '--project-color': projectColor }}>
+          <Image size={compact ? 18 : 34} />
+          {!compact && <span>{shotLabel}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Projects() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [activeShots, setActiveShots] = useState({});
+  const [cmsProjects, setCmsProjects] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+
+    fetchCms('/public/projects')
+      .then((payload) => {
+        if (active) setCmsProjects(Array.isArray(payload) ? payload : []);
+      })
+      .catch(() => {
+        if (active) setCmsProjects([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const projects = useMemo(() => {
+    if (cmsProjects.length === 0) return fallbackProjects;
+    return cmsProjects.map((project, index) => normalizeCmsProject(project, i18n.language, index));
+  }, [cmsProjects, i18n.language]);
 
   return (
     <div className="page projects-page">
       <Helmet>
-        <title>Projects | Shandy Shulton Shihab</title>
-        <meta name="description" content="Explore full-stack web applications developed by Shandy Shulton Shihab." />
+        <title>{t('projects.meta.title')}</title>
+        <meta name="description" content={t('projects.meta.description')} />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Projects | Shandy Shulton Shihab" />
-        <meta property="og:description" content="Showcase of professional full-stack web and database development projects." />
+        <meta property="og:title" content={t('projects.meta.title')} />
+        <meta property="og:description" content={t('projects.meta.ogDescription')} />
         <meta property="og:image" content="/images/PP.jpeg" />
       </Helmet>
       <p className="section-label">{t('projects.sectionLabel')}</p>
       <h1 className="section-title">{t('projects.title')}</h1>
+      <p className="projects-intro">{t('projects.intro')}</p>
 
       <div className="projects-list">
         {projects.map((p, i) => {
-          const desc = t(p.descKey, { defaultValue: '' });
-          const highlights = t(p.highlightsKey, { returnObjects: true, defaultValue: [] });
+          const baseKey = `projects.items.${p.key}`;
+          const title = p.title ?? t(`${baseKey}.title`);
+          const type = p.type ?? t(`${baseKey}.type`);
+          const role = p.role ?? t(`${baseKey}.role`);
+          const date = p.date ?? t(`${baseKey}.date`);
+          const status = p.status ?? t(`${baseKey}.status`);
+          const summary = p.summary ?? t(`${baseKey}.summary`);
+          const desc = p.desc ?? t(`${baseKey}.desc`, { defaultValue: '' });
+          const highlights = p.highlights ?? t(`${baseKey}.highlights`, { returnObjects: true, defaultValue: [] });
+          const activeShot = activeShots[p.id] ?? 0;
+          const selectedShot = p.images[activeShot] ?? p.images[0] ?? { src: '', label: 'Preview' };
+          const resolveShotLabel = (shot, fallbackLabel) =>
+            shot.label || (shot.labelKey ? t(`projects.${shot.labelKey}`, { defaultValue: fallbackLabel }) : fallbackLabel);
+          const selectedShotLabel = resolveShotLabel(selectedShot, 'Preview');
 
           return (
             <div
@@ -80,42 +182,107 @@ export default function Projects() {
             >
               <div className="project-card-accent" style={{ background: p.color + '22', borderColor: p.color + '44' }} />
 
-              <div className="project-header">
-                <div className="project-icon" style={{ background: p.color + '18', color: p.color }}>
-                  <Code2 size={22} />
-                </div>
-                <div>
-                  <h2 className="project-title">{p.title}</h2>
-                  <div className="project-meta">
-                    <span className="project-role">{p.role}</span>
-                    <span className="project-date mono">{p.date}</span>
+              <div className="project-layout">
+                <div className="project-gallery">
+                  <div className="project-browser" style={{ '--project-color': p.color }}>
+                    <div className="project-browser-bar">
+                      <span />
+                      <span />
+                      <span />
+                      <p>{selectedShotLabel}</p>
+                    </div>
+                    <ProjectShot
+                      projectColor={p.color}
+                      projectTitle={title}
+                      shot={selectedShot}
+                      shotLabel={selectedShotLabel}
+                    />
+                  </div>
+
+                  <div className="project-thumbs" aria-label={t('projects.screenshotList', { title })}>
+                    {p.images.map((shot, index) => {
+                      const shotLabel = resolveShotLabel(shot, `Shot ${index + 1}`);
+
+                      return (
+                        <button
+                          key={shot.src || `${p.id}-${index}`}
+                          type="button"
+                          className={`project-thumb ${activeShot === index ? 'project-thumb--active' : ''}`}
+                          onClick={() => setActiveShots(prev => ({ ...prev, [p.id]: index }))}
+                          aria-label={t('projects.showShot', { label: shotLabel })}
+                          style={{ '--project-color': p.color }}
+                        >
+                          <ProjectShot
+                            projectColor={p.color}
+                            projectTitle={title}
+                            shot={shot}
+                            shotLabel={shotLabel}
+                            compact
+                          />
+                          <span>{shotLabel}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-              </div>
 
-              <p className="project-desc">{desc || p.description}</p>
+                <div className="project-content">
+                  <div className="project-header">
+                    <div className="project-icon" style={{ background: p.color + '18', color: p.color }}>
+                      <Code2 size={22} />
+                    </div>
+                    <div>
+                      <p className="project-type">{type}</p>
+                      <h2 className="project-title">{title}</h2>
+                    </div>
+                  </div>
 
-              <ul className="project-highlights">
-                {(Array.isArray(highlights) && highlights.length > 0 ? highlights : p.highlights || []).map(h => (
-                  <li key={h}><span className="highlight-dot" style={{ background: p.color }} />  {h}</li>
-                ))}
-              </ul>
+                  <p className="project-summary">{summary}</p>
+                  <p className="project-desc">{desc}</p>
 
-              <div className="project-footer">
-                <div className="project-stack">
-                  {p.stack.map(s => (
-                    <span key={s} className="tag">{s}</span>
-                  ))}
-                </div>
-                <div className="project-links">
-                  <a href={p.github} target="_blank" rel="noreferrer" className="project-link">
-                    <GitFork size={16} /> {t('projects.github')}
-                  </a>
-                  {p.live && (
-                    <a href={p.live} target="_blank" rel="noreferrer" className="project-link project-link-live">
-                      <ExternalLink size={16} /> {t('projects.liveDemo')}
-                    </a>
-                  )}
+                  <div className="project-facts">
+                    <div>
+                      <UserRound size={15} />
+                      <span>{role}</span>
+                    </div>
+                    <div>
+                      <Calendar size={15} />
+                      <span>{date}</span>
+                    </div>
+                    <div>
+                      <Layers size={15} />
+                      <span>{status}</span>
+                    </div>
+                  </div>
+
+                  <ul className="project-highlights">
+                    {(Array.isArray(highlights) ? highlights : []).map(h => (
+                      <li key={h}>
+                        <CheckCircle2 size={15} style={{ color: p.color }} />
+                        <span>{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="project-footer">
+                    <div className="project-stack">
+                      {p.stack.map(s => (
+                        <span key={s} className="tag">{s}</span>
+                      ))}
+                    </div>
+                    <div className="project-links">
+                      {p.github && (
+                        <a href={p.github} target="_blank" rel="noreferrer" className="project-link">
+                          <GitFork size={16} /> {t('projects.github')}
+                        </a>
+                      )}
+                      {p.live && (
+                        <a href={p.live} target="_blank" rel="noreferrer" className="project-link project-link-live">
+                          <ExternalLink size={16} /> {t('projects.liveDemo')}
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

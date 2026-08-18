@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { Mail, GitFork, Globe, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { fetchCms } from '../lib/cmsApi.js';
+import { useCmsSettings } from '../lib/useCmsProfile.js';
 import './Contact.css';
 
 export default function Contact() {
   const { t } = useTranslation();
+  const settings = useCmsSettings();
+  const profile = settings.general.profile;
+  const contactContent = settings.contact.content;
+  const contactForm = settings.contact.form;
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -15,24 +21,12 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData();
-    formData.append("access_key", "764e5437-356e-42f6-9887-98a4df81f2a5");
-    formData.append("name", form.name);
-    formData.append("email", form.email);
-    formData.append("subject", form.subject);
-    formData.append("message", form.message);
-
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        body: formData
+      await fetchCms('/public/contact-submissions', {
+        method: 'POST',
+        body: JSON.stringify(form),
       });
-      const data = await response.json();
-      if (data.success) {
-        setSent(true);
-      } else {
-        alert("Error: " + data.message);
-      }
+      setSent(true);
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Failed to send. Please check your internet connection.");
@@ -42,22 +36,22 @@ export default function Contact() {
   };
 
   const contacts = [
-    { icon: <Mail size={20} />, label: 'Email', value: 'ssshandy60@gmail.com', href: 'mailto:ssshandy60@gmail.com' },
-    { icon: <Phone size={20} />, label: 'Phone', value: '+62 812-1218-1182', href: 'tel:+6281212181182' },
-    { icon: <MapPin size={20} />, label: 'Location', value: 'Jakarta, Indonesia', href: null },
-    { icon: <GitFork size={20} />, label: 'GitHub', value: 'Shandyshulton', href: 'https://github.com/Shandyshulton' },
-    { icon: <Globe size={20} />, label: 'LinkedIn', value: 'shandy-shulton-shihab', href: 'https://www.linkedin.com/in/shandy-shulton-shihab-73a25922a/' },
+    { icon: <Mail size={20} />, label: 'Email', value: profile.email, href: `mailto:${profile.email}` },
+    { icon: <Phone size={20} />, label: 'Phone', value: profile.phone, href: `tel:${profile.phone}` },
+    { icon: <MapPin size={20} />, label: 'Location', value: profile.location, href: null },
+    { icon: <GitFork size={20} />, label: 'GitHub', value: profile.github.replace(/^https?:\/\/(www\.)?github\.com\//, ''), href: profile.github },
+    { icon: <Globe size={20} />, label: 'LinkedIn', value: profile.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, '').replace(/\/$/, ''), href: profile.linkedin },
   ];
 
   return (
     <div className="page contact-page">
-      <p className="section-label">{t('contact.sectionLabel')}</p>
-      <h1 className="section-title">{t('contact.title')}</h1>
+      <p className="section-label">{contactContent.section_label || t('contact.sectionLabel')}</p>
+      <h1 className="section-title">{contactContent.title || t('contact.title')}</h1>
 
       <div className="contact-grid">
         {/* Left — Info */}
         <div className="contact-info animate-slideLeft">
-          <p className="contact-intro">{t('contact.intro')}</p>
+          <p className="contact-intro">{contactContent.intro || t('contact.intro')}</p>
 
           <div className="contact-list">
             {contacts.map(c => (
@@ -78,10 +72,10 @@ export default function Contact() {
           </div>
 
           <div className="contact-socials">
-            <a href="https://github.com/Shandyshulton" target="_blank" rel="noreferrer" className="social-btn">
+            <a href={profile.github} target="_blank" rel="noreferrer" className="social-btn">
               <GitFork size={18} /> GitHub
             </a>
-            <a href="https://www.linkedin.com/in/shandy-shulton-shihab-73a25922a/" target="_blank" rel="noreferrer" className="social-btn social-btn-linkedin">
+            <a href={profile.linkedin} target="_blank" rel="noreferrer" className="social-btn social-btn-linkedin">
               <Globe size={18} /> LinkedIn
             </a>
           </div>
@@ -92,8 +86,8 @@ export default function Contact() {
           {sent ? (
             <div className="form-success">
               <CheckCircle size={48} color="var(--accent)" />
-              <h3>{t('contact.form.successTitle')}</h3>
-              <p>{t('contact.form.successText')}</p>
+              <h3>{contactForm.success_title || t('contact.form.successTitle')}</h3>
+              <p>{contactForm.success_text || t('contact.form.successText')}</p>
               <button className="btn btn-outline" onClick={() => { setSent(false); setForm({ name:'', email:'', subject:'', message:'' }); }}>
                 {t('contact.form.sendAnother')}
               </button>

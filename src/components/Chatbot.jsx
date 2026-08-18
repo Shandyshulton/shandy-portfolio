@@ -40,11 +40,12 @@ Tools & Lain: Figma (UI/UX), Jira (project management), Git/GitHub
    - Tech: Laravel, MySQL, Bootstrap
    - Deskripsi: Sistem manajemen rental PlayStation berbasis web dengan autentikasi multi-user dan fitur CRUD. Mencakup monitoring transaksi dan manajemen database relasional untuk data pelanggan dan rental.
 
-2. Personal Portfolio Website (Oktober 2025)
+2. EasySaving (Oktober 2025)
    - Role: Front-End Developer
-   - Tech: React.js, Vite, Tailwind CSS
-   - Link: https://shandy-shulton-shihab.vercel.app/
-   - Deskripsi: Website portfolio responsif untuk menampilkan proyek, skill, dan informasi kontak.
+   - Tech: React.js, Vite, Tailwind CSS, JavaScript
+   - Link: https://easysaving.asia/
+   - Hosting: VPS
+   - Deskripsi: Aplikasi web untuk mencatat tabungan, memantau progress target finansial, dan melihat riwayat transaksi.
 
 3. Petly – Pet Care E-Commerce Website (Desember 2025)
    - Role: Front-End Developer
