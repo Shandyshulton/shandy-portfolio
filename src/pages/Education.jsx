@@ -112,7 +112,8 @@ export default function Education() {
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Education | Shandy Shulton Shihab" />
         <meta property="og:description" content="Academic background and certifications profile." />
-        <meta property="og:image" content="/images/PP.jpeg" />
+        <meta property="og:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
+        <meta name="twitter:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
       </Helmet>
       <p className="section-label">{t('education.sectionLabel')}</p>
       <h1 className="section-title">{t('education.title')}</h1>

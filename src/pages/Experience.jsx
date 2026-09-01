@@ -108,7 +108,8 @@ export default function Experience() {
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Experience | Shandy Shulton Shihab" />
         <meta property="og:description" content="Professional journey and full-stack development internship achievements." />
-        <meta property="og:image" content="/images/PP.jpeg" />
+        <meta property="og:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
+        <meta name="twitter:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
       </Helmet>
 
       <p className="section-label">{t('experience.sectionLabel')}</p>

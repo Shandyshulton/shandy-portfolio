@@ -13,11 +13,7 @@ const fallbackProjects = [
     stack: ['Tailwind CSS', 'React.js', 'Golang', 'MySQL'],
     color: '#9e2ac8',
     github: 'https://github.com/Shandyshulton/petly',
-    images: [
-      { src: '/images/projects/imoca-home.png', labelKey: 'shots.home' },
-      { src: '/images/projects/imoca-about.png', labelKey: 'shots.about' },
-      { src: '/images/projects/imoca-admin.png', labelKey: 'shots.admin' },
-    ],
+    images: [],
   },
   {
     id: 2,
@@ -26,11 +22,7 @@ const fallbackProjects = [
     stack: ['Tailwind CSS', 'Laravel', 'MySQL'],
     color: '#2ac87a',
     github: 'https://github.com/Shandyshulton/petly',
-    images: [
-      { src: '/images/projects/petly-products.png', labelKey: 'shots.productList' },
-      { src: '/images/projects/petly-cart.png', labelKey: 'shots.cart' },
-      { src: '/images/projects/petly-checkout.png', labelKey: 'shots.checkout' },
-    ],
+    images: [],
   },
   {
     id: 3,
@@ -39,11 +31,7 @@ const fallbackProjects = [
     stack: ['React.js', 'Vite', 'Tailwind CSS', 'JavaScript'],
     color: '#2a7cc8',
     live: 'https://easysaving.asia/',
-    images: [
-      { src: '/images/projects/easysaving-dashboard.png', labelKey: 'shots.dashboard' },
-      { src: '/images/projects/easysaving-goals.png', labelKey: 'shots.savingGoals' },
-      { src: '/images/projects/easysaving-history.png', labelKey: 'shots.history' },
-    ],
+    images: [],
   },
   {
     id: 4,
@@ -52,11 +40,7 @@ const fallbackProjects = [
     stack: ['Laravel', 'MySQL', 'Bootstrap'],
     color: '#c8522a',
     github: 'https://github.com/Shandyshulton/Sistem-Manajemen-Rental-PS',
-    images: [
-      { src: '/images/projects/ps-dashboard.png', labelKey: 'shots.dashboard' },
-      { src: '/images/projects/ps-transactions.png', labelKey: 'shots.transactions' },
-      { src: '/images/projects/ps-customers.png', labelKey: 'shots.customers' },
-    ],
+    images: [],
   },
 ];
 
@@ -88,6 +72,7 @@ function normalizeCmsProject(project, locale, index) {
     live: project.live_url,
     images: (images.length > 0 ? images : fallback?.images ?? []).map((image) => ({
       src: image.image_url ?? image.src,
+      thumbSrc: image.thumb_url ?? image.thumbnail_url ?? image.image_url ?? image.src,
       label: image.caption || image.alt_text || image.label || '',
       labelKey: image.labelKey ?? '',
     })),
@@ -96,15 +81,20 @@ function normalizeCmsProject(project, locale, index) {
 
 function ProjectShot({ projectColor, projectTitle, shot, shotLabel, compact = false }) {
   const [failedSrc, setFailedSrc] = useState('');
-  const hasImage = Boolean(shot.src) && failedSrc !== shot.src;
+  const src = compact ? (shot.thumbSrc ?? shot.src) : shot.src;
+  const hasImage = Boolean(src) && failedSrc !== src;
 
   return (
     <div className={`project-shot ${compact ? 'project-shot--compact' : ''}`}>
-      {hasImage && shot.src && (
+      {hasImage && (
         <img
-          src={shot.src}
+          src={src}
           alt={`${projectTitle} - ${shotLabel}`}
-          onError={() => setFailedSrc(shot.src)}
+          width={compact ? 480 : 1600}
+          height={compact ? 300 : 1000}
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailedSrc(src)}
         />
       )}
       {!hasImage && (
@@ -151,7 +141,8 @@ export default function Projects() {
         <meta property="og:type" content="website" />
         <meta property="og:title" content={t('projects.meta.title')} />
         <meta property="og:description" content={t('projects.meta.ogDescription')} />
-        <meta property="og:image" content="/images/PP.jpeg" />
+        <meta property="og:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
+        <meta name="twitter:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
       </Helmet>
       <p className="section-label">{t('projects.sectionLabel')}</p>
       <h1 className="section-title">{t('projects.title')}</h1>

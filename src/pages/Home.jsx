@@ -49,7 +49,8 @@ export default function Home() {
         <meta property="og:type" content="website" />
         <meta property="og:title" content={`${profile.name} | ${profile.headline}`} />
         <meta property="og:description" content={profile.summary || 'Computer Science student specializing in full-stack web development.'} />
-        <meta property="og:image" content="/images/PP.jpeg" />
+        <meta property="og:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
+        <meta name="twitter:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
       </Helmet>
 
       <section className="hero">
@@ -108,6 +109,10 @@ export default function Home() {
                 src="/images/PP.jpeg"
                 alt={profile.name}
                 className="hero-photo"
+                fetchpriority="high"
+                decoding="async"
+                width={1200}
+                height={630}
               />
               <div className="photo-deco deco-1"></div>
               <div className="photo-deco deco-2"></div>
