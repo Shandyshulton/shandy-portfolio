@@ -1,116 +1,293 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ExternalLink, GitFork, Code2, Image, Layers, Calendar, UserRound, CheckCircle2 } from 'lucide-react';
+import { ExternalLink, GitFork, ArrowLeft, ArrowRight, Image as ImageIcon } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms, getTranslation } from '../lib/cmsApi.js';
 import './Projects.css';
 
-const fallbackProjects = [
-  {
-    id: 1,
-    key: 'imoca',
-    slug: 'imoca-company-profile',
-    stack: ['Tailwind CSS', 'React.js', 'Golang', 'MySQL'],
-    color: '#9e2ac8',
-    github: 'https://github.com/Shandyshulton/petly',
-    images: [],
-  },
-  {
-    id: 2,
-    key: 'petly',
-    slug: 'petly-pet-care-ecommerce',
-    stack: ['Tailwind CSS', 'Laravel', 'MySQL'],
-    color: '#2ac87a',
-    github: 'https://github.com/Shandyshulton/petly',
-    images: [],
-  },
-  {
-    id: 3,
-    key: 'easysaving',
-    slug: 'easy-saving',
-    stack: ['React.js', 'Vite', 'Tailwind CSS', 'JavaScript'],
-    color: '#2a7cc8',
-    live: 'https://easysaving.asia/',
-    images: [],
-  },
-  {
-    id: 4,
-    key: 'ps',
-    slug: 'playstation-rental-management-system',
-    stack: ['Laravel', 'MySQL', 'Bootstrap'],
-    color: '#c8522a',
-    github: 'https://github.com/Shandyshulton/Sistem-Manajemen-Rental-PS',
-    images: [],
-  },
+const ACCENT_PAIRS = [
+  { accent: '#2563eb', secondary: '#bfdbfe' },
+  { accent: '#7c3aed', secondary: '#ddd6fe' },
+  { accent: '#059669', secondary: '#a7f3d0' },
+  { accent: '#d97706', secondary: '#fde68a' },
+  { accent: '#9e2ac8', secondary: '#e9d5ff' },
+  { accent: '#c8522a', secondary: '#fecaca' },
 ];
 
-const projectColors = ['#9e2ac8', '#2ac87a', '#2a7cc8', '#c8522a', '#8b2ac8'];
+// Cadangan data offline. Teks diambil dari i18n (projects.items.*) yang sudah
+// bilingual & lama ada di repo — bukan konten karangan. Stack/link cadangan
+// hanya untuk menjaga UI tetap informatif saat CMS tidak terjangkau.
+const FALLBACK_META = {
+  imoca: {
+    slug: 'imoca-company-profile',
+    stack: ['Tailwind CSS', 'React.js', 'Golang', 'MySQL'],
+    github: 'https://github.com/Shandyshulton/petly',
+    live: null,
+  },
+  petly: {
+    slug: 'petly-pet-care-ecommerce',
+    stack: ['Tailwind CSS', 'Laravel', 'MySQL'],
+    github: 'https://github.com/Shandyshulton/petly',
+    live: null,
+  },
+  easysaving: {
+    slug: 'easy-saving',
+    stack: ['React.js', 'Vite', 'Tailwind CSS', 'JavaScript'],
+    github: null,
+    live: 'https://easysaving.asia/',
+  },
+  ps: {
+    slug: 'playstation-rental-management-system',
+    stack: ['Laravel', 'MySQL', 'Bootstrap'],
+    github: 'https://github.com/Shandyshulton/Sistem-Manajemen-Rental-PS',
+    live: null,
+  },
+};
+
+function buildFallbackProjects(t) {
+  return Object.keys(FALLBACK_META).map((key, index) => {
+    const base = `projects.items.${key}`;
+    const meta = FALLBACK_META[key];
+    const pair = ACCENT_PAIRS[index % ACCENT_PAIRS.length];
+    const title = t(`${base}.title`);
+    const date = t(`${base}.date`, { defaultValue: '-' });
+
+    return {
+      id: index + 1,
+      key,
+      slug: meta.slug,
+      category: t(`${base}.type`, { defaultValue: 'Project' }),
+      title,
+      shortTitle: title,
+      tagline: t(`${base}.summary`, { defaultValue: '' }),
+      description: t(`${base}.desc`, { defaultValue: '' }),
+      role: t(`${base}.role`, { defaultValue: 'Developer' }),
+      year: date,
+      status: t(`${base}.status`, { defaultValue: 'Published' }),
+      highlights: t(`${base}.highlights`, { returnObjects: true, defaultValue: [] }),
+      stack: meta.stack,
+      github: meta.github,
+      live: meta.live,
+      accent: pair.accent,
+      secondary: pair.secondary,
+      screens: [],
+    };
+  });
+}
+
+function statusLabel(project) {
+  if (project.live_url) return 'Live';
+  if (!project.status) return 'Published';
+  return project.status.charAt(0).toUpperCase() + project.status.slice(1);
+}
 
 function normalizeCmsProject(project, locale, index) {
   const translation = getTranslation(project, locale);
-  const heroImage = project.images?.find((image) => image.image_type === 'hero') ?? project.images?.find((image) => image.is_cover);
-  const galleryImages = project.images?.filter((image) => image.image_type === 'gallery') ?? [];
-  const images = [heroImage, ...galleryImages].filter(Boolean);
-  const descriptionParts = (translation.description ?? '').split(/\n\n+/);
-  const fallback = fallbackProjects.find((fp) => fp.slug === project.slug) ?? fallbackProjects.find((fp) => fp.key === project.slug);
+  const pair = ACCENT_PAIRS[index % ACCENT_PAIRS.length];
+
+  // Prioritas: gambar hero/cover dulu, lalu gallery, urut sesuai sort_order
+  const images = [...(project.images ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const heroImage = images.find((img) => img.image_type === 'hero') ?? images.find((img) => img.is_cover) ?? images[0];
+  const ordered = [heroImage, ...images.filter((img) => img !== heroImage)].filter(Boolean);
+
+  const screens = ordered.map((img) => ({
+    src: img.image_url ?? img.src ?? '',
+    thumbSrc: img.thumb_url ?? img.thumbnail_url ?? img.image_url ?? img.src ?? '',
+    label: img.caption || img.alt_text || img.label || '',
+  }));
 
   return {
     id: project.id,
     key: project.slug,
     slug: project.slug,
+    category: project.category ?? 'Project',
     title: translation.title ?? project.slug,
-    type: project.category ?? 'Project',
+    shortTitle: translation.title ?? project.slug,
+    tagline: translation.summary ?? '',
+    description: translation.description ?? '',
     role: project.client_name ?? 'Developer',
-    date: project.published_at ? new Date(project.published_at).getFullYear().toString() : '-',
-    status: project.live_url ? 'Live' : project.status,
-    summary: translation.summary ?? '',
-    desc: descriptionParts[0] ?? translation.description ?? '',
+    year: project.published_at ? new Date(project.published_at).getFullYear().toString() : '-',
+    status: statusLabel(project),
     highlights: translation.highlights ?? [],
     stack: project.stacks ?? [],
-    color: projectColors[index % projectColors.length],
     github: project.repository_url,
     live: project.live_url,
-    images: (images.length > 0 ? images : fallback?.images ?? []).map((image) => ({
-      src: image.image_url ?? image.src,
-      thumbSrc: image.thumb_url ?? image.thumbnail_url ?? image.image_url ?? image.src,
-      label: image.caption || image.alt_text || image.label || '',
-      labelKey: image.labelKey ?? '',
-    })),
+    accent: pair.accent,
+    secondary: pair.secondary,
+    screens,
   };
 }
 
-function ProjectShot({ projectColor, projectTitle, shot, shotLabel, compact = false }) {
-  const [failedSrc, setFailedSrc] = useState('');
-  const src = compact ? (shot.thumbSrc ?? shot.src) : shot.src;
-  const hasImage = Boolean(src) && failedSrc !== src;
+// ─── Gambar proyek: responsif untuk ukuran berapa pun, tanpa stretch ─────────
+
+function ProjectImage({ src, alt, className, onFail }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
+    return (
+      <div className={`projects-img-fallback ${className ?? ''}`}>
+        <ImageIcon size={28} />
+        <span>{alt || 'Preview'}</span>
+      </div>
+    );
+  }
 
   return (
-    <div className={`project-shot ${compact ? 'project-shot--compact' : ''}`}>
-      {hasImage && (
-        <img
-          src={src}
-          alt={`${projectTitle} - ${shotLabel}`}
-          width={compact ? 480 : 1600}
-          height={compact ? 300 : 1000}
-          loading="lazy"
-          decoding="async"
-          onError={() => setFailedSrc(src)}
-        />
-      )}
-      {!hasImage && (
-        <div className="project-shot-fallback" style={{ '--project-color': projectColor }}>
-          <Image size={compact ? 18 : 34} />
-          {!compact && <span>{shotLabel}</span>}
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      onError={() => {
+        setFailed(true);
+        onFail?.();
+      }}
+    />
+  );
+}
+
+// ─── Detail panel (shared by mobile + desktop) ────────────────────────────────
+
+function DetailPanel({ t, active, activeScreen, setActiveScreen, onPrev, onNext, hasPrev, hasNext, projectIndex, totalProjects }) {
+  const screen = active.screens[activeScreen];
+  const screenLabel = screen?.label || 'Preview';
+  const hasScreens = active.screens.length > 0;
+
+  return (
+    <div className="projects-detail">
+      {/* detail header */}
+      <header className="projects-detail-header">
+        <div className="projects-detail-heading">
+          <span className="projects-category" style={{ background: active.accent }}>{active.category}</span>
+          <h2 className="projects-title">{active.title}</h2>
+          <p className="projects-role">{active.role} · {active.year}</p>
         </div>
-      )}
+        <div className="projects-header-actions">
+          {active.github && (
+            <a href={active.github} target="_blank" rel="noopener noreferrer" className="btn btn-github">
+              <GitFork size={13} /> GitHub
+            </a>
+          )}
+          {active.live && (
+            <a href={active.live} target="_blank" rel="noopener noreferrer" className="btn btn-live" style={{ borderColor: active.accent, color: active.accent }}>
+              <ExternalLink size={12} /> {t('projects.live')}
+            </a>
+          )}
+        </div>
+      </header>
+
+      {/* scrollable body */}
+      <div className="projects-detail-body">
+        {/* gallery */}
+        <section className="projects-gallery">
+          <div className="projects-shot-frame">
+            {hasScreens ? (
+              <ProjectImage key={screen.src} src={screen.src} alt={`${active.title} - ${screenLabel}`} />
+            ) : (
+              <div className="projects-img-fallback">
+                <ImageIcon size={28} />
+                <span>{t('projects.noScreens')}</span>
+              </div>
+            )}
+          </div>
+
+          {/* thumbnail strip */}
+          {hasScreens && (
+            <div className="projects-thumbs">
+              {active.screens.map((s, i) => {
+                const isActive = i === activeScreen;
+                return (
+                  <button key={i} type="button" className={`projects-thumb ${isActive ? 'projects-thumb--active' : ''}`} onClick={() => setActiveScreen(i)}>
+                    <div className="projects-thumb-shot" style={{ borderColor: isActive ? active.accent : 'var(--border)' }}>
+                      <ProjectImage key={s.thumbSrc} src={s.thumbSrc} alt={s.label || `${active.title} ${i + 1}`} className="projects-thumb-img" />
+                    </div>
+                    <span className="projects-thumb-label">{s.label || `Shot ${i + 1}`}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* info */}
+        <section className="projects-info">
+          {active.tagline && <p className="projects-tagline">“{active.tagline}”</p>}
+          {active.description && <p className="projects-desc">{active.description}</p>}
+
+          <div className="projects-info-grid">
+            <div>
+              <h3 className="projects-info-heading">{t('projects.features')}</h3>
+              {active.highlights.length > 0 ? (
+                <ul className="projects-features">
+                  {active.highlights.map((h, i) => (
+                    <li key={i} className="projects-feature">
+                      <span className="projects-feature-mark" style={{ background: active.accent }} />
+                      {h}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="projects-desc">{t('projects.noFeatures')}</p>
+              )}
+            </div>
+
+            <div>
+              <h3 className="projects-info-heading">{t('projects.techStack')}</h3>
+              {active.stack.length > 0 ? (
+                <div className="projects-stack">
+                  {active.stack.map((tech) => (
+                    <span key={tech} className="projects-stack-tag">{tech}</span>
+                  ))}
+                </div>
+              ) : (
+                <p className="projects-desc">{t('projects.noStack')}</p>
+              )}
+
+              {hasScreens && (
+                <div className="projects-screens-card">
+                  <div className="projects-screens-meta">
+                    <span>{t('projects.screens')}</span>
+                    <span className="projects-screens-count">{active.screens.length} {t('projects.pages')}</span>
+                  </div>
+                  <div className="projects-screens-bar">
+                    {active.screens.map((_, i) => (
+                      <div
+                        key={i}
+                        className={`projects-screens-segment ${i === activeScreen ? 'projects-screens-segment--active' : ''}`}
+                        style={{ background: i === activeScreen ? active.accent : 'var(--border)' }}
+                        onClick={() => setActiveScreen(i)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* prev / next */}
+      <footer className="projects-detail-nav">
+        <button type="button" onClick={onPrev} disabled={!hasPrev} className="projects-nav-btn">
+          <ArrowLeft size={14} /> {t('projects.prev')}
+        </button>
+        <span className="projects-nav-count">{projectIndex + 1} / {totalProjects}</span>
+        <button type="button" onClick={onNext} disabled={!hasNext} className="projects-nav-btn">
+          {t('projects.next')} <ArrowRight size={14} />
+        </button>
+      </footer>
     </div>
   );
 }
 
+// ─── Main Projects page ───────────────────────────────────────────────────────
+
 export default function Projects() {
   const { t, i18n } = useTranslation();
-  const [activeShots, setActiveShots] = useState({});
-  const [cmsProjects, setCmsProjects] = useState([]);
+  const [cmsProjects, setCmsProjects] = useState(null);
+  const [activeId, setActiveId] = useState(null);
+  const [activeScreen, setActiveScreen] = useState(0);
+  const [mobileView, setMobileView] = useState('list');
 
   useEffect(() => {
     let active = true;
@@ -129,12 +306,37 @@ export default function Projects() {
   }, []);
 
   const projects = useMemo(() => {
-    if (cmsProjects.length === 0) return fallbackProjects;
+    // null = masih loading; [] = CMS kosong/offline → fallback i18n
+    if (cmsProjects === null) return [];
+    if (cmsProjects.length === 0) return buildFallbackProjects(t);
     return cmsProjects.map((project, index) => normalizeCmsProject(project, i18n.language, index));
-  }, [cmsProjects, i18n.language]);
+  }, [cmsProjects, i18n.language, t]);
+
+  const active = projects.find((p) => p.key === activeId) ?? projects[0];
+  const activeIndex = Math.max(projects.findIndex((p) => p.key === activeId), 0);
+
+  const handleSelect = (key) => {
+    setActiveId(key);
+    setActiveScreen(0);
+    setMobileView('detail');
+  };
+
+  const handlePrev = () => {
+    if (activeIndex > 0) {
+      setActiveId(projects[activeIndex - 1].key);
+      setActiveScreen(0);
+    }
+  };
+
+  const handleNext = () => {
+    if (activeIndex < projects.length - 1) {
+      setActiveId(projects[activeIndex + 1].key);
+      setActiveScreen(0);
+    }
+  };
 
   return (
-    <div className="page projects-page">
+    <div className="projects-page">
       <Helmet>
         <title>{t('projects.meta.title')}</title>
         <meta name="description" content={t('projects.meta.description')} />
@@ -144,142 +346,111 @@ export default function Projects() {
         <meta property="og:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
         <meta name="twitter:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
       </Helmet>
-      <p className="section-label">{t('projects.sectionLabel')}</p>
-      <h1 className="section-title">{t('projects.title')}</h1>
-      <p className="projects-intro">{t('projects.intro')}</p>
 
-      <div className="projects-list">
-        {projects.map((p, i) => {
-          const baseKey = `projects.items.${p.key}`;
-          const title = p.title ?? t(`${baseKey}.title`);
-          const type = p.type ?? t(`${baseKey}.type`);
-          const role = p.role ?? t(`${baseKey}.role`);
-          const date = p.date ?? t(`${baseKey}.date`);
-          const status = p.status ?? t(`${baseKey}.status`);
-          const summary = p.summary ?? t(`${baseKey}.summary`);
-          const desc = p.desc ?? t(`${baseKey}.desc`, { defaultValue: '' });
-          const highlights = p.highlights ?? t(`${baseKey}.highlights`, { returnObjects: true, defaultValue: [] });
-          const activeShot = activeShots[p.id] ?? 0;
-          const selectedShot = p.images[activeShot] ?? p.images[0] ?? { src: '', label: 'Preview' };
-          const resolveShotLabel = (shot, fallbackLabel) =>
-            shot.label || (shot.labelKey ? t(`projects.${shot.labelKey}`, { defaultValue: fallbackLabel }) : fallbackLabel);
-          const selectedShotLabel = resolveShotLabel(selectedShot, 'Preview');
-
-          return (
-            <div
-              key={p.id}
-              className="project-card animate-fadeUp"
-              style={{ animationDelay: `${i * 0.15}s` }}
-            >
-              <div className="project-card-accent" style={{ background: p.color + '22', borderColor: p.color + '44' }} />
-
-              <div className="project-layout">
-                <div className="project-gallery">
-                  <div className="project-browser" style={{ '--project-color': p.color }}>
-                    <div className="project-browser-bar">
-                      <span />
-                      <span />
-                      <span />
-                      <p>{selectedShotLabel}</p>
-                    </div>
-                    <ProjectShot
-                      projectColor={p.color}
-                      projectTitle={title}
-                      shot={selectedShot}
-                      shotLabel={selectedShotLabel}
-                    />
-                  </div>
-
-                  <div className="project-thumbs" aria-label={t('projects.screenshotList', { title })}>
-                    {p.images.map((shot, index) => {
-                      const shotLabel = resolveShotLabel(shot, `Shot ${index + 1}`);
-
-                      return (
-                        <button
-                          key={shot.src || `${p.id}-${index}`}
-                          type="button"
-                          className={`project-thumb ${activeShot === index ? 'project-thumb--active' : ''}`}
-                          onClick={() => setActiveShots(prev => ({ ...prev, [p.id]: index }))}
-                          aria-label={t('projects.showShot', { label: shotLabel })}
-                          style={{ '--project-color': p.color }}
-                        >
-                          <ProjectShot
-                            projectColor={p.color}
-                            projectTitle={title}
-                            shot={shot}
-                            shotLabel={shotLabel}
-                            compact
-                          />
-                          <span>{shotLabel}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="project-content">
-                  <div className="project-header">
-                    <div className="project-icon" style={{ background: p.color + '18', color: p.color }}>
-                      <Code2 size={22} />
-                    </div>
-                    <div>
-                      <p className="project-type">{type}</p>
-                      <h2 className="project-title">{title}</h2>
-                    </div>
-                  </div>
-
-                  <p className="project-summary">{summary}</p>
-                  <p className="project-desc">{desc}</p>
-
-                  <div className="project-facts">
-                    <div>
-                      <UserRound size={15} />
-                      <span>{role}</span>
-                    </div>
-                    <div>
-                      <Calendar size={15} />
-                      <span>{date}</span>
-                    </div>
-                    <div>
-                      <Layers size={15} />
-                      <span>{status}</span>
-                    </div>
-                  </div>
-
-                  <ul className="project-highlights">
-                    {(Array.isArray(highlights) ? highlights : []).map(h => (
-                      <li key={h}>
-                        <CheckCircle2 size={15} style={{ color: p.color }} />
-                        <span>{h}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="project-footer">
-                    <div className="project-stack">
-                      {p.stack.map(s => (
-                        <span key={s} className="tag">{s}</span>
-                      ))}
-                    </div>
-                    <div className="project-links">
-                      {p.github && (
-                        <a href={p.github} target="_blank" rel="noreferrer" className="project-link">
-                          <GitFork size={16} /> {t('projects.github')}
-                        </a>
-                      )}
-                      {p.live && (
-                        <a href={p.live} target="_blank" rel="noreferrer" className="project-link project-link-live">
-                          <ExternalLink size={16} /> {t('projects.liveDemo')}
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+      {projects.length === 0 ? (
+        <div className="projects-loading">
+          <div className="projects-loading-spinner" />
+          <p>{t('projects.loading')}</p>
+        </div>
+      ) : (
+        <>
+          {/* Mobile: list view */}
+          <div className="projects-mobile-list">
+            <div className="projects-mobile-head">
+              <p className="projects-eyebrow">{t('projects.sectionLabel')}</p>
+              <h1 className="projects-heading">Projects</h1>
+              <p className="projects-count">{projects.length} {t('projects.selectedWorks')}</p>
             </div>
-          );
-        })}
-      </div>
+            <div className="projects-mobile-items">
+              {projects.map((p, i) => (
+                <button key={p.key} type="button" className="projects-mobile-item" onClick={() => handleSelect(p.key)}>
+                  <div className="projects-mobile-id" style={{ background: p.accent + '20' }}>
+                    <span style={{ color: p.accent }}>{String(i + 1).padStart(2, '0')}</span>
+                  </div>
+                  <div className="projects-mobile-meta">
+                    <p className="projects-mobile-title">{p.shortTitle || p.title}</p>
+                    <p className="projects-mobile-sub">{p.category} · {p.year}</p>
+                  </div>
+                  <div className="projects-mobile-right">
+                    <span className={`projects-status ${p.status === 'Live' ? 'is-live' : ''}`}>{p.status}</span>
+                    <ArrowRight size={14} className="projects-mobile-arrow" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile: detail view */}
+          {mobileView === 'detail' && (
+            <div className="projects-mobile-detail">
+              <div className="projects-mobile-backbar">
+                <button type="button" className="projects-back-btn" onClick={() => setMobileView('list')}>
+                  <ArrowLeft size={16} /> {t('projects.back')}
+                </button>
+                <span className="projects-mobile-count">{activeIndex + 1} / {projects.length}</span>
+              </div>
+              <DetailPanel
+                t={t}
+                active={active}
+                activeScreen={activeScreen}
+                setActiveScreen={setActiveScreen}
+                onPrev={handlePrev}
+                onNext={handleNext}
+                hasPrev={activeIndex > 0}
+                hasNext={activeIndex < projects.length - 1}
+                projectIndex={activeIndex}
+                totalProjects={projects.length}
+              />
+            </div>
+          )}
+
+          {/* Desktop: split panel */}
+          <div className="projects-desktop">
+            <aside className="projects-sidebar">
+              <div className="projects-sidebar-head">
+                <p className="projects-eyebrow">{t('projects.sectionLabel')}</p>
+                <h1 className="projects-heading">Projects</h1>
+                <p className="projects-count">{projects.length} {t('projects.selectedWorks')}</p>
+              </div>
+
+              <div className="projects-sidebar-list">
+                {projects.map((p, i) => {
+                  const isActive = p.key === active.key;
+                  return (
+                    <button key={p.key} type="button" className={`projects-sidebar-item ${isActive ? 'is-active' : ''}`} onClick={() => handleSelect(p.key)}>
+                      <span className="projects-sidebar-id">{String(i + 1).padStart(2, '0')}</span>
+                      <div className="projects-sidebar-meta">
+                        <p className="projects-sidebar-title">{p.shortTitle || p.title}</p>
+                        <p className="projects-sidebar-cat">{p.category}</p>
+                      </div>
+                      <span className={`projects-status ${p.status === 'Live' ? 'is-live' : ''}`}>{p.status}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="projects-sidebar-foot">
+                <p>{active.screens.length} {t('projects.screens').toLowerCase()} · {active.stack.length} {t('projects.technologies').toLowerCase()}</p>
+              </div>
+            </aside>
+
+            <main className="projects-main">
+              <DetailPanel
+                t={t}
+                active={active}
+                activeScreen={activeScreen}
+                setActiveScreen={setActiveScreen}
+                onPrev={handlePrev}
+                onNext={handleNext}
+                hasPrev={activeIndex > 0}
+                hasNext={activeIndex < projects.length - 1}
+                projectIndex={activeIndex}
+                totalProjects={projects.length}
+              />
+            </main>
+          </div>
+        </>
+      )}
     </div>
   );
 }
