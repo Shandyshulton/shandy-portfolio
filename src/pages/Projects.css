@@ -413,6 +413,34 @@
   white-space: nowrap;
 }
 
+/* keterangan "klik untuk perbesar" */
+.projects-slider-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 14px;
+  border: 1.5px dashed var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.projects-slider-hint:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.projects-slider-hint svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
 /* fallback + empty state saat gambar tidak ada/gagal dimuat */
 .projects-img-fallback {
   position: absolute;

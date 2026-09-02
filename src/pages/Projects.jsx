@@ -284,6 +284,11 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
             )}
 
             {screenLabel && <p className="projects-slider-label">{screenLabel}</p>}
+
+            <button type="button" className="projects-slider-hint" onClick={() => setLightbox(true)}>
+              <ZoomIn size={13} />
+              {t('projects.clickToZoom')}
+            </button>
           </section>
         ) : (
           <section className="projects-gallery">
