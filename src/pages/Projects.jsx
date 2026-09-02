@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ExternalLink, GitFork, ArrowLeft, ArrowRight, Image as ImageIcon } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ExternalLink, GitFork, ArrowLeft, ArrowRight, Image as ImageIcon, ZoomIn, X } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms, getTranslation } from '../lib/cmsApi.js';
@@ -148,10 +148,49 @@ function ProjectImage({ src, alt, className, onFail }) {
 
 // ─── Detail panel (shared by mobile + desktop) ────────────────────────────────
 
-function DetailPanel({ t, active, activeScreen, setActiveScreen, onPrev, onNext, hasPrev, hasNext, projectIndex, totalProjects }) {
+function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
   const screen = active.screens[activeScreen];
   const screenLabel = screen?.label || 'Preview';
   const hasScreens = active.screens.length > 0;
+  const total = active.screens.length;
+  const touchX = useRef(null);
+  const [lightbox, setLightbox] = useState(false);
+
+  // Navigasi slider (wrap-around)
+  const goSlide = (dir) => {
+    if (!hasScreens) return;
+    setActiveScreen((total + activeScreen + dir) % total);
+  };
+  const goTo = (i) => {
+    if (i >= 0 && i < total) setActiveScreen(i);
+  };
+
+  // Keyboard saat lightbox terbuka: ESC tutup, panah kiri/kanan navigasi
+  useEffect(() => {
+    if (!lightbox) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setLightbox(false);
+      if (e.key === 'ArrowRight') setActiveScreen((total + activeScreen + 1) % total);
+      if (e.key === 'ArrowLeft') setActiveScreen((total + activeScreen - 1) % total);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightbox, activeScreen, total, setActiveScreen]);
+
+  const onTouchStart = (e) => {
+    touchX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e) => {
+    if (touchX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    touchX.current = null;
+    if (Math.abs(dx) > 40) goSlide(dx < 0 ? 1 : -1); // geser kiri → next
+  };
+
+  const openLightbox = (e) => {
+    // hanya buka saat mengklik slide yang aktif
+    if (e.currentTarget.classList.contains('is-active')) setLightbox(true);
+  };
 
   return (
     <div className="projects-detail">
@@ -176,38 +215,86 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen, onPrev, onNext,
         </div>
       </header>
 
-      {/* scrollable body */}
+      {/* body — mengalir (scroll halaman di mobile, scroll area di desktop) */}
       <div className="projects-detail-body">
-        {/* gallery */}
-        <section className="projects-gallery">
-          <div className="projects-shot-frame">
-            {hasScreens ? (
-              <ProjectImage key={screen.src} src={screen.src} alt={`${active.title} - ${screenLabel}`} />
-            ) : (
+        {/* ── Image slider (coverflow 3D) ── */}
+        {hasScreens ? (
+          <section className="projects-slider">
+            <div
+              className="projects-slider-stage"
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
+            >
+              <div
+                className="projects-slider-track"
+                style={{ transform: `translateX(calc(19% - ${activeScreen * 62}%))` }}
+              >
+                {active.screens.map((s, i) => {
+                  const offset = i - activeScreen;
+                  const isActive = i === activeScreen;
+                  const label = s.label || `Shot ${i + 1}`;
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      className={`projects-slide ${isActive ? 'is-active' : ''}`}
+                      style={{
+                        '--slide-accent': active.accent,
+                        transform: `perspective(1200px) rotateY(${offset * -55}deg) translateZ(${isActive ? 0 : -140}px) scale(${isActive ? 1 : 0.8})`,
+                        opacity: Math.abs(offset) > 1 ? 0 : 1,
+                        zIndex: isActive ? 3 : 2 - Math.abs(offset),
+                        pointerEvents: Math.abs(offset) > 1 ? 'none' : 'auto',
+                      }}
+                      onClick={(e) => {
+                        if (!isActive) {
+                          goTo(i);
+                        } else {
+                          openLightbox(e);
+                        }
+                      }}
+                      aria-label={isActive ? `${label} — perbesar` : label}
+                    >
+                      <span className="projects-slide-img">
+                        <ProjectImage key={s.src} src={s.src} alt={`${active.title} - ${label}`} />
+                        {isActive && (
+                          <span className="projects-slide-zoom">
+                            <ZoomIn size={14} />
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* panah + counter */}
+            {total > 1 && (
+              <div className="projects-slider-ui">
+                <button type="button" className="projects-slider-arrow" onClick={() => goSlide(-1)} aria-label="Previous slide">
+                  <ArrowLeft size={16} />
+                </button>
+                <span className="projects-slider-count">
+                  {String(activeScreen + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+                </span>
+                <button type="button" className="projects-slider-arrow" onClick={() => goSlide(1)} aria-label="Next slide">
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
+
+            {screenLabel && <p className="projects-slider-label">{screenLabel}</p>}
+          </section>
+        ) : (
+          <section className="projects-gallery">
+            <div className="projects-shot-frame">
               <div className="projects-img-fallback">
                 <ImageIcon size={28} />
                 <span>{t('projects.noScreens')}</span>
               </div>
-            )}
-          </div>
-
-          {/* thumbnail strip */}
-          {hasScreens && (
-            <div className="projects-thumbs">
-              {active.screens.map((s, i) => {
-                const isActive = i === activeScreen;
-                return (
-                  <button key={i} type="button" className={`projects-thumb ${isActive ? 'projects-thumb--active' : ''}`} onClick={() => setActiveScreen(i)}>
-                    <div className="projects-thumb-shot" style={{ borderColor: isActive ? active.accent : 'var(--border)' }}>
-                      <ProjectImage key={s.thumbSrc} src={s.thumbSrc} alt={s.label || `${active.title} ${i + 1}`} className="projects-thumb-img" />
-                    </div>
-                    <span className="projects-thumb-label">{s.label || `Shot ${i + 1}`}</span>
-                  </button>
-                );
-              })}
             </div>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* info */}
         <section className="projects-info">
@@ -242,40 +329,63 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen, onPrev, onNext,
               ) : (
                 <p className="projects-desc">{t('projects.noStack')}</p>
               )}
-
-              {hasScreens && (
-                <div className="projects-screens-card">
-                  <div className="projects-screens-meta">
-                    <span>{t('projects.screens')}</span>
-                    <span className="projects-screens-count">{active.screens.length} {t('projects.pages')}</span>
-                  </div>
-                  <div className="projects-screens-bar">
-                    {active.screens.map((_, i) => (
-                      <div
-                        key={i}
-                        className={`projects-screens-segment ${i === activeScreen ? 'projects-screens-segment--active' : ''}`}
-                        style={{ background: i === activeScreen ? active.accent : 'var(--border)' }}
-                        onClick={() => setActiveScreen(i)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </section>
       </div>
 
-      {/* prev / next */}
-      <footer className="projects-detail-nav">
-        <button type="button" onClick={onPrev} disabled={!hasPrev} className="projects-nav-btn">
-          <ArrowLeft size={14} /> {t('projects.prev')}
-        </button>
-        <span className="projects-nav-count">{projectIndex + 1} / {totalProjects}</span>
-        <button type="button" onClick={onNext} disabled={!hasNext} className="projects-nav-btn">
-          {t('projects.next')} <ArrowRight size={14} />
-        </button>
-      </footer>
+      {/* ── Lightbox: lihat screenshot ukuran penuh ── */}
+      {lightbox && hasScreens && (
+        <div
+          className="projects-lightbox"
+          onClick={() => setLightbox(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={screenLabel}
+        >
+          <button type="button" className="projects-lightbox-close" onClick={() => setLightbox(false)} aria-label="Tutup">
+            <X size={22} />
+          </button>
+
+          {total > 1 && (
+            <>
+              <button
+                type="button"
+                className="projects-lightbox-nav projects-lightbox-nav--prev"
+                onClick={(e) => { e.stopPropagation(); goSlide(-1); }}
+                aria-label="Previous image"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <button
+                type="button"
+                className="projects-lightbox-nav projects-lightbox-nav--next"
+                onClick={(e) => { e.stopPropagation(); goSlide(1); }}
+                aria-label="Next image"
+              >
+                <ArrowRight size={20} />
+              </button>
+            </>
+          )}
+
+          <div className="projects-lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <img
+              key={screen.src}
+              src={screen.src}
+              alt={`${active.title} - ${screenLabel}`}
+              className="projects-lightbox-img"
+            />
+            <div className="projects-lightbox-meta">
+              <span className="projects-lightbox-label">{screenLabel}</span>
+              {total > 1 && (
+                <span className="projects-lightbox-count">
+                  {String(activeScreen + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -321,20 +431,6 @@ export default function Projects() {
     setMobileView('detail');
   };
 
-  const handlePrev = () => {
-    if (activeIndex > 0) {
-      setActiveId(projects[activeIndex - 1].key);
-      setActiveScreen(0);
-    }
-  };
-
-  const handleNext = () => {
-    if (activeIndex < projects.length - 1) {
-      setActiveId(projects[activeIndex + 1].key);
-      setActiveScreen(0);
-    }
-  };
-
   return (
     <div className="projects-page">
       <Helmet>
@@ -354,31 +450,33 @@ export default function Projects() {
         </div>
       ) : (
         <>
-          {/* Mobile: list view */}
-          <div className="projects-mobile-list">
-            <div className="projects-mobile-head">
-              <p className="projects-eyebrow">{t('projects.sectionLabel')}</p>
-              <h1 className="projects-heading">Projects</h1>
-              <p className="projects-count">{projects.length} {t('projects.selectedWorks')}</p>
+          {/* Mobile: list view (hanya saat mode list) */}
+          {mobileView === 'list' && (
+            <div className="projects-mobile-list">
+              <div className="projects-mobile-head">
+                <p className="projects-eyebrow">{t('projects.sectionLabel')}</p>
+                <h1 className="projects-heading">Projects</h1>
+                <p className="projects-count">{projects.length} {t('projects.selectedWorks')}</p>
+              </div>
+              <div className="projects-mobile-items">
+                {projects.map((p, i) => (
+                  <button key={p.key} type="button" className="projects-mobile-item" onClick={() => handleSelect(p.key)}>
+                    <div className="projects-mobile-id" style={{ background: p.accent + '20' }}>
+                      <span style={{ color: p.accent }}>{String(i + 1).padStart(2, '0')}</span>
+                    </div>
+                    <div className="projects-mobile-meta">
+                      <p className="projects-mobile-title">{p.shortTitle || p.title}</p>
+                      <p className="projects-mobile-sub">{p.category} · {p.year}</p>
+                    </div>
+                    <div className="projects-mobile-right">
+                      <span className={`projects-status ${p.status === 'Live' ? 'is-live' : ''}`}>{p.status}</span>
+                      <ArrowRight size={14} className="projects-mobile-arrow" />
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="projects-mobile-items">
-              {projects.map((p, i) => (
-                <button key={p.key} type="button" className="projects-mobile-item" onClick={() => handleSelect(p.key)}>
-                  <div className="projects-mobile-id" style={{ background: p.accent + '20' }}>
-                    <span style={{ color: p.accent }}>{String(i + 1).padStart(2, '0')}</span>
-                  </div>
-                  <div className="projects-mobile-meta">
-                    <p className="projects-mobile-title">{p.shortTitle || p.title}</p>
-                    <p className="projects-mobile-sub">{p.category} · {p.year}</p>
-                  </div>
-                  <div className="projects-mobile-right">
-                    <span className={`projects-status ${p.status === 'Live' ? 'is-live' : ''}`}>{p.status}</span>
-                    <ArrowRight size={14} className="projects-mobile-arrow" />
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
 
           {/* Mobile: detail view */}
           {mobileView === 'detail' && (
@@ -390,16 +488,11 @@ export default function Projects() {
                 <span className="projects-mobile-count">{activeIndex + 1} / {projects.length}</span>
               </div>
               <DetailPanel
+                key={active.key}
                 t={t}
                 active={active}
                 activeScreen={activeScreen}
                 setActiveScreen={setActiveScreen}
-                onPrev={handlePrev}
-                onNext={handleNext}
-                hasPrev={activeIndex > 0}
-                hasNext={activeIndex < projects.length - 1}
-                projectIndex={activeIndex}
-                totalProjects={projects.length}
               />
             </div>
           )}
@@ -436,16 +529,11 @@ export default function Projects() {
 
             <main className="projects-main">
               <DetailPanel
+                key={active.key}
                 t={t}
                 active={active}
                 activeScreen={activeScreen}
                 setActiveScreen={setActiveScreen}
-                onPrev={handlePrev}
-                onNext={handleNext}
-                hasPrev={activeIndex > 0}
-                hasNext={activeIndex < projects.length - 1}
-                projectIndex={activeIndex}
-                totalProjects={projects.length}
               />
             </main>
           </div>

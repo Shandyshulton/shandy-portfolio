@@ -8,8 +8,12 @@
   --mock-chip: #ffffff;
 
   position: fixed;
-  inset: 0;
+  left: 0;
+  right: 0;
   top: 68px;
+  /* dvh menyesuaikan address bar mobile; 100vh sebagai fallback */
+  height: calc(100vh - 68px);
+  height: calc(100dvh - 68px);
   display: flex;
   flex-direction: column;
   background: var(--bg);
@@ -253,7 +257,7 @@
   min-height: 0;
 }
 
-/* gallery */
+/* empty-state gallery (saat proyek tanpa screenshot) */
 .projects-gallery {
   padding: 16px 22px 14px;
   background: var(--bg-2);
@@ -273,87 +277,141 @@
   box-shadow: var(--shadow);
 }
 
-.projects-shot-frame img {
+/* ─── Image slider (coverflow 3D) ─── */
+.projects-slider {
+  padding: 22px 22px 10px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.projects-slider-stage {
+  width: 100%;
+  max-width: 720px;
+  overflow: hidden;
+  padding: 18px 0 6px;
+  perspective: 1400px;
+}
+
+.projects-slider-track {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  transition: transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
+
+.projects-slide {
+  flex: 0 0 var(--slide-share, 62%);
+  min-width: 0;
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.55s ease;
+  transform-style: preserve-3d;
+}
+
+/* sisi slide yang "menjauh" tidak menghalangi klik slide aktif */
+.projects-slide-img {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--mock-surface);
+  border: 2px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.projects-slide.is-active .projects-slide-img {
+  border-color: var(--slide-accent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--slide-accent) 30%, transparent),
+    0 18px 44px rgba(0, 0, 0, 0.22);
+}
+
+.projects-slide-img img,
+.projects-slide-img .projects-img-fallback {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;      /* gambar utuh, tidak stretch */
+  object-fit: contain;
   object-position: center;
   background: var(--mock-bg);
-  display: block;
 }
 
-/* thumbnail */
-.projects-thumbs {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: none;
+.projects-slide-img .projects-img-fallback {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
 }
-.projects-thumbs::-webkit-scrollbar { display: none; }
 
-.projects-thumb {
+.projects-slide-img .projects-img-fallback svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* UI slider: panah + counter */
+.projects-slider-ui {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  flex-shrink: 0;
-  font-family: 'Outfit', sans-serif;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 10px;
 }
 
-.projects-thumb-shot {
-  width: 92px;
-  height: 60px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 2px solid var(--border);
-  transition: border-color 0.15s, opacity 0.15s;
-  opacity: 0.65;
+.projects-slider-arrow {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
   background: var(--surface);
-  display: grid;
-  place-items: center;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+  box-shadow: var(--shadow);
 }
-.projects-thumb--active .projects-thumb-shot,
-.projects-thumb:hover .projects-thumb-shot {
-  opacity: 1;
+.projects-slider-arrow:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  transform: scale(1.06);
 }
 
-.projects-thumb-shot .projects-img-fallback,
-.projects-thumb-shot > img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;      /* thumbnail utuh, tanpa crop/stretch */
-  display: block;
-}
-
-.projects-thumb-shot .projects-img-fallback {
-  display: grid;
-  place-items: center;
-  background: var(--surface-2);
+.projects-slider-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-muted);
-  font-size: 9px;
-  gap: 2px;
+  letter-spacing: 0.08em;
+  min-width: 54px;
+  text-align: center;
 }
 
-.projects-thumb-shot .projects-img-fallback svg {
-  width: 14px;
-  height: 14px;
-}
-
-.projects-thumb-label {
-  font-size: 9px;
+.projects-slider-label {
+  margin-top: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
   color: var(--text-muted);
-  white-space: nowrap;
-  max-width: 92px;
+  text-align: center;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.projects-thumb--active .projects-thumb-label { color: var(--accent); }
 
 /* fallback + empty state saat gambar tidak ada/gagal dimuat */
 .projects-img-fallback {
@@ -476,76 +534,15 @@
   background: var(--bg);
 }
 
-.projects-screens-card {
-  margin-top: 18px;
-  padding: 14px;
-  border-radius: 12px;
-  background: var(--bg);
-}
-
-.projects-screens-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-}
-.projects-screens-count { font-weight: 600; color: var(--text); }
-
-.projects-screens-bar {
-  display: flex;
-  gap: 4px;
-}
-
-.projects-screens-segment {
-  flex: 1;
-  height: 4px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-/* prev / next */
-.projects-detail-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 22px;
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-  background: var(--surface);
-}
-
-.projects-nav-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-muted);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-family: 'Outfit', sans-serif;
-  transition: color 0.2s;
-}
-.projects-nav-btn:hover:not(:disabled) { color: var(--accent); }
-.projects-nav-btn:disabled { opacity: 0.3; cursor: default; }
-
-.projects-nav-count {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
 /* ─── Mobile: list + detail ─── */
+/* Di mobile, list dan detail adalah dua layar terpisah yang mengisi seluruh
+   area Projects (di bawah navbar). Detail punya scroll internal sendiri. */
 .projects-mobile-list {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .projects-mobile-head {
@@ -560,6 +557,7 @@
 
 .projects-mobile-items {
   flex: 1;
+  overflow-y: auto;
   padding: 6px 0;
 }
 
@@ -620,11 +618,17 @@
 }
 .projects-mobile-arrow { color: var(--text-muted); }
 
+/* Layar detail mobile: isi penuh + scroll internal */
 .projects-mobile-detail {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.projects-mobile-detail .projects-detail {
+  min-height: 0;
 }
 
 .projects-mobile-backbar {
@@ -662,4 +666,229 @@
   .projects-mobile-list,
   .projects-mobile-detail { display: none; }
   .projects-desktop { display: flex; }
+}
+
+/* ─── Mobile (<768px): halaman mengalir normal, body yang scroll ───
+   - Bukan layout fixed penuh layar (biar scroll halaman alami)
+   - Slider gambar tetap tampil ringkas */
+@media (max-width: 767px) {
+  .projects-page {
+    position: static;
+    margin-top: 68px;               /* offset navbar fixed */
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  /* list view: ikut scroll halaman */
+  .projects-mobile-list,
+  .projects-mobile-detail {
+    flex: none;
+    overflow: visible;
+    min-height: 0;
+  }
+
+  .projects-mobile-items {
+    overflow: visible;
+  }
+
+  /* detail: konten mengalir natural, bukan flex penuh layar */
+  .projects-mobile-detail .projects-detail {
+    flex: none;
+    min-height: 0;
+  }
+
+  .projects-detail-body {
+    flex: none;
+    overflow: visible;
+  }
+
+  /* slider di mobile: tetap 62% agar rumus translate konsisten (center) */
+  .projects-slider {
+    padding: 14px 10px 6px;
+  }
+
+  .projects-slider-stage {
+    padding: 14px 0 4px;
+  }
+
+  /* empty-state (proyek tanpa screenshot) */
+  .projects-gallery {
+    padding: 12px 16px 0;
+    background: var(--bg-2);
+    border-bottom: none;
+  }
+
+  .projects-shot-frame {
+    aspect-ratio: 16 / 9;
+    max-height: 220px;
+    margin-bottom: 0;
+  }
+
+  .projects-detail-header {
+    flex-direction: column;
+    padding: 14px 16px;
+  }
+
+  .projects-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .projects-info {
+    padding: 18px 16px;
+  }
+
+  .projects-tagline {
+    font-size: 0.95rem;
+  }
+}
+
+/* ─── Lightbox: screenshot ukuran penuh ─── */
+.projects-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(10, 10, 12, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: projects-fadeIn 0.2s ease;
+}
+
+.projects-lightbox-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+  z-index: 2;
+}
+.projects-lightbox-close:hover {
+  background: var(--accent);
+  transform: scale(1.06);
+}
+
+.projects-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  z-index: 2;
+}
+.projects-lightbox-nav:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.projects-lightbox-nav--prev { left: 20px; }
+.projects-lightbox-nav--next { right: 20px; }
+
+.projects-lightbox-content {
+  max-width: min(96vw, 1400px);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.projects-lightbox-img {
+  max-width: 100%;
+  max-height: calc(92vh - 60px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+  background: #fff;
+}
+
+.projects-lightbox-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+}
+.projects-lightbox-label {
+  max-width: 60vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.projects-lightbox-count {
+  opacity: 0.7;
+}
+
+@keyframes projects-fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* indikator zoom pada slide aktif */
+.projects-slide-zoom {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.projects-slide.is-active:hover .projects-slide-zoom {
+  opacity: 1;
+  transform: scale(1);
+}
+.projects-slide-zoom svg { width: 15px; height: 15px; }
+
+/* mobile: nav lightbox di bawah, tidak menutup gambar */
+@media (max-width: 767px) {
+  .projects-lightbox {
+    padding: 12px;
+  }
+
+  .projects-lightbox-nav {
+    top: auto;
+    bottom: 20px;
+    transform: none;
+    width: 44px;
+    height: 44px;
+  }
+  .projects-lightbox-nav--prev { left: 18px; }
+  .projects-lightbox-nav--next { right: 18px; }
+
+  .projects-lightbox-img {
+    max-height: 82vh;
+  }
 }

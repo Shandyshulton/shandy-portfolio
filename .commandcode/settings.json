@@ -53,7 +53,19 @@
       "Shell(curl -s -o NUL -w \"petly-hero: %{http_code} %{size_download}B\\n\" -m 15 \"https://api.shandyshultonshihab.my.id/storage/uploads/projects/5fb67cd3-cfb5-4e78-ba86-7c95e57267e4.png\")",
       "Shell(curl -s -o NUL -w \"joystick-hero: %{http_code} %{size_download}B\\n\" -m 15 \"https://api.shandyshultonshihab.my.id/storage/uploads/projects/31f771f2-dcca-41cd-8ee2-0e11859ace1a.png\")",
       "Shell(git:*)",
-      "Shell(rmdir:*)"
+      "Shell(rmdir:*)",
+      "Shell(del \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\mob-list.png\" \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\mob-detail.png\" \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\mob-detail2.png\" 2>NUL; echo cleaned)",
+      "Shell(more:*)",
+      "Shell(del \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\mob-*.png\" 2>NUL; echo cleaned)",
+      "Shell(del \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\mob-img-back.png\" \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\mob-final*.png\" 2>NUL; echo cleaned)",
+      "Shell(powershell -Command \"$b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\\Users\\Shandy\\AppData\\Local\\Temp\\inject-slider.js')); agent-browser eval -b $b64\")",
+      "Shell(powershell -Command \"Start-Sleep -Seconds 3; agent-browser eval \\\"(()=>{const stage=document.querySelector('.projects-slider-stage'); const sr=stage.getBoundingClientRect(); const slides=[...document.querySelectorAll('.projects-slide')]; const act=document.querySelector('.projects-slide.is-active'); const ar=act.getBoundingClientRect(); const center=stage=>stage.left+stage.width/2; return JSON.stringify({stage:{left:Math.round(sr.left),right:Math.round(sr.right),w:Math.round(sr.width)}, active:{left:Math.round(ar.left),right:Math.round(ar.right),w:Math.round(ar.width)}, stageCenter:Math.round(center(sr)), activeCenter:Math.round(center(ar)), aligned:Math.abs(center(ar)-center(sr))<5})})()\\\"\")",
+      "Shell(del \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\inject-slider.js\" \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\slider-*.png\" 2>NUL; echo cleaned)",
+      "Shell(powershell -Command \"$b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\\Users\\Shandy\\AppData\\Local\\Temp\\inject-slider9.js')); agent-browser eval -b $b64\")",
+      "Shell(del \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\inject-slider9.js\" \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\slider-center-fix.png\" 2>NUL; echo cleaned)",
+      "Shell(powershell -Command \"$b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\\Users\\Shandy\\AppData\\Local\\Temp\\inject-lightbox.js')); agent-browser eval -b $b64\")",
+      "Shell(powershell -Command \"Start-Sleep -Seconds 3; agent-browser screenshot --full C:\\Users\\Shandy\\AppData\\Local\\Temp\\lightbox-test.png\")",
+      "Shell(del \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\inject-lightbox.js\" \"C:\\Users\\Shandy\\AppData\\Local\\Temp\\lightbox-test.png\" 2>NUL; echo cleaned)"
     ],
     "deny": [],
     "defaultMode": "default"
