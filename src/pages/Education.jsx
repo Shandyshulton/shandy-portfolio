@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { fetchCms, formatPeriod, getTranslation } from '../lib/cmsApi.js';
 import AiBackground from '../components/AiBackground.jsx';
 import Reveal from '../components/Reveal.jsx';
+import DevShell from '../components/DevShell.jsx';
 import './Education.css';
 
 const fallbackEducation = [
@@ -297,43 +298,54 @@ export default function Education() {
       <Reveal as="p" className="section-label">{t('education.sectionLabel')}</Reveal>
       <Reveal as="h1" delay={80} className="section-title">{t('education.title')}</Reveal>
 
-      <div className="edu-list">
-        {education.map((e, i) => {
-          const desc = e.desc ?? t(e.descKey, { defaultValue: '' });
-          const highlights = e.highlights ?? t(e.highlightsKey, { returnObjects: true, defaultValue: [] });
-          return (
-            <Reveal key={e.id ?? e.degree} delay={i * 90} className="edu-card">
-              <div className="edu-timeline">
-                <div className="edu-icon-wrap">
-                  <GraduationCap size={22} />
+      <Reveal delay={120}>
+        <DevShell file="~/education.md" status={t('education.ready')} right={{ ln: education.length + 6, branch: 'academic' }}>
+          <div className="edu-list">
+            {education.map((e, i) => {
+              const desc = e.desc ?? t(e.descKey, { defaultValue: '' });
+              const highlights = e.highlights ?? t(e.highlightsKey, { returnObjects: true, defaultValue: [] });
+              return (
+                <div key={e.id ?? e.degree} className="edu-row">
+                  <div className="edu-lineno mono" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
+                  </div>
+                  <Reveal delay={i * 90} className="edu-card">
+                    <div className="edu-timeline">
+                      <div className="edu-icon-wrap">
+                        <GraduationCap size={22} />
+                      </div>
+                      <div className="edu-line" />
+                    </div>
+                    <div className="edu-content">
+                      <span className="edu-type-badge"><span className="edu-badge-mark">#</span> {e.type}</span>
+                      <h2 className="edu-degree">{e.degree}</h2>
+                      <p className="edu-institution">{e.institution}</p>
+                      <div className="edu-period">
+                        <Calendar size={13} />
+                        {e.period}
+                      </div>
+                      <p className="edu-desc">{desc}</p>
+                      <ul className="edu-highlights">
+                        {(Array.isArray(highlights) ? highlights : []).map(h => (
+                          <li key={h}><span className="hl-dot" /> {h}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </Reveal>
                 </div>
-                <div className="edu-line" />
-              </div>
-              <div className="edu-content">
-                <span className="edu-type-badge">{e.type}</span>
-                <h2 className="edu-degree">{e.degree}</h2>
-                <p className="edu-institution">{e.institution}</p>
-                <div className="edu-period">
-                  <Calendar size={13} />
-                  {e.period}
-                </div>
-                <p className="edu-desc">{desc}</p>
-                <ul className="edu-highlights">
-                  {(Array.isArray(highlights) ? highlights : []).map(h => (
-                    <li key={h}><span className="hl-dot" /> {h}</li>
-                  ))}
-                </ul>
-              </div>
-            </Reveal>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </DevShell>
+      </Reveal>
 
       {/* Certifications */}
-      <Reveal className="cert-section" delay={100}>
+      <Reveal className="cert-section" delay={100} style={{ marginTop: 56 }}>
         <p className="section-label" style={{ marginTop: 0 }}>{t('education.certLabel')}</p>
         <h2 style={{ fontFamily: 'Syne', fontSize: '1.8rem', marginBottom: 32 }}>{t('education.certTitle')}</h2>
-        <CertSlider items={certifications} t={t} prefersReduced={prefersReduced} />
+        <DevShell file="certs --gallery" status={t('education.ready')} right={{ ln: certifications.length + 2, branch: 'credentials' }}>
+          <CertSlider items={certifications} t={t} prefersReduced={prefersReduced} />
+        </DevShell>
       </Reveal>
     </div>
   );

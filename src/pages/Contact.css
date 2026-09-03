@@ -11,6 +11,11 @@
   line-height: 1.8;
   margin-bottom: 36px;
 }
+.shell-prompt {
+  color: var(--accent);
+  font-family: 'DM Mono', monospace;
+  margin-right: 6px;
+}
 
 .contact-list {
   display: flex;
@@ -22,6 +27,9 @@
   display: flex;
   align-items: flex-start;
   gap: 14px;
+}
+.contact-item-body {
+  min-width: 0;
 }
 .contact-item-icon {
   width: 42px;
@@ -43,10 +51,16 @@
   text-transform: uppercase;
   margin-bottom: 3px;
 }
+.contact-item-caret {
+  color: var(--accent);
+  font-weight: 700;
+  margin-right: 2px;
+}
 .contact-item-value {
   font-size: 14px;
   color: var(--text);
   font-weight: 500;
+  word-break: break-word;
 }
 .contact-item-value.link {
   color: var(--accent);

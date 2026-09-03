@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Briefcase, Calendar, MapPin } from 'lucide-react';
+import { TerminalSquare, Calendar, MapPin } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms, formatPeriod, getTranslation } from '../lib/cmsApi.js';
 import AiBackground from '../components/AiBackground.jsx';
 import Reveal from '../components/Reveal.jsx';
+import DevShell from '../components/DevShell.jsx';
 import './Experience.css';
 
 const fallbackExperiences = [
@@ -118,64 +119,73 @@ export default function Experience() {
       <Reveal as="p" className="section-label">{t('experience.sectionLabel')}</Reveal>
       <Reveal as="h1" delay={80} className="section-title">{t('experience.title')}</Reveal>
 
-      <div className="exp-timeline">
-        {experiences.map((exp, i) => {
-          const role = exp.role ?? t(exp.roleKey, { defaultValue: exp.roleKey });
-          const type = exp.type ?? t(exp.typeKey, { defaultValue: exp.typeKey });
-          const desc = exp.desc ?? t(exp.descKey, { defaultValue: '' });
-          const responsibilities = exp.responsibilities ?? t(exp.responsibilitiesKey, { returnObjects: true, defaultValue: [] });
+      <Reveal delay={120}>
+        <DevShell file="~/experience.log" status={t('experience.ready')} right={{ ln: experiences.length + 4, branch: 'career' }}>
+          <div className="exp-timeline">
+            {experiences.map((exp, i) => {
+              const role = exp.role ?? t(exp.roleKey, { defaultValue: exp.roleKey });
+              const type = exp.type ?? t(exp.typeKey, { defaultValue: exp.typeKey });
+              const desc = exp.desc ?? t(exp.descKey, { defaultValue: '' });
+              const responsibilities = exp.responsibilities ?? t(exp.responsibilitiesKey, { returnObjects: true, defaultValue: [] });
 
-          return (
-            <Reveal key={exp.id} delay={i * 90} className="exp-item">
-              <div className="exp-marker">
-                <div className="exp-dot" style={{ borderColor: exp.color, background: exp.color + '20' }}>
-                  <Briefcase size={16} style={{ color: exp.color }} />
-                </div>
-                {i < experiences.length - 1 && <div className="exp-connector" />}
-              </div>
-
-              <div className="exp-card">
-                <div className="exp-card-top" style={{ borderLeftColor: exp.color }}>
-                  <div className="exp-header">
-                    <div>
-                      <span className="exp-type-badge" style={{ background: exp.color + '18', color: exp.color, borderColor: exp.color + '44' }}>
-                        {type}
-                      </span>
-                      <h2 className="exp-role">{role}</h2>
-                      <p className="exp-company">{exp.company}</p>
-                    </div>
-                    <div className="exp-meta">
-                      <span className="exp-meta-item">
-                        <Calendar size={13} /> {exp.period}
-                      </span>
-                      <span className="exp-meta-item">
-                        <MapPin size={13} /> {exp.location}
-                      </span>
-                    </div>
+              return (
+                <div key={exp.id} className="exp-row">
+                  <div className="exp-lineno mono" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
                   </div>
+                  <Reveal delay={i * 80} className="exp-item">
+                    <div className="exp-marker">
+                      <div className="exp-dot" style={{ borderColor: exp.color, background: exp.color + '20' }}>
+                        <TerminalSquare size={16} style={{ color: exp.color }} />
+                      </div>
+                      {i < experiences.length - 1 && <div className="exp-connector" />}
+                    </div>
 
-                  <p className="exp-desc">{desc}</p>
+                    <div className="exp-card">
+                      <div className="exp-card-top" style={{ borderLeftColor: exp.color }}>
+                        <div className="exp-header">
+                          <div>
+                            <span className="exp-type-badge" style={{ background: exp.color + '18', color: exp.color, borderColor: exp.color + '44' }}>
+                              <span className="exp-badge-mark" style={{ color: exp.color }}>$</span> {type}
+                            </span>
+                            <h2 className="exp-role">{role}</h2>
+                            <p className="exp-company">{exp.company}</p>
+                          </div>
+                          <div className="exp-meta">
+                            <span className="exp-meta-item">
+                              <Calendar size={13} /> {exp.period}
+                            </span>
+                            <span className="exp-meta-item">
+                              <MapPin size={13} /> {exp.location}
+                            </span>
+                          </div>
+                        </div>
 
-                  <ul className="exp-responsibilities">
-                    {(Array.isArray(responsibilities) ? responsibilities : []).map(r => (
-                      <li key={r}>
-                        <span className="resp-arrow" style={{ color: exp.color }}>→</span>
-                        {r}
-                      </li>
-                    ))}
-                  </ul>
+                        <p className="exp-desc">{desc}</p>
 
-                  <div className="exp-stack">
-                    {exp.stack.map(s => (
-                      <span key={s} className="tag">{s}</span>
-                    ))}
-                  </div>
+                        <ul className="exp-responsibilities">
+                          {(Array.isArray(responsibilities) ? responsibilities : []).map(r => (
+                            <li key={r}>
+                              <span className="resp-arrow" style={{ color: exp.color }}>→</span>
+                              {r}
+                            </li>
+                          ))}
+                        </ul>
+
+                        <div className="exp-stack">
+                          {exp.stack.map(s => (
+                            <span key={s} className="tag">{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </Reveal>
                 </div>
-              </div>
-            </Reveal>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </DevShell>
+      </Reveal>
     </div>
   );
 }

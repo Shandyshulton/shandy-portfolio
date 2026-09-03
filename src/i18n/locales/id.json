@@ -148,6 +148,7 @@
     "title": "Pendidikan",
     "certLabel": "Kredensial",
     "certTitle": "Sertifikasi",
+    "ready": "siap dibaca",
     "items": {
       "binus": {
         "desc": "Menempuh gelar Sarjana Ilmu Komputer dengan spesialisasi Teknologi Basis Data. Terlibat dalam berbagai proyek akademik, kegiatan klub, dan pekerjaan pengembangan web secara langsung di samping studi.",
@@ -175,6 +176,7 @@
   "experience": {
     "sectionLabel": "Perjalanan Saya",
     "title": "Pengalaman",
+    "ready": "siap dibaca",
     "types": {
       "internship": "Magang",
       "course": "Kursus",
@@ -228,6 +230,7 @@
   "contact": {
     "sectionLabel": "Hubungi Saya",
     "title": "Kontak",
+    "ready": "jalankan untuk terhubung",
     "intro": "Saat ini saya terbuka untuk peluang magang, proyek freelance, dan kolaborasi. Jangan ragu untuk menghubungi saya — senang bisa terhubung!",
     "form": {
       "name": "Nama Anda",

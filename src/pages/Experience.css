@@ -4,6 +4,21 @@
   gap: 0;
 }
 
+/* Baris: nomor baris terminal + item */
+.exp-row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 12px;
+}
+.exp-lineno {
+  padding-top: 14px;
+  text-align: right;
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.55;
+  user-select: none;
+}
+
 .exp-item {
   display: grid;
   grid-template-columns: 52px 1fr;
@@ -63,7 +78,9 @@
 }
 
 .exp-type-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: 'DM Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.1em;
@@ -72,6 +89,9 @@
   border-radius: 4px;
   border: 1px solid;
   margin-bottom: 10px;
+}
+.exp-badge-mark {
+  font-weight: 700;
 }
 
 .exp-role {
@@ -143,4 +163,6 @@
   .exp-card-top { border-left: 3px solid; border-radius: 12px; }
   .exp-header { flex-direction: column; }
   .exp-meta { align-items: flex-start; }
+  .exp-row { grid-template-columns: 1fr; }
+  .exp-lineno { display: none; }
 }

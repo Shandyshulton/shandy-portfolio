@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ExternalLink, GitFork, ArrowLeft, ArrowRight, Image as ImageIcon, ZoomIn, X } from 'lucide-react';
+import { ExternalLink, GitFork, ArrowLeft, ArrowRight, Image as ImageIcon, ZoomIn, X, FolderOpen, FileCode2, ChevronRight } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms, getTranslation } from '../lib/cmsApi.js';
@@ -460,7 +460,9 @@ export default function Projects() {
           {mobileView === 'list' && (
             <div className="projects-mobile-list">
               <Reveal className="projects-mobile-head">
-                <p className="projects-eyebrow">{t('projects.sectionLabel')}</p>
+                <p className="projects-explorer mono">
+                  <ChevronRight size={11} /> EXPLORER · PORTFOLIO
+                </p>
                 <h1 className="projects-heading">Projects</h1>
                 <p className="projects-count">{projects.length} {t('projects.selectedWorks')}</p>
               </Reveal>
@@ -507,19 +509,26 @@ export default function Projects() {
           <div className="projects-desktop">
             <aside className="projects-sidebar">
               <Reveal className="projects-sidebar-head">
-                <p className="projects-eyebrow">{t('projects.sectionLabel')}</p>
+                <p className="projects-explorer mono">
+                  <ChevronRight size={11} /> EXPLORER · PORTFOLIO
+                </p>
                 <h1 className="projects-heading">Projects</h1>
                 <p className="projects-count">{projects.length} {t('projects.selectedWorks')}</p>
               </Reveal>
 
               <div className="projects-sidebar-list">
-                {projects.map((p, i) => {
+                {projects.map((p) => {
                   const isActive = p.key === active.key;
                   return (
                     <button key={p.key} type="button" className={`projects-sidebar-item ${isActive ? 'is-active' : ''}`} onClick={() => handleSelect(p.key)}>
-                      <span className="projects-sidebar-id">{String(i + 1).padStart(2, '0')}</span>
+                      <span className="projects-sidebar-folder">
+                        <FolderOpen size={13} />
+                      </span>
                       <div className="projects-sidebar-meta">
-                        <p className="projects-sidebar-title">{p.shortTitle || p.title}</p>
+                        <p className="projects-sidebar-title">
+                          <FileCode2 size={12} className="projects-sidebar-fileicon" />
+                          {p.shortTitle || p.title}
+                        </p>
                         <p className="projects-sidebar-cat">{p.category}</p>
                       </div>
                       <span className={`projects-status ${p.status === 'Live' ? 'is-live' : ''}`}>{p.status}</span>

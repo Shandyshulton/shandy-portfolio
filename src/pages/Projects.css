@@ -93,6 +93,23 @@
   flex-shrink: 0;
 }
 
+/* Label explorer ala IDE */
+.projects-explorer {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  background: var(--accent-dim);
+  border: 1px solid rgba(200, 82, 42, 0.18);
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+.projects-explorer svg { color: var(--accent); }
+
 .projects-sidebar-list {
   flex: 1;
   padding: 8px 0;
@@ -104,7 +121,7 @@
   gap: 10px;
   width: 100%;
   text-align: left;
-  padding: 11px 14px;
+  padding: 10px 14px;
   background: transparent;
   border: none;
   border-left: 3px solid transparent;
@@ -117,15 +134,15 @@
   border-left-color: var(--accent);
 }
 
-.projects-sidebar-id {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  font-weight: 600;
+.projects-sidebar-folder {
   color: var(--text-muted);
   margin-top: 2px;
   flex-shrink: 0;
+  display: inline-flex;
+  transition: color 0.15s;
 }
-.projects-sidebar-item.is-active .projects-sidebar-id { color: var(--accent); }
+.projects-sidebar-item.is-active .projects-sidebar-folder,
+.projects-sidebar-item:hover .projects-sidebar-folder { color: var(--accent); }
 
 .projects-sidebar-meta {
   flex: 1;
@@ -133,6 +150,9 @@
 }
 
 .projects-sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-family: 'Outfit', sans-serif;
   font-size: 13.5px;
   font-weight: 600;
@@ -142,7 +162,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.projects-sidebar-title svg { flex-shrink: 0; }
 .projects-sidebar-item.is-active .projects-sidebar-title { color: var(--text); }
+.projects-sidebar-fileicon { color: var(--accent); opacity: 0.75; }
+.projects-sidebar-item.is-active .projects-sidebar-fileicon { opacity: 1; }
 
 .projects-sidebar-cat {
   font-size: 11px;

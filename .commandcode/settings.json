@@ -170,7 +170,11 @@
       "Shell(ping -n 3 127.0.0.1 >NUL & agent-browser eval \"JSON.stringify({stage: (()=>{const r=document.querySelector('.cert-stage').getBoundingClientRect(); return {l:Math.round(r.left),w:Math.round(r.width)}})(), active: (()=>{const a=document.querySelector('.cert-slide.is-active'); const r=a.getBoundingClientRect(); return {l:Math.round(r.left),r:Math.round(r.right),w:Math.round(r.width)}})()})\" 2>&1)",
       "Shell(curl -s -m 10 \"http://localhost:5199/src/pages/Education.jsx\" -o NUL -w \"Education module: %{http_code}\\n\")",
       "Shell(ping -n 3 127.0.0.1 >NUL & agent-browser eval \"JSON.stringify({stage: (()=>{const r=document.querySelector('.cert-stage').getBoundingClientRect(); return {c:Math.round(r.left+r.width/2),w:Math.round(r.width)}})(), active: (()=>{const a=document.querySelector('.cert-slide.is-active'); const r=a.getBoundingClientRect(); return {l:Math.round(r.left),r:Math.round(r.right),w:Math.round(r.width),h:Math.round(r.height),c:Math.round(r.left+r.width/2)}})()})\" 2>&1)",
-      "Shell(ping -n 3 127.0.0.1 >NUL & agent-browser eval \"JSON.stringify({stage: (()=>{const r=document.querySelector('.cert-stage').getBoundingClientRect(); return {c:Math.round(r.left+r.width/2),w:Math.round(r.width)}})(), active: (()=>{const a=document.querySelector('.cert-slide.is-active'); const r=a.getBoundingClientRect(); return {l:Math.round(r.left),r:Math.round(r.right),w:Math.round(r.width),c:Math.round(r.left+r.width/2)}})(), overflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth})\" 2>&1)"
+      "Shell(ping -n 3 127.0.0.1 >NUL & agent-browser eval \"JSON.stringify({stage: (()=>{const r=document.querySelector('.cert-stage').getBoundingClientRect(); return {c:Math.round(r.left+r.width/2),w:Math.round(r.width)}})(), active: (()=>{const a=document.querySelector('.cert-slide.is-active'); const r=a.getBoundingClientRect(); return {l:Math.round(r.left),r:Math.round(r.right),w:Math.round(r.width),c:Math.round(r.left+r.width/2)}})(), overflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth})\" 2>&1)",
+      "Shell(curl -s -m 15 http://localhost:5199/ -o NUL -w \"vite: %{http_code}\\n\")",
+      "Shell(curl -s -m 10 http://localhost:5199/src/pages/Experience.jsx 2 >& 1)",
+      "Shell(curl -s -m 20 http://localhost:5199/ -o NUL -w \"vite: %{http_code}\\n\")",
+      "Shell(curl -s -m 10 http://localhost:5199/src/components/DevShell.jsx 2 >& 1)"
     ],
     "deny": [],
     "defaultMode": "default"

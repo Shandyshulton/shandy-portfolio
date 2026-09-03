@@ -5,6 +5,7 @@ import { fetchCms } from '../lib/cmsApi.js';
 import { useCmsSettings } from '../lib/useCmsProfile.js';
 import AiBackground from '../components/AiBackground.jsx';
 import Reveal from '../components/Reveal.jsx';
+import DevShell from '../components/DevShell.jsx';
 import './Contact.css';
 
 export default function Contact() {
@@ -51,81 +52,89 @@ export default function Contact() {
       <Reveal as="p" className="section-label">{contactContent.section_label || t('contact.sectionLabel')}</Reveal>
       <Reveal as="h1" delay={80} className="section-title">{contactContent.title || t('contact.title')}</Reveal>
 
-      <div className="contact-grid">
-        {/* Left — Info */}
-        <Reveal className="contact-info" delay={120}>
-          <p className="contact-intro">{contactContent.intro || t('contact.intro')}</p>
+      <Reveal delay={120}>
+        <DevShell file="~/contact.sh" status={t('contact.ready')} right={{ ln: contacts.length + 8, branch: 'main' }}>
+          <div className="contact-grid">
+            {/* Left — Info */}
+            <div className="contact-info">
+              <p className="contact-intro">
+                <span className="shell-prompt">❯</span> {contactContent.intro || t('contact.intro')}
+              </p>
 
-          <div className="contact-list">
-            {contacts.map((c, ci) => (
-              <Reveal key={c.label} delay={ci * 60} className="contact-item">
-                <div className="contact-item-icon">{c.icon}</div>
-                <div>
-                  <p className="contact-item-label">{c.label}</p>
-                  {c.href ? (
-                    <a href={c.href} target={c.href.startsWith('http') ? '_blank' : '_self'} rel="noreferrer" className="contact-item-value link">
-                      {c.value}
-                    </a>
-                  ) : (
-                    <p className="contact-item-value">{c.value}</p>
-                  )}
-                </div>
-              </Reveal>
-            ))}
-          </div>
+              <div className="contact-list">
+                {contacts.map((c) => (
+                  <div key={c.label} className="contact-item">
+                    <div className="contact-item-icon">{c.icon}</div>
+                    <div className="contact-item-body">
+                      <p className="contact-item-label">
+                        <span className="contact-item-caret">$</span> {c.label}
+                      </p>
+                      {c.href ? (
+                        <a href={c.href} target={c.href.startsWith('http') ? '_blank' : '_self'} rel="noreferrer" className="contact-item-value link">
+                          {c.value}
+                        </a>
+                      ) : (
+                        <p className="contact-item-value">{c.value}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-          <Reveal className="contact-socials" delay={200}>
-            <a href={profile.github} target="_blank" rel="noreferrer" className="social-btn">
-              <GitFork size={18} /> GitHub
-            </a>
-            <a href={profile.linkedin} target="_blank" rel="noreferrer" className="social-btn social-btn-linkedin">
-              <Globe size={18} /> LinkedIn
-            </a>
-          </Reveal>
-        </Reveal>
-
-        {/* Right — Form */}
-        <Reveal className="contact-form-wrap" delay={160}>
-          {sent ? (
-            <div className="form-success">
-              <CheckCircle size={48} color="var(--accent)" />
-              <h3>{contactForm.success_title || t('contact.form.successTitle')}</h3>
-              <p>{contactForm.success_text || t('contact.form.successText')}</p>
-              <button className="btn btn-outline" onClick={() => { setSent(false); setForm({ name:'', email:'', subject:'', message:'' }); }}>
-                {t('contact.form.sendAnother')}
-              </button>
+              <div className="contact-socials">
+                <a href={profile.github} target="_blank" rel="noreferrer" className="social-btn">
+                  <GitFork size={18} /> GitHub
+                </a>
+                <a href={profile.linkedin} target="_blank" rel="noreferrer" className="social-btn social-btn-linkedin">
+                  <Globe size={18} /> LinkedIn
+                </a>
+              </div>
             </div>
-          ) : (
-            <form className="contact-form" onSubmit={handleSubmit}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="name">{t('contact.form.name')}</label>
-                  <input id="name" name="name" type="text" placeholder={t('contact.form.namePlaceholder')} required value={form.name} onChange={handleChange} />
+
+            {/* Right — Form */}
+            <div className="contact-form-wrap">
+              {sent ? (
+                <div className="form-success">
+                  <CheckCircle size={48} color="var(--accent)" />
+                  <h3>{contactForm.success_title || t('contact.form.successTitle')}</h3>
+                  <p>{contactForm.success_text || t('contact.form.successText')}</p>
+                  <button className="btn btn-outline" onClick={() => { setSent(false); setForm({ name:'', email:'', subject:'', message:'' }); }}>
+                    {t('contact.form.sendAnother')}
+                  </button>
                 </div>
-                <div className="form-group">
-                  <label htmlFor="email">{t('contact.form.email')}</label>
-                  <input id="email" name="email" type="email" placeholder={t('contact.form.emailPlaceholder')} required value={form.email} onChange={handleChange} />
-                </div>
-              </div>
-              <div className="form-group">
-                <label htmlFor="subject">{t('contact.form.subject')}</label>
-                <input id="subject" name="subject" type="text" placeholder={t('contact.form.subjectPlaceholder')} required value={form.subject} onChange={handleChange} />
-              </div>
-              <div className="form-group">
-                <label htmlFor="message">{t('contact.form.message')}</label>
-                <textarea id="message" name="message" rows="6" placeholder={t('contact.form.messagePlaceholder')} required value={form.message} onChange={handleChange} />
-              </div>
-              <button type="submit" className="btn btn-primary submit-btn" disabled={loading}>
-                {loading ? (
-                  <span className="spinner" />
-                ) : (
-                  <><Send size={16} /> {t('contact.form.send')}</>
-                )}
-              </button>
-            </form>
-          )}
-        </Reveal>
-      </div>
+              ) : (
+                <form className="contact-form" onSubmit={handleSubmit}>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor="name">{t('contact.form.name')}</label>
+                      <input id="name" name="name" type="text" placeholder={t('contact.form.namePlaceholder')} required value={form.name} onChange={handleChange} />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="email">{t('contact.form.email')}</label>
+                      <input id="email" name="email" type="email" placeholder={t('contact.form.emailPlaceholder')} required value={form.email} onChange={handleChange} />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="subject">{t('contact.form.subject')}</label>
+                    <input id="subject" name="subject" type="text" placeholder={t('contact.form.subjectPlaceholder')} required value={form.subject} onChange={handleChange} />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="message">{t('contact.form.message')}</label>
+                    <textarea id="message" name="message" rows="6" placeholder={t('contact.form.messagePlaceholder')} required value={form.message} onChange={handleChange} />
+                  </div>
+                  <button type="submit" className="btn btn-primary submit-btn" disabled={loading}>
+                    {loading ? (
+                      <span className="spinner" />
+                    ) : (
+                      <><Send size={16} /> {t('contact.form.send')}</>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </DevShell>
+      </Reveal>
     </div>
   );
 }
