@@ -237,6 +237,22 @@
       "sendAnother": "Send Another"
     }
   },
+  "chat": {
+    "welcome": "Hi! I'm Shandy's virtual assistant. Want to ask about his profile, projects, or how to contact him? 👋",
+    "headerName": "Shandy's Assistant",
+    "status": "Online",
+    "instant": "Instant replies",
+    "placeholder": "Type a message...",
+    "send": "Send",
+    "open": "Open chatbot",
+    "close": "Close",
+    "error": "Sorry, something went wrong. Please try again.",
+    "tryAsk": "Try asking:",
+    "quickProjects": "What projects?",
+    "quickSkills": "Shandy's skills?",
+    "quickContact": "How to reach?",
+    "scrollBottom": "Go to latest message"
+  },
   "footer": {
     "tagline": "Building the web, one component at a time."
   }

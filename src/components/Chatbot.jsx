@@ -1,245 +1,234 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot } from 'lucide-react';
+import { MessageCircle, X, Send, Sparkles, ArrowDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { sendChatMessage } from '../lib/chatApi.js';
 import './Chatbot.css';
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_MODEL = 'llama-3.1-8b-instant';
-
-const SYSTEM_CONTEXT = `Kamu adalah asisten virtual interaktif untuk portfolio website milik Shandy Shulton Shihab.
-
-=== PROFIL ===
-Nama: Shandy Shulton Shihab
-Fokus: Front-End Developer (dengan kemampuan Full Stack)
-Email: ssshandy60@gmail.com
-Telepon: +6281212181182
-LinkedIn: https://www.linkedin.com/in/shandyshulton-shihab-73a25922a/
-GitHub: https://github.com/Shandyshulton
-Portfolio: https://shandy-shulton-shihab.vercel.app/
-Status: Tersedia untuk magang, freelance, dan kolaborasi
-
-Ringkasan:
-Mahasiswa Computer Science di Bina Nusantara University dengan latar belakang Software Engineering dari SMK Telkom Jakarta. Fokus pada front-end web development dengan pengalaman membangun antarmuka yang responsif dan interaktif. Memiliki perhatian kuat pada UI implementation dan struktur kode, serta pengalaman di UI/UX design menggunakan Figma.
-
-=== KEAHLIAN TEKNIS ===
-Front-End: HTML, CSS, JavaScript, React.js, Bootstrap, Tailwind CSS, Vite
-Back-End: Laravel, MySQL
-Tools & Lain: Figma (UI/UX), Jira (project management), Git/GitHub
-
-=== PENDIDIKAN ===
-1. Bina Nusantara University (Binus)
-   - Program: Computer Science — spesialisasi Database Technology
-   - Periode: Agustus 2023 – Agustus 2027 (Expected)
-
-2. SMK Telkom Jakarta
-   - Program: Software Engineering (Rekayasa Perangkat Lunak)
-   - Periode: Juli 2020 – Juni 2023
-
-=== PROYEK ===
-1. PlayStation Rental Management System (Juni 2025)
-   - Role: Full Stack Developer
-   - Tech: Laravel, MySQL, Bootstrap
-   - Deskripsi: Sistem manajemen rental PlayStation berbasis web dengan autentikasi multi-user dan fitur CRUD. Mencakup monitoring transaksi dan manajemen database relasional untuk data pelanggan dan rental.
-
-2. EasySaving (Oktober 2025)
-   - Role: Front-End Developer
-   - Tech: React.js, Vite, Tailwind CSS, JavaScript
-   - Link: https://easysaving.asia/
-   - Hosting: VPS
-   - Deskripsi: Aplikasi web untuk mencatat tabungan, memantau progress target finansial, dan melihat riwayat transaksi.
-
-3. Petly – Pet Care E-Commerce Website (Desember 2025)
-   - Role: Front-End Developer
-   - Tech: HTML, CSS, JavaScript, Tailwind CSS, Laravel
-   - Deskripsi: Antarmuka responsif untuk halaman product listing, cart, dan checkout. Mengintegrasikan front-end dengan back-end Laravel.
-
-=== PENGALAMAN ORGANISASI ===
-1. BNCC (Bina Nusantara Computer Club) — Bina Nusantara University
-   - Role: Member | Team Project Management (TPM)
-   - Back-End Developer dalam proyek berbasis tim menggunakan Laravel.
-   - Belajar project scheduling dan task management menggunakan Jira.
-
-2. Student Council (OSIS) — SMK Telkom Jakarta
-   - Divisi: Media and Communications (Juli 2020 – Maret 2023)
-   - Membuat desain visual untuk konten media sosial dan publikasi internal.
-
-=== SERTIFIKASI ===
-1. BNSP Junior Web Developer Certificate (Telkom DigiUp) — Desember 2022
-2. Belajar Dasar Artificial Intelligence — Dicoding Indonesia — Desember 2025
-3. English Conversation for Employees: Upper-Intermediate Level (LB LIA) — Februari 2024
-
-=== INSTRUKSI ===
-- Jawab pertanyaan seputar profil, skill, proyek, pendidikan, pengalaman, sertifikasi, dan cara menghubungi Shandy
-- Jika ditanya di luar topik tersebut, arahkan kembali secara ramah
-- Gunakan bahasa yang sama dengan pengguna (Indonesia atau Inggris)
-- Jawab singkat, jelas, dan ramah
-- Jangan mengarang informasi yang tidak ada di atas
-- Untuk pertanyaan kontak, arahkan ke email ssshandy60@gmail.com atau halaman Contact di website`;
-
-const WELCOME_MSG = 'Halo! Saya asisten virtual Shandy. Ada yang ingin kamu tanyakan tentang profil, proyek, atau cara menghubungi Shandy? 👋';
-
-async function sendToGroq(history, userText) {
-  const messages = [
-    { role: 'system', content: SYSTEM_CONTEXT },
-    ...history,
-    { role: 'user', content: userText },
-  ];
-
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      messages,
-      max_tokens: 512,
-      temperature: 0.7,
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error?.message ?? `HTTP ${res.status}`);
-  }
-
-  const data = await res.json();
-  return data.choices[0].message.content;
-}
+// Saran pertanyaan cepat (biar pengunjung tahu apa yang bisa ditanyakan).
+const QUICK_ACTIONS = [
+  { key: 'chat.quickProjects' },
+  { key: 'chat.quickSkills' },
+  { key: 'chat.quickContact' },
+];
 
 export default function Chatbot() {
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    { role: 'assistant', text: WELCOME_MSG }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [appeared, setAppeared] = useState(false);
-  const bottomRef = useRef(null);
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const bodyRef = useRef(null);
   const inputRef = useRef(null);
+  const welcomeSentRef = useRef(false);
+
+  // Tampilkan pesan sambutan sekali, dalam bahasa aktif.
+  useEffect(() => {
+    if (welcomeSentRef.current) return;
+    welcomeSentRef.current = true;
+    setMessages([{ role: 'assistant', text: t('chat.welcome'), isWelcome: true }]);
+  }, [t]);
 
   useEffect(() => {
-    const t = setTimeout(() => setAppeared(true), 2000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setAppeared(true), 2000);
+    return () => clearTimeout(timer);
   }, []);
 
+  // Auto-scroll ke pesan terbaru. Pakai scrollTop pada container (bukan
+  // scrollIntoView) supaya andal walau window chat tertutup/semula tersembunyi.
+  const scrollToBottom = (behavior = 'smooth') => {
+    const el = bodyRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior });
+  };
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    scrollToBottom('smooth');
+  }, [messages, loading]);
+
+  // Tampilkan tombol "ke bawah" saat user scroll ke atas (chat panjang).
+  const handleBodyScroll = () => {
+    const el = bodyRef.current;
+    if (!el) return;
+    const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    setShowScrollBtn(distFromBottom > 120);
+  };
 
   useEffect(() => {
     if (isOpen) setTimeout(() => inputRef.current?.focus(), 300);
   }, [isOpen]);
 
   const buildHistory = () =>
-    messages.slice(1).map(m => ({
-      role: m.role === 'assistant' ? 'assistant' : 'user',
-      content: m.text,
-    }));
+    messages
+      .filter((m) => !m.isWelcome)
+      .map((m) => ({
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: m.text,
+      }));
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
-    const userText = input.trim();
+  const appendMessage = (msg) => setMessages((prev) => [...prev, msg]);
+
+  const sendMessage = async (text) => {
+    const userText = (text ?? input).trim();
+    if (!userText || loading) return;
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userText }]);
+    appendMessage({ role: 'user', text: userText });
     setLoading(true);
 
     try {
-      const reply = await sendToGroq(buildHistory(), userText);
-      setMessages(prev => [...prev, { role: 'assistant', text: reply }]);
+      const reply = await sendChatMessage({
+        message: userText,
+        history: buildHistory(),
+        locale: i18n.language,
+      });
+      appendMessage({ role: 'assistant', text: reply });
     } catch (err) {
-      console.error('Groq error:', err);
-      const msg = err?.message ?? '';
-      let friendlyMsg = 'Maaf, terjadi kesalahan. Silakan coba lagi.';
-      if (msg.includes('429')) friendlyMsg = 'Terlalu banyak request. Coba lagi sebentar ya.';
-      else if (msg.includes('401') || msg.includes('403')) friendlyMsg = 'API key tidak valid. Silakan cek konfigurasi.';
-      setMessages(prev => [...prev, { role: 'assistant', text: friendlyMsg }]);
+      console.error('Chat error:', err);
+      appendMessage({ role: 'assistant', text: t('chat.error') });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKey = e => {
+  const handleKey = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
 
+  // Hanya tampilkan quick action di awal percakapan (sebelum user bertanya).
+  const showQuickActions = messages.filter((m) => !m.isWelcome).length === 0;
+
   return (
     <div className={`chatbot-root ${appeared ? 'chatbot-appeared' : ''}`}>
       <div className={`chatbot-window ${isOpen ? 'chatbot-window--open' : ''}`} aria-hidden={!isOpen}>
         <div className="chatbot-header">
+          <div className="chatbot-header-orb" aria-hidden="true" />
           <div className="chatbot-header-info">
             <div className="chatbot-avatar">
-              <Bot size={16} />
+              <Sparkles size={16} />
             </div>
             <div>
-              <p className="chatbot-header-name">Asisten Shandy</p>
+              <p className="chatbot-header-name">{t('chat.headerName')}</p>
               <p className="chatbot-header-status">
                 <span className="chatbot-dot" />
-                Online
+                <span className="chatbot-status-ping" />
+                {t('chat.status')}
               </p>
             </div>
           </div>
-          <button className="chatbot-close" onClick={() => setIsOpen(false)} aria-label="Tutup">
+          <button className="chatbot-close" onClick={() => setIsOpen(false)} aria-label={t('chat.close')}>
             <X size={16} />
           </button>
         </div>
 
-        <div className="chatbot-body">
+        <div className="chatbot-body" ref={bodyRef} onScroll={handleBodyScroll}>
+          <div className="chatbot-ai-chip">
+            <Sparkles size={11} />
+            AI Assistant · {t('chat.instant')}
+          </div>
+
           {messages.map((msg, i) => (
             <div key={i} className={`chatbot-bubble-wrap chatbot-bubble-wrap--${msg.role}`}>
               {msg.role === 'assistant' && (
                 <div className="chatbot-bubble-avatar">
-                  <Bot size={12} />
+                  <Sparkles size={12} />
                 </div>
               )}
               <div className={`chatbot-bubble chatbot-bubble--${msg.role}`}>
-                {msg.text}
+                {msg.role === 'assistant' ? (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      a: (props) => (
+                        <a {...props} target="_blank" rel="noopener noreferrer" />
+                      ),
+                      table: (props) => (
+                        <div className="chatbot-table-wrap">
+                          <table {...props} />
+                        </div>
+                      ),
+                    }}
+                  >
+                    {msg.text}
+                  </ReactMarkdown>
+                ) : (
+                  msg.text
+                )}
               </div>
             </div>
           ))}
 
+          {showQuickActions && !loading && (
+            <div className="chatbot-quick">
+              <p className="chatbot-quick-label">{t('chat.tryAsk')}</p>
+              <div className="chatbot-quick-grid">
+                {QUICK_ACTIONS.map((a) => (
+                  <button
+                    key={a.key}
+                    type="button"
+                    className="chatbot-quick-btn"
+                    onClick={() => sendMessage(t(a.key))}
+                  >
+                    {t(a.key)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {loading && (
             <div className="chatbot-bubble-wrap chatbot-bubble-wrap--assistant">
               <div className="chatbot-bubble-avatar">
-                <Bot size={12} />
+                <Sparkles size={12} />
               </div>
               <div className="chatbot-bubble chatbot-bubble--assistant chatbot-typing">
                 <span /><span /><span />
               </div>
             </div>
           )}
-          <div ref={bottomRef} />
         </div>
+
+        {showScrollBtn && (
+          <button
+            type="button"
+            className="chatbot-scroll-bottom"
+            onClick={() => scrollToBottom('smooth')}
+            aria-label={t('chat.scrollBottom')}
+          >
+            <ArrowDown size={16} />
+          </button>
+        )}
 
         <div className="chatbot-footer">
           <input
             ref={inputRef}
             className="chatbot-input"
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKey}
-            placeholder="Ketik pesan..."
+            placeholder={t('chat.placeholder')}
             disabled={loading}
-            aria-label="Pesan"
+            aria-label={t('chat.placeholder')}
           />
           <button
             className="chatbot-send"
-            onClick={sendMessage}
+            onClick={() => sendMessage()}
             disabled={loading || !input.trim()}
-            aria-label="Kirim"
+            aria-label={t('chat.send')}
           >
-            <Send size={15} />
+            {loading ? <span className="chatbot-send-loader" /> : <Send size={15} />}
           </button>
         </div>
       </div>
 
       <button
         className={`chatbot-toggle ${isOpen ? 'chatbot-toggle--active' : ''}`}
-        onClick={() => setIsOpen(p => !p)}
-        aria-label="Buka chatbot"
+        onClick={() => setIsOpen((p) => !p)}
+        aria-label={isOpen ? t('chat.close') : t('chat.open')}
       >
         {isOpen ? <X size={22} /> : <MessageCircle size={22} />}
         {!isOpen && <span className="chatbot-badge" />}

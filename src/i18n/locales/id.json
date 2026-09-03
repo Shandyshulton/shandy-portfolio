@@ -237,6 +237,22 @@
       "sendAnother": "Kirim Lagi"
     }
   },
+  "chat": {
+    "welcome": "Halo! Saya asisten virtual Shandy. Ada yang ingin kamu tanyakan tentang profil, proyek, atau cara menghubungi Shandy? 👋",
+    "headerName": "Asisten Shandy",
+    "status": "Online",
+    "instant": "Respon instan",
+    "placeholder": "Ketik pesan...",
+    "send": "Kirim",
+    "open": "Buka chatbot",
+    "close": "Tutup",
+    "error": "Maaf, terjadi kesalahan. Silakan coba lagi.",
+    "tryAsk": "Coba tanyakan:",
+    "quickProjects": "Proyek apa saja?",
+    "quickSkills": "Keahlian Shandy?",
+    "quickContact": "Cara hubungi?",
+    "scrollBottom": "Ke pesan terbaru"
+  },
   "footer": {
     "tagline": "Membangun web, satu komponen dalam satu waktu."
   }
