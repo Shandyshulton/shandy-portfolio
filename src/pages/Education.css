@@ -9,7 +9,6 @@
   display: grid;
   grid-template-columns: 56px 1fr;
   gap: 24px;
-  opacity: 0;
 }
 
 .edu-timeline {
@@ -120,64 +119,333 @@
   flex-shrink: 0;
 }
 
-/* CERTS */
+/* ============================================================
+   CERTS — coverflow slider nuansa terminal
+   ============================================================ */
 .cert-section {
-  opacity: 0;
-}
-.cert-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-.cert-card {
-  background: var(--surface);
-  border: 1.5px solid var(--card-border);
-  border-radius: 14px;
-  padding: 24px;
   position: relative;
+}
+
+/* Wrapper slider */
+.cert-slider {
+  position: relative;
+  user-select: none;
+  --card-w: min(340px, 72vw);
+}
+
+/* Bar terminal */
+.cert-slider-term {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  background: color-mix(in srgb, var(--surface) 82%, #000);
+  border: 1px solid var(--card-border);
+  border-radius: 12px 12px 0 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  border-bottom: none;
+}
+.term-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.term-dot--r { background: #ff5f57; }
+.term-dot--y { background: #febc2e; }
+.term-dot--g { background: #28c840; }
+.term-title {
+  margin-left: 6px;
+  letter-spacing: 0.03em;
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.cert-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow);
-}
-.cert-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+.term-play {
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: var(--bg);
+  color: var(--accent);
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  transition: background 0.15s;
+  flex-shrink: 0;
 }
-.cert-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 0.95rem;
-  color: var(--text);
-  margin-bottom: 8px;
-  line-height: 1.3;
-}
-.cert-issuer {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-}
-.cert-date {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-.cert-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  opacity: 0.6;
+.term-play:hover { background: var(--accent); color: #fff; }
+
+/* Stage coverflow — slide berpusat di stage */
+.cert-stage {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  background:
+    radial-gradient(700px 240px at 50% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%),
+    color-mix(in srgb, var(--bg) 88%, transparent);
+  height: clamp(360px, 48vw, 480px);
+  touch-action: pan-y;
+  perspective: 1400px;
 }
 
+/* Kartu slide — poros tengah kartu tepat di tengah stage.
+   Posisi: left:50% + margin kiri -½w. Transform geser/3D dari JSX. */
+.cert-slide {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--card-w);
+  margin-left: calc(var(--card-w) / -2);
+  transform: translateY(-50%) translateZ(0);
+  background: var(--surface);
+  border: 1.5px solid var(--card-border);
+  border-radius: 16px;
+  padding: 14px 14px 16px;
+  cursor: pointer;
+  transition: transform 0.45s cubic-bezier(0.2, 0, 0, 1), opacity 0.35s ease, border-color 0.25s;
+  transform-style: preserve-3d;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  color: inherit;
+  text-align: left;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cert-slide:hover { border-color: color-mix(in srgb, var(--cert-accent, var(--accent)) 60%, var(--card-border)); }
+.cert-slide.is-active {
+  border-color: color-mix(in srgb, var(--cert-accent, var(--accent)) 70%, var(--card-border));
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.2), 0 0 0 1px color-mix(in srgb, var(--cert-accent, var(--accent)) 28%, transparent);
+}
+
+.cert-slide-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 15% 0%, color-mix(in srgb, var(--cert-accent, var(--accent)) 18%, transparent), transparent 60%),
+    var(--bg-2);
+  border: 1px solid var(--card-border);
+}
+.cert-slide-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+}
+.cert-slide-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cert-slide-cap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.cert-slide-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cert-slide-issuer {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Navigasi panah */
+.cert-slider-ui {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.cert-nav {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1.5px solid var(--card-border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s;
+}
+.cert-nav:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(200, 82, 42, 0.18);
+}
+
+/* Hint */
+.cert-hint {
+  margin-top: 14px;
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.cert-hint-caret { color: var(--accent); margin-right: 6px; }
+
+/* ── Lightbox detail sertifikat ── */
+.cert-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  background: rgba(10, 8, 6, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.2s ease;
+}
+.cert-lightbox-panel {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  max-width: 640px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: lightbox-pop 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+@keyframes lightbox-pop {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.cert-lightbox-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--card-border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.cert-lightbox-close:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.cert-lightbox-media {
+  background:
+    radial-gradient(120% 120% at 15% 0%, var(--accent-dim), transparent 60%),
+    var(--bg-2);
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.cert-lightbox-media img {
+  max-height: 300px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+.cert-lightbox-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+.cert-lightbox-body {
+  padding: 22px 26px;
+}
+.cert-lightbox-issuer {
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.cert-lightbox-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.35rem;
+  color: var(--text);
+  margin: 6px 0 10px;
+  line-height: 1.3;
+}
+.cert-lightbox-desc {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 18px;
+}
+.cert-lightbox-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Elemen bersama yang dipakai kartu/lightbox */
+.cert-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'DM Mono', monospace;
+}
+.cert-verify {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cert-accent, var(--accent));
+  border: 1px solid color-mix(in srgb, var(--cert-accent, var(--accent)) 40%, transparent);
+  background: color-mix(in srgb, var(--cert-accent, var(--accent)) 10%, transparent);
+  padding: 7px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.15s;
+}
+.cert-verify:hover {
+  background: color-mix(in srgb, var(--cert-accent, var(--accent)) 22%, transparent);
+  transform: translateY(-1px);
+}
+
+/* Reduced motion: nonaktifkan transisi 3D; autoplay tetap via tombol */
+@media (prefers-reduced-motion: reduce) {
+  .cert-slide { transition: none; }
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .edu-card { grid-template-columns: 1fr; }
   .edu-timeline { display: none; }
-  .cert-grid { grid-template-columns: 1fr; }
+  .cert-stage { height: 340px; }
+  .cert-slider { --card-w: min(300px, 80vw); }
+  .cert-slide { padding: 10px; gap: 9px; }
+  .cert-slide-media { border-radius: 8px; }
 }

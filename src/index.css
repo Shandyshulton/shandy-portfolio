@@ -129,6 +129,76 @@ a {
 .delay-5 { animation-delay: 0.5s; }
 .delay-6 { animation-delay: 0.6s; }
 
+/* ============================================================
+   SHARED: scroll-reveal + AI background (dipakai lintas halaman)
+   ============================================================ */
+
+/* Scroll reveal — opt-in, default statis; aktif hanya saat user
+   tidak meminta reduced-motion */
+.rv { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .rv {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity 0.6s cubic-bezier(0.2, 0, 0, 1), transform 0.6s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .rv.rv-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Latar grid + orb glow (versi halaman konten, halus) */
+.ai-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.ai-bg--muted .ai-grid { opacity: 0.18; }
+.ai-bg--muted .ai-orb { opacity: 0.3; }
+.ai-grid {
+  position: absolute;
+  inset: -40% -10%;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 54px 54px;
+  opacity: 0.35;
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 30%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 30%, #000 30%, transparent 75%);
+}
+.ai-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.5;
+}
+.ai-orb--1 {
+  width: 460px;
+  height: 460px;
+  right: -120px;
+  top: -100px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 45%, transparent), transparent 70%);
+  animation: orb-drift 16s ease-in-out infinite alternate;
+}
+.ai-orb--2 {
+  width: 340px;
+  height: 340px;
+  left: -140px;
+  bottom: -60px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent-light) 32%, transparent), transparent 70%);
+  animation: orb-drift 22s ease-in-out infinite alternate-reverse;
+}
+@keyframes orb-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(40px, -30px, 0) scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ai-orb { animation: none; opacity: 0.2; }
+}
+
 /* Page container */
 .page {
   max-width: 1100px;

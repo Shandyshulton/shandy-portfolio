@@ -162,7 +162,15 @@
       "bnsp": { "title": "Sertifikat Junior Web Developer BNSP" },
       "lia": { "title": "English Conversation for Employees: Upper-Intermediate" },
       "ai": { "title": "Belajar Dasar Artificial Intelligence" }
-    }
+    },
+    "verifyCert": "Lihat Sertifikat",
+    "prevCert": "Sertifikat sebelumnya",
+    "nextCert": "Sertifikat berikutnya",
+    "openCert": "klik untuk lihat detail",
+    "goToCert": "buka sertifikat ini",
+    "playSlider": "Putar otomatis",
+    "pauseSlider": "Jeda",
+    "sliderHint": "klik kartu untuk detail penuh"
   },
   "experience": {
     "sectionLabel": "Perjalanan Saya",

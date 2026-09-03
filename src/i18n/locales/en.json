@@ -162,7 +162,15 @@
       "bnsp": { "title": "BNSP Junior Web Developer Certificate" },
       "lia": { "title": "English Conversation for Employees: Upper-Intermediate" },
       "ai": { "title": "Belajar Dasar Artificial Intelligence" }
-    }
+    },
+    "verifyCert": "View Certificate",
+    "prevCert": "Previous certificate",
+    "nextCert": "Next certificate",
+    "openCert": "click to view details",
+    "goToCert": "open this certificate",
+    "playSlider": "Autoplay",
+    "pauseSlider": "Pause",
+    "sliderHint": "click a card for full detail"
   },
   "experience": {
     "sectionLabel": "My Journey",

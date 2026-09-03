@@ -168,7 +168,20 @@
   flex-direction: column;
   overflow: hidden;
   background: var(--surface);
+  position: relative;
 }
+/* Aksen glow halus "developer AI" di pojok area detail */
+.projects-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(560px 300px at 100% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%),
+    radial-gradient(420px 260px at 0% 100%, color-mix(in srgb, var(--accent-light) 8%, transparent), transparent 70%);
+}
+.projects-main > * { position: relative; z-index: 1; }
 
 /* ─── Detail panel ─── */
 .projects-detail {

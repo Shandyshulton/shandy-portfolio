@@ -1,10 +1,96 @@
-import { useEffect, useMemo, useState } from 'react';
-import { GitFork, Mail, Globe, Download, ArrowRight, Code2, Palette, Database } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  GitFork, Mail, Globe, Download, ArrowRight,
+  Code2, Palette, Database, Braces, Server, Zap,
+  PenTool, Cloud, Boxes, Layers, Terminal,
+} from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms } from '../lib/cmsApi.js';
 import { useCmsSettings } from '../lib/useCmsProfile.js';
 import './Home.css';
+
+// ── Hook: deteksi elemen masuk viewport (untuk scroll-reveal) ────────────────
+function useInView() {
+  const ref = useRef(null);
+  // Kalau IntersectionObserver tidak didukung (browser lama), langsung anggap
+  // terlihat — tidak ada animasi reveal.
+  const supportsIo = typeof IntersectionObserver !== 'undefined';
+  const [inView, setInView] = useState(!supportsIo);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || inView) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -36px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [inView]);
+
+  return [ref, inView];
+}
+
+// Wrapper reveal: elemen muncul halus saat di-scroll ke arahnya.
+function Reveal({ as: Tag = 'div', delay = 0, className = '', style, children }) {
+  const [ref, inView] = useInView();
+  return (
+    <Tag
+      ref={ref}
+      className={`rv ${inView ? 'rv-in' : ''} ${className}`}
+      style={{ transitionDelay: `${delay}ms`, ...style }}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+// ── Hook: efek ketik (typewriter), hormati prefers-reduced-motion ─────────────
+function useTypewriter(text, speed = 46, startDelay = 500) {
+  const [count, setCount] = useState(0);
+  const done = count >= text.length;
+
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
+      setCount(text.length);
+      return undefined;
+    }
+    setCount(0);
+    let i = 0;
+    let timer;
+    const start = setTimeout(function tick() {
+      i += 1;
+      setCount(i);
+      if (i < text.length) timer = setTimeout(tick, speed);
+    }, startDelay);
+    return () => {
+      clearTimeout(start);
+      clearTimeout(timer);
+    };
+  }, [text, speed, startDelay]);
+
+  return { typed: text.slice(0, count), done };
+}
+
+// Fragmen kode semu yang melayang di background hero.
+const FLOAT_TOKENS = [
+  { text: '</>', left: '4%', top: '22%', dur: 18, delay: -2, size: 17 },
+  { text: 'const', left: '88%', top: '30%', dur: 22, delay: -8, size: 14 },
+  { text: '=>', left: '12%', top: '62%', dur: 20, delay: -12, size: 20 },
+  { text: '{ }', left: '92%', top: '70%', dur: 16, delay: -4, size: 15 },
+  { text: 'fn()', left: '72%', top: '14%', dur: 24, delay: -14, size: 14 },
+  { text: 'await', left: '6%', top: '40%', dur: 26, delay: -18, size: 13 },
+  { text: '<div/>', left: '82%', top: '52%', dur: 19, delay: -6, size: 14 },
+  { text: 'import', left: '26%', top: '84%', dur: 21, delay: -10, size: 13 },
+  { text: 'dev:', left: '58%', top: '88%', dur: 17, delay: -1, size: 15 },
+  { text: '0xFF', left: '46%', top: '10%', dur: 23, delay: -16, size: 13 },
+];
 
 export default function Home() {
   const { t } = useTranslation();
@@ -14,11 +100,33 @@ export default function Home() {
   const [stats, setStats] = useState({ projects: '3+', certs: '3' });
 
   const nameParts = useMemo(() => profile.name.split(' ').filter(Boolean), [profile.name]);
+  const roleText = profile.headline || t('home.role');
+  const { typed: typedRole, done: roleDone } = useTypewriter(roleText);
 
-  const skills = [
-    { icon: <Code2 size={18} />, label: 'Front-End', items: ['React.js', 'JavaScript', 'Tailwind CSS', 'Bootstrap'] },
-    { icon: <Database size={18} />, label: 'Back-End', items: ['Laravel', 'MySQL', 'PHP', 'Golang'] },
-    { icon: <Palette size={18} />, label: 'Design & Tools', items: ['Figma', 'Laragon', 'Jira', 'Git', 'Gitlab'] },
+  // Baris marquee tech stack (kiri & kanan saling berlawanan arah).
+  const stackRows = [
+    {
+      dir: 'left',
+      items: [
+        { label: 'React.js', icon: <Boxes size={15} /> },
+        { label: 'JavaScript', icon: <Braces size={15} /> },
+        { label: 'Tailwind CSS', icon: <Palette size={15} /> },
+        { label: 'Bootstrap', icon: <Layers size={15} /> },
+        { label: 'Vite', icon: <Zap size={15} /> },
+        { label: 'HTML & CSS', icon: <Code2 size={15} /> },
+      ],
+    },
+    {
+      dir: 'right',
+      items: [
+        { label: 'Laravel', icon: <Server size={15} /> },
+        { label: 'Golang', icon: <Code2 size={15} /> },
+        { label: 'MySQL', icon: <Database size={15} /> },
+        { label: 'PHP', icon: <Braces size={15} /> },
+        { label: 'REST API', icon: <Cloud size={15} /> },
+        { label: 'Figma', icon: <PenTool size={15} /> },
+      ],
+    },
   ];
 
   useEffect(() => {
@@ -54,10 +162,35 @@ export default function Home() {
       </Helmet>
 
       <section className="hero">
+        {/* Background "AI": grid + orb glow + token kode melayang */}
+        <div className="ai-bg" aria-hidden="true">
+          <div className="ai-grid" />
+          <div className="ai-orb ai-orb--1" />
+          <div className="ai-orb ai-orb--2" />
+          <div className="ai-orb ai-orb--3" />
+          {FLOAT_TOKENS.map((tk, i) => (
+            <span
+              key={`${tk.text}-${i}`}
+              className="ai-float"
+              style={{
+                left: tk.left,
+                top: tk.top,
+                fontSize: tk.size,
+                animationDuration: `${tk.dur}s`,
+                animationDelay: `${tk.delay}s`,
+              }}
+            >
+              {tk.text}
+            </span>
+          ))}
+        </div>
+
         <div className="hero-content">
           <div className="hero-text">
             <p className="hero-greeting animate-fadeUp">
-              <span className="mono greeting-tag">{homeContent.greeting || t('home.greeting')}</span>
+              <span className="mono greeting-tag">
+                <span className="greeting-caret">❯</span> {homeContent.greeting || t('home.greeting')}
+              </span>
             </p>
             <h1 className="hero-name animate-fadeUp delay-1">
               {nameParts.map((part, index) => (
@@ -67,10 +200,17 @@ export default function Home() {
                 </span>
               ))}
             </h1>
+
             <div className="hero-role animate-fadeUp delay-2">
-              <span className="role-badge">{profile.headline || t('home.role')}</span>
+              <span className="role-badge">
+                <span className="role-prompt">$</span>
+                {typedRole}
+                {!roleDone && <span className="type-caret" />}
+              </span>
               <span className="role-divider">/</span>
+              <span className="role-tag mono">AI-ready</span>
             </div>
+
             {profile.summary ? (
               <p className="hero-bio animate-fadeUp delay-3">{profile.summary}</p>
             ) : (
@@ -121,6 +261,41 @@ export default function Home() {
               <span className="status-dot"></span>
               {homeContent.available_text || t('home.available')}
             </div>
+
+            {/* Terminal mini ala IDE */}
+            <div className="dev-card" aria-hidden="true">
+              <div className="dev-card-head">
+                <span className="dev-dot dev-dot--r" />
+                <span className="dev-dot dev-dot--y" />
+                <span className="dev-dot dev-dot--g" />
+                <span className="dev-card-title">
+                  <Terminal size={11} /> shandy.config.js
+                </span>
+              </div>
+              <div className="dev-card-body">
+                <div className="dev-line" style={{ animationDelay: '0.35s' }}>
+                  <span className="tk-k">const</span> <span className="tk-v">profile</span> <span className="tk-p">=</span> <span className="tk-p">{'{'}</span>
+                </div>
+                <div className="dev-line dev-indent" style={{ animationDelay: '0.55s' }}>
+                  role<span className="tk-p">:</span> <span className="tk-s">'{roleText}'</span><span className="tk-p">,</span>
+                </div>
+                <div className="dev-line dev-indent" style={{ animationDelay: '0.75s' }}>
+                  stack<span className="tk-p">:</span> <span className="tk-s">'React · Laravel · Go'</span><span className="tk-p">,</span>
+                </div>
+                <div className="dev-line dev-indent" style={{ animationDelay: '0.95s' }}>
+                  location<span className="tk-p">:</span> <span className="tk-s">'{profile.location || 'Jakarta'}'</span><span className="tk-p">,</span>
+                </div>
+                <div className="dev-line dev-indent" style={{ animationDelay: '1.15s' }}>
+                  hiring<span className="tk-p">:</span> <span className="tk-b">true</span>
+                </div>
+                <div className="dev-line" style={{ animationDelay: '1.3s' }}>
+                  <span className="tk-p">{'};'}</span>
+                </div>
+                <div className="dev-line dev-caretline" style={{ animationDelay: '1.5s' }}>
+                  <span className="tk-caret">▍</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -133,21 +308,27 @@ export default function Home() {
       </section>
 
       <section className="skills-section">
-        <p className="section-label">{t('home.skills.label')}</p>
-        <h2 className="section-title">{t('home.skills.title')}</h2>
-        <div className="skills-grid">
-          {skills.map((skill, index) => (
-            <div key={skill.label} className="skill-card animate-fadeUp" style={{ animationDelay: `${index * 0.1}s` }}>
-              <div className="skill-card-header">
-                <span className="skill-icon">{skill.icon}</span>
-                <h3 className="skill-label">{skill.label}</h3>
+        <Reveal as="p" className="section-label">{t('home.skills.label')}</Reveal>
+        <Reveal as="h2" className="section-title">{t('home.skills.title')}</Reveal>
+
+        <div className="stack-marquee">
+          {stackRows.map((row, ri) => (
+            <Reveal key={row.dir} delay={ri * 120}>
+              <div className={`stack-row stack-row--${row.dir}`}>
+                <div className="stack-track">
+                  {[0, 1].map((dup) => (
+                    <div className="stack-track-group" key={dup}>
+                      {row.items.map((item) => (
+                        <span key={`${dup}-${item.label}`} className="stack-pill">
+                          {item.icon}
+                          {item.label}
+                        </span>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="skill-tags">
-                {skill.items.map((item) => (
-                  <span key={item} className="tag">{item}</span>
-                ))}
-              </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -155,18 +336,18 @@ export default function Home() {
       <section className="about-strip">
         <div className="strip-grid">
           <div className="strip-left">
-            <p className="section-label">{homeContent.about_label || t('home.about.label')}</p>
-            <h2 style={{ fontFamily: 'Syne', fontSize: 'clamp(1.6rem,4vw,2.4rem)', lineHeight: 1.2, marginBottom: 20 }}>
+            <Reveal as="p" className="section-label">{homeContent.about_label || t('home.about.label')}</Reveal>
+            <Reveal as="h2" delay={80} className="strip-title">
               {(homeContent.about_title || t('home.about.title')).split('\n').map((line, index) => (
                 <span key={line}>{line}{index === 0 && <br />}</span>
               ))}
-            </h2>
-            <p style={{ color: 'var(--text-muted)', lineHeight: 1.8, marginBottom: 16 }}>
+            </Reveal>
+            <Reveal as="p" delay={150} className="strip-p">
               {homeContent.about_paragraph_1 || t('home.about.p1')}
-            </p>
-            <p style={{ color: 'var(--text-muted)', lineHeight: 1.8 }}>
+            </Reveal>
+            <Reveal as="p" delay={220} className="strip-p">
               {homeContent.about_paragraph_2 || t('home.about.p2')}
-            </p>
+            </Reveal>
           </div>
           <div className="strip-stats">
             {[
@@ -174,11 +355,11 @@ export default function Home() {
               { num: '2+', label: t('home.about.stats.years') },
               { num: '5+', label: t('home.about.stats.stacks') },
               { num: stats.certs, label: t('home.about.stats.certs') },
-            ].map((stat) => (
-              <div key={stat.label} className="stat-item">
+            ].map((stat, si) => (
+              <Reveal key={stat.label} delay={si * 90} className="stat-item">
                 <span className="stat-num">{stat.num}</span>
                 <span className="stat-label">{stat.label}</span>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>

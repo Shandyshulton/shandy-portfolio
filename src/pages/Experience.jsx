@@ -3,6 +3,8 @@ import { Briefcase, Calendar, MapPin } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms, formatPeriod, getTranslation } from '../lib/cmsApi.js';
+import AiBackground from '../components/AiBackground.jsx';
+import Reveal from '../components/Reveal.jsx';
 import './Experience.css';
 
 const fallbackExperiences = [
@@ -102,6 +104,7 @@ export default function Experience() {
 
   return (
     <div className="page exp-page">
+      <AiBackground muted />
       <Helmet>
         <title>Experience | Shandy Shulton Shihab</title>
         <meta name="description" content="Professional experience and career history of Shandy Shulton Shihab." />
@@ -112,8 +115,8 @@ export default function Experience() {
         <meta name="twitter:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
       </Helmet>
 
-      <p className="section-label">{t('experience.sectionLabel')}</p>
-      <h1 className="section-title">{t('experience.title')}</h1>
+      <Reveal as="p" className="section-label">{t('experience.sectionLabel')}</Reveal>
+      <Reveal as="h1" delay={80} className="section-title">{t('experience.title')}</Reveal>
 
       <div className="exp-timeline">
         {experiences.map((exp, i) => {
@@ -123,11 +126,7 @@ export default function Experience() {
           const responsibilities = exp.responsibilities ?? t(exp.responsibilitiesKey, { returnObjects: true, defaultValue: [] });
 
           return (
-            <div
-              key={exp.id}
-              className="exp-item animate-fadeUp"
-              style={{ animationDelay: `${i * 0.15}s` }}
-            >
+            <Reveal key={exp.id} delay={i * 90} className="exp-item">
               <div className="exp-marker">
                 <div className="exp-dot" style={{ borderColor: exp.color, background: exp.color + '20' }}>
                   <Briefcase size={16} style={{ color: exp.color }} />
@@ -173,7 +172,7 @@ export default function Experience() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Reveal>
           );
         })}
       </div>

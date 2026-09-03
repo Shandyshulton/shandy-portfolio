@@ -3,6 +3,7 @@ import { ExternalLink, GitFork, ArrowLeft, ArrowRight, Image as ImageIcon, ZoomI
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms, getTranslation } from '../lib/cmsApi.js';
+import Reveal from '../components/Reveal.jsx';
 import './Projects.css';
 
 const ACCENT_PAIRS = [
@@ -458,11 +459,11 @@ export default function Projects() {
           {/* Mobile: list view (hanya saat mode list) */}
           {mobileView === 'list' && (
             <div className="projects-mobile-list">
-              <div className="projects-mobile-head">
+              <Reveal className="projects-mobile-head">
                 <p className="projects-eyebrow">{t('projects.sectionLabel')}</p>
                 <h1 className="projects-heading">Projects</h1>
                 <p className="projects-count">{projects.length} {t('projects.selectedWorks')}</p>
-              </div>
+              </Reveal>
               <div className="projects-mobile-items">
                 {projects.map((p, i) => (
                   <button key={p.key} type="button" className="projects-mobile-item" onClick={() => handleSelect(p.key)}>
@@ -505,11 +506,11 @@ export default function Projects() {
           {/* Desktop: split panel */}
           <div className="projects-desktop">
             <aside className="projects-sidebar">
-              <div className="projects-sidebar-head">
+              <Reveal className="projects-sidebar-head">
                 <p className="projects-eyebrow">{t('projects.sectionLabel')}</p>
                 <h1 className="projects-heading">Projects</h1>
                 <p className="projects-count">{projects.length} {t('projects.selectedWorks')}</p>
-              </div>
+              </Reveal>
 
               <div className="projects-sidebar-list">
                 {projects.map((p, i) => {

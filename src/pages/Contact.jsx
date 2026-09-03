@@ -3,6 +3,8 @@ import { Mail, GitFork, Globe, Phone, MapPin, Send, CheckCircle } from 'lucide-r
 import { useTranslation } from 'react-i18next';
 import { fetchCms } from '../lib/cmsApi.js';
 import { useCmsSettings } from '../lib/useCmsProfile.js';
+import AiBackground from '../components/AiBackground.jsx';
+import Reveal from '../components/Reveal.jsx';
 import './Contact.css';
 
 export default function Contact() {
@@ -45,17 +47,18 @@ export default function Contact() {
 
   return (
     <div className="page contact-page">
-      <p className="section-label">{contactContent.section_label || t('contact.sectionLabel')}</p>
-      <h1 className="section-title">{contactContent.title || t('contact.title')}</h1>
+      <AiBackground muted />
+      <Reveal as="p" className="section-label">{contactContent.section_label || t('contact.sectionLabel')}</Reveal>
+      <Reveal as="h1" delay={80} className="section-title">{contactContent.title || t('contact.title')}</Reveal>
 
       <div className="contact-grid">
         {/* Left — Info */}
-        <div className="contact-info animate-slideLeft">
+        <Reveal className="contact-info" delay={120}>
           <p className="contact-intro">{contactContent.intro || t('contact.intro')}</p>
 
           <div className="contact-list">
-            {contacts.map(c => (
-              <div key={c.label} className="contact-item">
+            {contacts.map((c, ci) => (
+              <Reveal key={c.label} delay={ci * 60} className="contact-item">
                 <div className="contact-item-icon">{c.icon}</div>
                 <div>
                   <p className="contact-item-label">{c.label}</p>
@@ -67,22 +70,22 @@ export default function Contact() {
                     <p className="contact-item-value">{c.value}</p>
                   )}
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
 
-          <div className="contact-socials">
+          <Reveal className="contact-socials" delay={200}>
             <a href={profile.github} target="_blank" rel="noreferrer" className="social-btn">
               <GitFork size={18} /> GitHub
             </a>
             <a href={profile.linkedin} target="_blank" rel="noreferrer" className="social-btn social-btn-linkedin">
               <Globe size={18} /> LinkedIn
             </a>
-          </div>
-        </div>
+          </Reveal>
+        </Reveal>
 
         {/* Right — Form */}
-        <div className="contact-form-wrap animate-fadeUp delay-2">
+        <Reveal className="contact-form-wrap" delay={160}>
           {sent ? (
             <div className="form-success">
               <CheckCircle size={48} color="var(--accent)" />
@@ -121,7 +124,7 @@ export default function Contact() {
               </button>
             </form>
           )}
-        </div>
+        </Reveal>
       </div>
     </div>
   );

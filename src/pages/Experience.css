@@ -8,7 +8,6 @@
   display: grid;
   grid-template-columns: 52px 1fr;
   gap: 20px;
-  opacity: 0;
 }
 
 .exp-marker {
