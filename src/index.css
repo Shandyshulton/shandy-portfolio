@@ -130,6 +130,136 @@ a {
   50% { opacity: 0; }
 }
 
+/* ============================================================
+   PAGE / ROUTE LOADER — aksen glow oranye situs
+   Dipakai oleh: boot splash (index.html), Loader component,
+   dan bar transisi antar rute (App.jsx)
+   ============================================================ */
+
+/* Ring spinner + orbit + glow oranye */
+@keyframes loader-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes loader-orbit {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes loader-pulse-glow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.35); }
+}
+@keyframes loader-fade-out {
+  to { opacity: 0; visibility: hidden; }
+}
+
+/* overlay penuh — dipakai splash boot & loader rute */
+.boot-loader,
+.route-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--bg, #111010) 86%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.boot-loader { background: var(--bg, #111010); }
+.boot-loader.done,
+.route-loader.done {
+  animation: loader-fade-out 0.45s ease forwards;
+  pointer-events: none;
+}
+
+/* gelang spinner utama — mengikuti var(--accent) agar glow oranye */
+.loader-ring {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+}
+.loader-ring::before,
+.loader-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+.loader-ring::before {
+  border: 3px solid color-mix(in srgb, var(--accent, #e8735a) 22%, transparent);
+  border-top-color: var(--accent, #e8735a);
+  filter: drop-shadow(0 0 6px var(--accent, #e8735a));
+  animation: loader-spin 0.9s linear infinite;
+}
+.loader-ring::after {
+  inset: 10px;
+  border: 2px solid transparent;
+  border-top-color: var(--accent-light, #f2967e);
+  filter: drop-shadow(0 0 4px var(--accent-light, #f2967e));
+  animation: loader-spin 1.3s linear infinite reverse;
+}
+
+/* inti glow berdenyut */
+.loader-core {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent, #e8735a);
+  box-shadow: 0 0 12px 2px var(--accent, #e8735a), 0 0 32px 8px color-mix(in srgb, var(--accent, #e8735a) 55%, transparent);
+  animation: loader-pulse-glow 1.4s ease-in-out infinite;
+}
+
+/* partikel orbit kecil di sekeliling ring */
+.loader-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-light, #f2967e);
+  box-shadow: 0 0 8px 1px var(--accent-light, #f2967e);
+  animation: loader-orbit 2.2s linear infinite;
+}
+.loader-dot:nth-child(2) { top: -4px;  left: 50%; margin-left: -3px; }
+.loader-dot:nth-child(3) { bottom: -4px; left: 50%; margin-left: -3px; animation-direction: reverse; animation-duration: 1.7s; }
+
+/* label terminal berkedip */
+.loader-text {
+  margin-top: 22px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted, #928a82);
+  text-align: center;
+}
+.loader-text .loader-caret {
+  color: var(--accent, #e8735a);
+  animation: blink 1s step-end infinite;
+}
+
+/* bar transisi antar-rute — glow oranye tipis di tepi atas */
+.route-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  z-index: 10000;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-light, #f2967e), var(--accent, #e8735a));
+  box-shadow: 0 0 12px 1px color-mix(in srgb, var(--accent, #e8735a) 70%, transparent);
+  transition: width 0.2s ease, opacity 0.3s ease;
+}
+.route-progress.done { opacity: 0; width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .loader-ring::before,
+  .loader-ring::after,
+  .loader-core,
+  .loader-dot { animation-duration: 0.01s !important; animation-iteration-count: 1 !important; }
+  .route-progress { transition: none; }
+}
+
 .animate-fadeUp   { animation: fadeUp 0.6s ease forwards; }
 .animate-fadeIn   { animation: fadeIn 0.5s ease forwards; }
 .animate-slideLeft { animation: slideLeft 0.6s ease forwards; }
