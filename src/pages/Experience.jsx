@@ -8,6 +8,9 @@ import Reveal from '../components/Reveal.jsx';
 import DevShell from '../components/DevShell.jsx';
 import './Experience.css';
 
+const SITE_URL = 'https://www.shandyshultonshihab.my.id/';
+const PROFILE_IMAGE = `${SITE_URL}images/PP.jpeg`;
+
 const fallbackExperiences = [
   {
     id: 1,
@@ -109,11 +112,15 @@ export default function Experience() {
       <Helmet>
         <title>Experience | Shandy Shulton Shihab</title>
         <meta name="description" content="Professional experience and career history of Shandy Shulton Shihab." />
+        <link rel="canonical" href={`${SITE_URL}experience`} />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${SITE_URL}experience`} />
         <meta property="og:title" content="Experience | Shandy Shulton Shihab" />
         <meta property="og:description" content="Professional journey and full-stack development internship achievements." />
-        <meta property="og:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
-        <meta name="twitter:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
+        <meta property="og:image" content={PROFILE_IMAGE} />
+        <meta name="twitter:title" content="Experience | Shandy Shulton Shihab" />
+        <meta name="twitter:description" content="Professional journey and full-stack development internship achievements." />
+        <meta name="twitter:image" content={PROFILE_IMAGE} />
       </Helmet>
 
       <Reveal as="p" className="section-label">{t('experience.sectionLabel')}</Reveal>

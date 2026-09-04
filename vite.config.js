@@ -4,6 +4,10 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    minify: 'oxc',
+    cssMinify: true,
+  },
   server: {
     proxy: {
       // Di local, /api/chat dilayani oleh scripts/dev-api.mjs (npm run dev:api).

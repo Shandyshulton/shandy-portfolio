@@ -92,6 +92,11 @@ const FLOAT_TOKENS = [
   { text: '0xFF', left: '46%', top: '10%', dur: 23, delay: -16, size: 13 },
 ];
 
+const SITE_URL = 'https://www.shandyshultonshihab.my.id/';
+const SEO_TITLE = 'Shandy Shulton Shihab | Full Stack Developer Portfolio';
+const SEO_DESCRIPTION = 'Portfolio Shandy Shulton Shihab, Full Stack Developer berpengalaman menggunakan React.js, Laravel, dan MySQL untuk membangun aplikasi web.';
+const PROFILE_IMAGE = `${SITE_URL}images/PP.jpeg`;
+
 export default function Home() {
   const { t } = useTranslation();
   const settings = useCmsSettings();
@@ -152,16 +157,20 @@ export default function Home() {
   return (
     <div className="home-page">
       <Helmet>
-        <title>{profile.name} | {profile.headline} Portfolio</title>
-        <meta name="description" content={profile.summary || 'Computer Science undergraduate with hands-on experience in responsive web applications.'} />
+        <title>{SEO_TITLE}</title>
+        <meta name="description" content={SEO_DESCRIPTION} />
+        <link rel="canonical" href={SITE_URL} />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content={`${profile.name} | ${profile.headline}`} />
-        <meta property="og:description" content={profile.summary || 'Computer Science student specializing in full-stack web development.'} />
-        <meta property="og:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
-        <meta name="twitter:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
+        <meta property="og:url" content={SITE_URL} />
+        <meta property="og:title" content={SEO_TITLE} />
+        <meta property="og:description" content={SEO_DESCRIPTION} />
+        <meta property="og:image" content={PROFILE_IMAGE} />
+        <meta name="twitter:title" content={SEO_TITLE} />
+        <meta name="twitter:description" content={SEO_DESCRIPTION} />
+        <meta name="twitter:image" content={PROFILE_IMAGE} />
       </Helmet>
 
-      <section className="hero">
+      <section className="hero" id="home">
         {/* Background "AI": grid + orb glow + token kode melayang */}
         <div className="ai-bg" aria-hidden="true">
           <div className="ai-grid" />
@@ -199,6 +208,7 @@ export default function Home() {
                   {index < nameParts.length - 1 && <br />}
                 </span>
               ))}
+              <span className="sr-only"> - Full Stack Developer</span>
             </h1>
 
             <div className="hero-role animate-fadeUp delay-2">
@@ -307,7 +317,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="skills-section">
+      <section className="skills-section" id="skills">
         <Reveal as="p" className="section-label">{t('home.skills.label')}</Reveal>
         <Reveal as="h2" className="section-title">{t('home.skills.title')}</Reveal>
 
@@ -333,7 +343,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="about-strip">
+      <section className="about-strip" id="about">
         <div className="strip-grid">
           <div className="strip-left">
             <Reveal as="p" className="section-label">{homeContent.about_label || t('home.about.label')}</Reveal>

@@ -8,6 +8,9 @@ import Reveal from '../components/Reveal.jsx';
 import DevShell from '../components/DevShell.jsx';
 import './Education.css';
 
+const SITE_URL = 'https://www.shandyshultonshihab.my.id/';
+const PROFILE_IMAGE = `${SITE_URL}images/PP.jpeg`;
+
 const fallbackEducation = [
   {
     degree: 'Computer Science — Database Technology',
@@ -289,11 +292,15 @@ export default function Education() {
       <Helmet>
         <title>Education | Shandy Shulton Shihab</title>
         <meta name="description" content="Academic profile of Shandy Shulton Shihab." />
+        <link rel="canonical" href={`${SITE_URL}education`} />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${SITE_URL}education`} />
         <meta property="og:title" content="Education | Shandy Shulton Shihab" />
         <meta property="og:description" content="Academic background and certifications profile." />
-        <meta property="og:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
-        <meta name="twitter:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
+        <meta property="og:image" content={PROFILE_IMAGE} />
+        <meta name="twitter:title" content="Education | Shandy Shulton Shihab" />
+        <meta name="twitter:description" content="Academic background and certifications profile." />
+        <meta name="twitter:image" content={PROFILE_IMAGE} />
       </Helmet>
       <Reveal as="p" className="section-label">{t('education.sectionLabel')}</Reveal>
       <Reveal as="h1" delay={80} className="section-title">{t('education.title')}</Reveal>

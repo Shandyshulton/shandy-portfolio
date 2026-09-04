@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Mail, GitFork, Globe, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms } from '../lib/cmsApi.js';
 import { useCmsSettings } from '../lib/useCmsProfile.js';
@@ -7,6 +8,9 @@ import AiBackground from '../components/AiBackground.jsx';
 import Reveal from '../components/Reveal.jsx';
 import DevShell from '../components/DevShell.jsx';
 import './Contact.css';
+
+const SITE_URL = 'https://www.shandyshultonshihab.my.id/';
+const PROFILE_IMAGE = `${SITE_URL}images/PP.jpeg`;
 
 export default function Contact() {
   const { t } = useTranslation();
@@ -49,6 +53,19 @@ export default function Contact() {
   return (
     <div className="page contact-page">
       <AiBackground muted />
+      <Helmet>
+        <title>Contact | Shandy Shulton Shihab</title>
+        <meta name="description" content="Contact Shandy Shulton Shihab for full-stack web development opportunities and collaboration." />
+        <link rel="canonical" href={`${SITE_URL}contact`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${SITE_URL}contact`} />
+        <meta property="og:title" content="Contact | Shandy Shulton Shihab" />
+        <meta property="og:description" content="Contact Shandy Shulton Shihab for full-stack web development opportunities and collaboration." />
+        <meta property="og:image" content={PROFILE_IMAGE} />
+        <meta name="twitter:title" content="Contact | Shandy Shulton Shihab" />
+        <meta name="twitter:description" content="Contact Shandy Shulton Shihab for full-stack web development opportunities and collaboration." />
+        <meta name="twitter:image" content={PROFILE_IMAGE} />
+      </Helmet>
       <Reveal as="p" className="section-label">{contactContent.section_label || t('contact.sectionLabel')}</Reveal>
       <Reveal as="h1" delay={80} className="section-title">{contactContent.title || t('contact.title')}</Reveal>
 

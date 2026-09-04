@@ -6,6 +6,9 @@ import { fetchCms, getTranslation } from '../lib/cmsApi.js';
 import Reveal from '../components/Reveal.jsx';
 import './Projects.css';
 
+const SITE_URL = 'https://www.shandyshultonshihab.my.id/';
+const PROFILE_IMAGE = `${SITE_URL}images/PP.jpeg`;
+
 const ACCENT_PAIRS = [
   { accent: '#2563eb', secondary: '#bfdbfe' },
   { accent: '#7c3aed', secondary: '#ddd6fe' },
@@ -442,11 +445,15 @@ export default function Projects() {
       <Helmet>
         <title>{t('projects.meta.title')}</title>
         <meta name="description" content={t('projects.meta.description')} />
+        <link rel="canonical" href={`${SITE_URL}projects`} />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${SITE_URL}projects`} />
         <meta property="og:title" content={t('projects.meta.title')} />
         <meta property="og:description" content={t('projects.meta.ogDescription')} />
-        <meta property="og:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
-        <meta name="twitter:image" content="https://www.shandyshultonshihab.my.id/images/PP.jpeg" />
+        <meta property="og:image" content={PROFILE_IMAGE} />
+        <meta name="twitter:title" content={t('projects.meta.title')} />
+        <meta name="twitter:description" content={t('projects.meta.ogDescription')} />
+        <meta name="twitter:image" content={PROFILE_IMAGE} />
       </Helmet>
 
       {projects.length === 0 ? (
