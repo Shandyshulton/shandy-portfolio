@@ -249,8 +249,9 @@
     }
   },
   "chat": {
-    "welcome": "Hi! I'm Shandy's virtual assistant. Want to ask about his profile, projects, or how to contact him? 👋",
-    "headerName": "Shandy's Assistant",
+    "welcome": "Hi! I'm Shara, Shandy's virtual assistant. Want to ask about his profile, projects, or how to contact him? 👋",
+    "headerName": "Shara",
+    "tagline": "Shandy's Helpful AI Response Assistant",
     "status": "Online",
     "instant": "Instant replies",
     "placeholder": "Type a message...",

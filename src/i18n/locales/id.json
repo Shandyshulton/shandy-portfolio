@@ -249,8 +249,9 @@
     }
   },
   "chat": {
-    "welcome": "Halo! Saya asisten virtual Shandy. Ada yang ingin kamu tanyakan tentang profil, proyek, atau cara menghubungi Shandy? 👋",
-    "headerName": "Asisten Shandy",
+    "welcome": "Halo! Saya Shara, asisten virtual Shandy. Ada yang ingin kamu tanyakan tentang profil, proyek, atau cara menghubungi Shandy? 👋",
+    "headerName": "Shara",
+    "tagline": "Shandy's Helpful AI Response Assistant",
     "status": "Online",
     "instant": "Respon instan",
     "placeholder": "Ketik pesan...",

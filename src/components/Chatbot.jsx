@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Sparkles, ArrowDown } from 'lucide-react';
+import { X, Send, Sparkles, ArrowDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -12,6 +12,10 @@ const QUICK_ACTIONS = [
   { key: 'chat.quickSkills' },
   { key: 'chat.quickContact' },
 ];
+
+const SharaAvatar = ({ className = '' }) => (
+  <img src="/shara.png" alt="Shara" className={`chatbot-shara-img ${className}`} />
+);
 
 export default function Chatbot() {
   const { t, i18n } = useTranslation();
@@ -109,7 +113,7 @@ export default function Chatbot() {
           <div className="chatbot-header-orb" aria-hidden="true" />
           <div className="chatbot-header-info">
             <div className="chatbot-avatar">
-              <Sparkles size={16} />
+              <SharaAvatar />
             </div>
             <div>
               <p className="chatbot-header-name">{t('chat.headerName')}</p>
@@ -128,14 +132,14 @@ export default function Chatbot() {
         <div className="chatbot-body" ref={bodyRef} onScroll={handleBodyScroll}>
           <div className="chatbot-ai-chip">
             <Sparkles size={11} />
-            AI Assistant · {t('chat.instant')}
+            Shara · {t('chat.tagline')}
           </div>
 
           {messages.map((msg, i) => (
             <div key={i} className={`chatbot-bubble-wrap chatbot-bubble-wrap--${msg.role}`}>
               {msg.role === 'assistant' && (
                 <div className="chatbot-bubble-avatar">
-                  <Sparkles size={12} />
+                  <SharaAvatar />
                 </div>
               )}
               <div className={`chatbot-bubble chatbot-bubble--${msg.role}`}>
@@ -183,7 +187,7 @@ export default function Chatbot() {
           {loading && (
             <div className="chatbot-bubble-wrap chatbot-bubble-wrap--assistant">
               <div className="chatbot-bubble-avatar">
-                <Sparkles size={12} />
+                <SharaAvatar />
               </div>
               <div className="chatbot-bubble chatbot-bubble--assistant chatbot-typing">
                 <span /><span /><span />
@@ -230,7 +234,7 @@ export default function Chatbot() {
         onClick={() => setIsOpen((p) => !p)}
         aria-label={isOpen ? t('chat.close') : t('chat.open')}
       >
-        {isOpen ? <X size={22} /> : <MessageCircle size={22} />}
+        {isOpen ? <X size={22} /> : <SharaAvatar className="chatbot-shara-img--toggle" />}
         {!isOpen && <span className="chatbot-badge" />}
       </button>
     </div>
