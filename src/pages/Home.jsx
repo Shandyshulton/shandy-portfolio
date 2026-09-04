@@ -117,10 +117,10 @@ const FLOAT_TOKENS = [
   { text: '0xFF', left: '46%', top: '10%', dur: 23, delay: -16, size: 13 },
 ];
 
-const SITE_URL = 'https://www.shandyshultonshihab.my.id/';
+const SITE_URL = 'https://shandy-shulton-shihab.vercel.app/';
 const SEO_TITLE = 'Shandy Shulton Shihab | Full Stack Developer Portfolio';
 const SEO_DESCRIPTION = 'Portfolio Shandy Shulton Shihab, Full Stack Developer berpengalaman menggunakan React.js, Laravel, dan MySQL untuk membangun aplikasi web.';
-const PROFILE_IMAGE = `${SITE_URL}images/PP.jpeg`;
+const PROFILE_IMAGE = 'https://www.shandyshultonshihab.my.id/images/PP.jpeg';
 
 export default function Home() {
   const { t } = useTranslation();

@@ -6,8 +6,8 @@ import { fetchCms, getTranslation } from '../lib/cmsApi.js';
 import Reveal from '../components/Reveal.jsx';
 import './Projects.css';
 
-const SITE_URL = 'https://www.shandyshultonshihab.my.id/';
-const PROFILE_IMAGE = `${SITE_URL}images/PP.jpeg`;
+const SITE_URL = 'https://shandy-shulton-shihab.vercel.app/';
+const PROFILE_IMAGE = 'https://www.shandyshultonshihab.my.id/images/PP.jpeg';
 
 const ACCENT_PAIRS = [
   { accent: '#2563eb', secondary: '#bfdbfe' },

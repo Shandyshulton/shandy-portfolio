@@ -9,8 +9,8 @@ import Reveal from '../components/Reveal.jsx';
 import DevShell from '../components/DevShell.jsx';
 import './Contact.css';
 
-const SITE_URL = 'https://www.shandyshultonshihab.my.id/';
-const PROFILE_IMAGE = `${SITE_URL}images/PP.jpeg`;
+const SITE_URL = 'https://shandy-shulton-shihab.vercel.app/';
+const PROFILE_IMAGE = 'https://www.shandyshultonshihab.my.id/images/PP.jpeg';
 
 export default function Contact() {
   const { t } = useTranslation();
