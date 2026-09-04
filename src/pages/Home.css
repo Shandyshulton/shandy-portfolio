@@ -209,6 +209,215 @@
 }
 
 /* ── Kartu terminal / IDE ── */
+/* Profile visual module */
+.hero-photo-wrap {
+  position: relative;
+}
+
+.hero-photo-frame {
+  width: 292px;
+  height: 356px;
+  padding: 10px;
+  border-radius: 34px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--surface) 78%, transparent), color-mix(in srgb, var(--accent) 10%, transparent)),
+    radial-gradient(220px 170px at 90% 0%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 70%);
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--card-border));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 9%, transparent),
+    0 28px 80px color-mix(in srgb, var(--accent) 17%, transparent);
+  isolation: isolate;
+}
+
+.hero-photo-frame::before,
+.hero-photo-frame::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.hero-photo-frame::before {
+  inset: -24px;
+  z-index: -2;
+  border-radius: 46px;
+  background:
+    radial-gradient(circle at 80% 12%, color-mix(in srgb, var(--accent-light) 42%, transparent), transparent 34%),
+    radial-gradient(circle at 12% 86%, rgba(71, 191, 255, 0.2), transparent 34%),
+    conic-gradient(from 140deg, transparent 0 22%, color-mix(in srgb, var(--accent) 42%, transparent) 30%, transparent 46% 100%);
+  filter: blur(10px);
+  opacity: 0.72;
+}
+
+.hero-photo-frame::after {
+  inset: 10px;
+  z-index: 4;
+  border-radius: 28px;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.24), transparent 30%),
+    linear-gradient(180deg, transparent 58%, rgba(10, 8, 6, 0.32));
+  mix-blend-mode: soft-light;
+}
+
+.hero-photo {
+  position: relative;
+  z-index: 3;
+  border-radius: 28px;
+  border: 1px solid color-mix(in srgb, var(--accent) 46%, var(--card-border));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 26px 70px rgba(26, 23, 20, 0.22),
+    0 0 64px color-mix(in srgb, var(--accent) 22%, transparent);
+  filter: saturate(1.06) contrast(1.03);
+}
+
+.photo-aura {
+  position: absolute;
+  inset: -42px -38px;
+  z-index: -3;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 24%, transparent), transparent 62%);
+  filter: blur(26px);
+  animation: photo-aura-pulse 5.8s ease-in-out infinite;
+}
+
+.photo-orbit {
+  position: absolute;
+  inset: -18px;
+  z-index: 1;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: 44px;
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
+
+.photo-orbit span {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 20px var(--accent);
+}
+
+.photo-orbit span:nth-child(1) { top: 18px; right: 54px; }
+.photo-orbit span:nth-child(2) { left: 38px; bottom: 44px; background: var(--accent-light); }
+.photo-orbit span:nth-child(3) {
+  right: 18px;
+  bottom: 104px;
+  background: #47bfff;
+  box-shadow: 0 0 18px rgba(71, 191, 255, 0.9);
+}
+
+.photo-scan {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 22px;
+  z-index: 5;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-light) 85%, #fff), transparent);
+  box-shadow: 0 0 18px var(--accent);
+  opacity: 0.72;
+  animation: photo-scan 4.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.photo-chip,
+.photo-location {
+  position: absolute;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--card-border));
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: var(--text);
+  box-shadow: 0 12px 28px rgba(26, 23, 20, 0.12);
+}
+
+.photo-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 7px 11px;
+  border-radius: 999px;
+}
+
+.photo-chip--top {
+  top: 34px;
+  right: -24px;
+}
+
+.photo-chip--bottom {
+  left: -22px;
+  bottom: 82px;
+}
+
+.chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3ecf8e;
+  box-shadow: 0 0 14px #3ecf8e;
+}
+
+.photo-location {
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 36px);
+  padding: 7px 12px;
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.deco-1 {
+  z-index: 2;
+  width: 46px;
+  height: 46px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 68%, transparent), transparent),
+    var(--accent-dim);
+  bottom: -14px;
+  right: -8px;
+  opacity: 0.55;
+  box-shadow: 0 0 26px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.deco-2 {
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  background: color-mix(in srgb, var(--accent-light) 72%, transparent);
+  top: -10px;
+  left: -10px;
+  opacity: 0.5;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--accent-light) 30%, transparent);
+}
+
+.photo-status {
+  background:
+    radial-gradient(160px 80px at 100% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
+    var(--surface);
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--card-border));
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+@keyframes photo-aura-pulse {
+  0%, 100% { opacity: 0.52; transform: scale(0.96); }
+  50% { opacity: 0.82; transform: scale(1.04); }
+}
+
+@keyframes photo-scan {
+  0%, 100% { transform: translateY(8px); opacity: 0; }
+  18%, 78% { opacity: 0.75; }
+  50% { transform: translateY(286px); opacity: 0.9; }
+}
+
 .dev-card {
   width: 280px;
   background: color-mix(in srgb, var(--surface) 88%, #000);
@@ -440,7 +649,27 @@
     gap: 40px;
   }
   .hero-photo-wrap { order: -1; }
-  .hero-photo-frame { width: 200px; height: 240px; }
+  .hero-photo-frame {
+    width: 238px;
+    height: 292px;
+  }
+  .photo-chip--top {
+    top: 28px;
+    right: -12px;
+  }
+  .photo-chip--bottom {
+    left: -12px;
+    bottom: 68px;
+  }
+  .photo-location {
+    bottom: 18px;
+    font-size: 9.5px;
+  }
+  @keyframes photo-scan {
+    0%, 100% { transform: translateY(8px); opacity: 0; }
+    18%, 78% { opacity: 0.75; }
+    50% { transform: translateY(226px); opacity: 0.9; }
+  }
   .strip-grid { grid-template-columns: 1fr; }
 }
 
@@ -448,4 +677,14 @@
   .hero { padding: 90px 20px 60px; }
   .skills-section, .about-strip { padding: 60px 20px; }
   .dev-card { width: min(280px, calc(100vw - 80px)); }
+  .hero-photo-frame {
+    width: min(244px, calc(100vw - 96px));
+    height: min(300px, calc((100vw - 96px) * 1.23));
+  }
+  .photo-chip {
+    font-size: 10px;
+    padding: 6px 9px;
+  }
+  .photo-chip--top { right: -8px; }
+  .photo-chip--bottom { left: -8px; }
 }

@@ -52,30 +52,55 @@ function Reveal({ as: Tag = 'div', delay = 0, className = '', style, children })
 }
 
 // ── Hook: efek ketik (typewriter), hormati prefers-reduced-motion ─────────────
-function useTypewriter(text, speed = 46, startDelay = 500) {
+function useTypewriter(text, speed = 82, startDelay = 700) {
   const [count, setCount] = useState(0);
-  const done = count >= text.length;
+  const prefersReduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 
   useEffect(() => {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
-      setCount(text.length);
-      return undefined;
-    }
-    setCount(0);
-    let i = 0;
-    let timer;
-    const start = setTimeout(function tick() {
-      i += 1;
-      setCount(i);
-      if (i < text.length) timer = setTimeout(tick, speed);
-    }, startDelay);
-    return () => {
-      clearTimeout(start);
-      clearTimeout(timer);
-    };
-  }, [text, speed, startDelay]);
+    if (prefersReduced) return undefined;
 
-  return { typed: text.slice(0, count), done };
+    let current = 0;
+    let currentPhase = 'typing';
+    let timerId;
+
+    const tick = () => {
+      if (currentPhase === 'typing') {
+        current += 1;
+        setCount(current);
+
+        if (current >= text.length) {
+          currentPhase = 'holding';
+          timerId = setTimeout(tick, 2200);
+          return;
+        }
+
+        timerId = setTimeout(tick, speed);
+        return;
+      }
+
+      if (currentPhase === 'holding') {
+        currentPhase = 'deleting';
+        timerId = setTimeout(tick, speed);
+        return;
+      }
+
+      current -= 1;
+      setCount(current);
+
+      if (current <= 0) {
+        currentPhase = 'typing';
+        timerId = setTimeout(tick, 850);
+        return;
+      }
+
+      timerId = setTimeout(tick, speed * 0.75);
+    };
+
+    timerId = setTimeout(tick, startDelay);
+    return () => clearTimeout(timerId);
+  }, [text, speed, startDelay, prefersReduced]);
+
+  return { typed: prefersReduced ? text : text.slice(0, count), done: prefersReduced };
 }
 
 // Fragmen kode semu yang melayang di background hero.
@@ -218,7 +243,7 @@ export default function Home() {
                 {!roleDone && <span className="type-caret" />}
               </span>
               <span className="role-divider">/</span>
-              <span className="role-tag mono">AI-ready</span>
+              <span className="role-tag mono">Building smart web experiences</span>
             </div>
 
             {profile.summary ? (
@@ -255,6 +280,12 @@ export default function Home() {
 
           <div className="hero-photo-wrap animate-fadeIn delay-2">
             <div className="hero-photo-frame">
+              <div className="photo-aura" aria-hidden="true"></div>
+              <div className="photo-orbit" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
               <img
                 src="/images/PP.jpeg"
                 alt={profile.name}
@@ -264,6 +295,16 @@ export default function Home() {
                 width={1200}
                 height={630}
               />
+              <div className="photo-scan" aria-hidden="true"></div>
+              <div className="photo-chip photo-chip--top">
+                <span className="chip-dot"></span>
+                React.js
+              </div>
+              <div className="photo-chip photo-chip--bottom">
+                <span className="chip-dot"></span>
+                Laravel
+              </div>
+              <div className="photo-location mono">{profile.location || 'Jakarta, Indonesia'}</div>
               <div className="photo-deco deco-1"></div>
               <div className="photo-deco deco-2"></div>
             </div>

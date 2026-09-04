@@ -1,3 +1,35 @@
+.exp-page {
+  position: relative;
+  isolation: isolate;
+}
+
+.exp-page::before {
+  content: '';
+  position: fixed;
+  inset: 68px 0 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(860px 420px at 80% 8%, rgba(232, 115, 90, 0.22), transparent 68%),
+    radial-gradient(560px 300px at 12% 82%, rgba(71, 191, 255, 0.09), transparent 72%),
+    linear-gradient(120deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 44%);
+}
+
+.exp-page::after {
+  content: '';
+  position: fixed;
+  inset: 68px 0 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.32;
+  background-image:
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--accent) 10%, transparent) 1px, transparent 1px);
+  background-size: 76px 76px;
+  -webkit-mask-image: radial-gradient(ellipse 72% 58% at 70% 14%, #000 18%, transparent 76%);
+  mask-image: radial-gradient(ellipse 72% 58% at 70% 14%, #000 18%, transparent 76%);
+}
+
 .exp-timeline {
   display: flex;
   flex-direction: column;
@@ -42,12 +74,15 @@
   justify-content: center;
   flex-shrink: 0;
   z-index: 1;
+  box-shadow:
+    0 0 0 6px color-mix(in srgb, currentColor 8%, transparent),
+    0 0 34px color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
 .exp-connector {
   width: 2px;
   flex: 1;
-  background: linear-gradient(to bottom, var(--border), transparent);
+  background: linear-gradient(to bottom, var(--accent), color-mix(in srgb, var(--border) 70%, transparent), transparent);
   min-height: 40px;
   margin-top: 8px;
 }
@@ -57,16 +92,39 @@
 }
 
 .exp-card-top {
-  background: var(--surface);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(500px 160px at 100% 0%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 72%),
+    linear-gradient(140deg, color-mix(in srgb, var(--surface) 94%, var(--accent-dim)), var(--surface) 62%);
   border: 1.5px solid var(--card-border);
   border-left: 3px solid;
   border-radius: 0 16px 16px 0;
   padding: 28px 28px 24px;
-  transition: box-shadow 0.2s, border-right-color 0.2s;
+  transition: box-shadow 0.2s, border-right-color 0.2s, transform 0.2s;
+  box-shadow: 0 14px 42px rgba(26, 23, 20, 0.06);
+}
+.exp-card-top::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--accent) 6%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: 0.35;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 26%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent, #000 26%, #000 100%);
 }
 .exp-card-top:hover {
-  box-shadow: var(--shadow);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 16%, transparent),
+    0 18px 54px color-mix(in srgb, var(--accent) 16%, transparent),
+    var(--shadow);
+  transform: translateY(-2px);
 }
+.exp-card-top > * { position: relative; z-index: 1; }
 
 .exp-header {
   display: flex;
@@ -89,6 +147,7 @@
   border-radius: 4px;
   border: 1px solid;
   margin-bottom: 10px;
+  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 .exp-badge-mark {
   font-weight: 700;

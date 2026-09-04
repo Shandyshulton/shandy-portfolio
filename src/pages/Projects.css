@@ -6,6 +6,9 @@
   --mock-chrome: #f8f7f5;
   --mock-line: #e4dfd7;
   --mock-chip: #ffffff;
+  --ai-glow: rgba(232, 115, 90, 0.28);
+  --ai-glow-strong: rgba(200, 82, 42, 0.38);
+  --ai-cyan: rgba(71, 191, 255, 0.14);
 
   position: fixed;
   left: 0;
@@ -20,6 +23,7 @@
   color: var(--text);
   overflow: hidden;
   font-family: 'Outfit', sans-serif;
+  isolation: isolate;
 }
 
 [data-theme="dark"] .projects-page {
@@ -28,6 +32,36 @@
   --mock-chrome: #2a2724;
   --mock-line: #3a3530;
   --mock-chip: #efe9e0;
+  --ai-glow: rgba(232, 115, 90, 0.22);
+  --ai-glow-strong: rgba(232, 115, 90, 0.32);
+  --ai-cyan: rgba(71, 191, 255, 0.1);
+}
+
+.projects-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 420px at 78% 8%, var(--ai-glow-strong), transparent 66%),
+    radial-gradient(720px 360px at 8% 92%, var(--ai-cyan), transparent 68%),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 42%);
+}
+
+.projects-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.42;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--accent) 16%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, transparent) 1px, transparent 1px);
+  background-size: 72px 72px;
+  -webkit-mask-image: radial-gradient(ellipse 82% 58% at 64% 20%, #000 22%, transparent 76%);
+  mask-image: radial-gradient(ellipse 82% 58% at 64% 20%, #000 22%, transparent 76%);
 }
 
 /* ─── Shared text styles ─── */
@@ -84,13 +118,19 @@
   overflow-y: auto;
   width: clamp(200px, 28%, 300px);
   border-right: 1px solid var(--border);
-  background: var(--bg);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 70%, transparent), transparent 42%),
+    color-mix(in srgb, var(--bg) 88%, var(--accent-dim));
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 .projects-sidebar-head {
   padding: 16px 18px 12px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  background:
+    radial-gradient(360px 120px at 100% 0%, var(--ai-glow), transparent 72%),
+    color-mix(in srgb, var(--surface) 58%, transparent);
 }
 
 /* Label explorer ala IDE */
@@ -126,12 +166,19 @@
   border: none;
   border-left: 3px solid transparent;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.15s;
   font-family: 'Outfit', sans-serif;
 }
+.projects-sidebar-item:hover {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  transform: translateX(2px);
+}
 .projects-sidebar-item.is-active {
-  background: var(--surface);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 14%, transparent), transparent 74%),
+    var(--surface);
   border-left-color: var(--accent);
+  box-shadow: inset 0 0 24px color-mix(in srgb, var(--accent) 9%, transparent);
 }
 
 .projects-sidebar-folder {
@@ -190,7 +237,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--surface);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 94%, var(--accent-dim)), var(--surface));
   position: relative;
 }
 /* Aksen glow halus "developer AI" di pojok area detail */
@@ -201,8 +249,9 @@
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(560px 300px at 100% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%),
-    radial-gradient(420px 260px at 0% 100%, color-mix(in srgb, var(--accent-light) 8%, transparent), transparent 70%);
+    radial-gradient(720px 340px at 96% 0%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 68%),
+    radial-gradient(520px 280px at 4% 100%, var(--ai-cyan), transparent 70%),
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-light) 7%, transparent), transparent);
 }
 .projects-main > * { position: relative; z-index: 1; }
 
@@ -221,7 +270,11 @@
   gap: 12px;
   padding: 14px 22px;
   border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  background:
+    radial-gradient(520px 160px at 88% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%),
+    color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   flex-shrink: 0;
 }
 
@@ -237,6 +290,7 @@
   padding: 3px 10px;
   border-radius: 999px;
   margin-bottom: 8px;
+  box-shadow: 0 0 22px color-mix(in srgb, currentColor 24%, transparent);
 }
 
 .projects-title {
@@ -316,7 +370,10 @@
 /* ─── Image slider (coverflow 3D) ─── */
 .projects-slider {
   padding: 22px 22px 10px;
-  background: var(--bg-2);
+  background:
+    radial-gradient(820px 280px at 50% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 74%),
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 34%, color-mix(in srgb, var(--accent-light) 8%, transparent)),
+    var(--bg-2);
   border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -329,6 +386,7 @@
   overflow: hidden;
   padding: 18px 0 6px;
   perspective: 1400px;
+  filter: drop-shadow(0 24px 42px rgba(200, 82, 42, 0.12));
 }
 
 .projects-slider-track {
@@ -365,12 +423,26 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.projects-slide-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, transparent 0 38%, rgba(255, 255, 255, 0.16) 48%, transparent 58%),
+    linear-gradient(180deg, transparent, color-mix(in srgb, var(--slide-accent, var(--accent)) 10%, transparent));
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
 .projects-slide.is-active .projects-slide-img {
   border-color: var(--slide-accent);
   box-shadow:
     0 0 0 3px color-mix(in srgb, var(--slide-accent) 30%, transparent),
+    0 0 54px color-mix(in srgb, var(--slide-accent) 28%, transparent),
     0 18px 44px rgba(0, 0, 0, 0.22);
 }
+.projects-slide.is-active .projects-slide-img::after { opacity: 1; }
 
 .projects-slide-img img,
 .projects-slide-img .projects-img-fallback {
@@ -522,6 +594,9 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 72%, transparent), transparent),
+    radial-gradient(580px 220px at 100% 100%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 72%);
 }
 
 .projects-tagline {
@@ -595,7 +670,10 @@
   border-radius: 999px;
   border: 1px solid var(--border);
   color: var(--text-muted);
-  background: var(--bg);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 86%, transparent), transparent),
+    var(--bg);
+  box-shadow: inset 0 0 14px color-mix(in srgb, var(--accent) 5%, transparent);
 }
 
 /* ─── Mobile: list + detail ─── */
