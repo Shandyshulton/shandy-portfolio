@@ -1,6 +1,12 @@
 const CMS_API_URL = import.meta.env.VITE_CMS_API_URL ?? 'http://127.0.0.1:8000/api';
 
-export async function fetchCms(path, options = {}) {
+// In-memory cache + in-flight dedup for GET requests.
+// Prevents duplicate network calls when multiple components request the same
+// endpoint (e.g. /public/settings used by Home, Contact and Footer).
+const getCache = new Map(); // path -> resolved JSON
+const inFlight = new Map(); // path -> Promise
+
+async function requestCms(path, options) {
   const response = await fetch(`${CMS_API_URL}${path}`, {
     ...options,
     headers: { Accept: 'application/json' },
@@ -18,6 +24,35 @@ export async function fetchCms(path, options = {}) {
   }
 
   return response.json();
+}
+
+export async function fetchCms(path, options = {}) {
+  const method = (options.method ?? 'GET').toUpperCase();
+
+  // Only cache/dedup idempotent GET requests.
+  if (method !== 'GET') {
+    return requestCms(path, options);
+  }
+
+  if (getCache.has(path)) {
+    return getCache.get(path);
+  }
+
+  if (inFlight.has(path)) {
+    return inFlight.get(path);
+  }
+
+  const promise = requestCms(path, options)
+    .then((data) => {
+      getCache.set(path, data);
+      return data;
+    })
+    .finally(() => {
+      inFlight.delete(path);
+    });
+
+  inFlight.set(path, promise);
+  return promise;
 }
 
 export function getTranslation(item, locale) {

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { Sun, Moon, Menu, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import './Navbar.css';
@@ -28,6 +28,7 @@ export default function Navbar({ theme, toggleTheme }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { t, i18n } = useTranslation();
+  const location = useLocation();
 
   const currentLang = i18n.language?.startsWith('id') ? 'id' : 'en';
 
@@ -45,6 +46,42 @@ export default function Navbar({ theme, toggleTheme }) {
     { to: '/contact', label: t('nav.contact') },
   ];
 
+  // ── Sliding pill indicator ──
+  const itemRefs = useRef([]);
+  const listRef = useRef(null);
+  const [pill, setPill] = useState({ left: 0, width: 0, opacity: 0 });
+  const [hovered, setHovered] = useState(null);
+
+  const activeIndex = links.findIndex(l =>
+    l.to === '/' ? location.pathname === '/' : location.pathname.startsWith(l.to)
+  );
+
+  // Item yang dituju pill: hover jika ada, kalau tidak item aktif.
+  const target = hovered ?? (activeIndex >= 0 ? activeIndex : null);
+
+  // Ukur posisi item target dan perbarui pill. Dipanggil dari event
+  // (hover/leave) dan dari observer — bukan langsung di body effect.
+  const measurePill = (index) => {
+    if (index === null || index === undefined) {
+      setPill(p => ({ ...p, opacity: 0 }));
+      return;
+    }
+    const el = itemRefs.current[index];
+    if (el) setPill({ left: el.offsetLeft, width: el.offsetWidth, opacity: 1 });
+  };
+
+  // Subscribe ke perubahan ukuran container; observer callback bersifat
+  // asynchronous sehingga aman (tidak memicu cascading render sinkron).
+  useEffect(() => {
+    const node = listRef.current;
+    if (!node) return undefined;
+    const ro = new ResizeObserver(() => measurePill(target));
+    ro.observe(node);
+    // Ukur sekali saat subscribe (via microtask agar keluar dari body effect).
+    queueMicrotask(() => measurePill(target));
+    return () => ro.disconnect();
+  }, [target, location.pathname, i18n.language]);
+
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="navbar-inner">
@@ -53,14 +90,25 @@ export default function Navbar({ theme, toggleTheme }) {
           <span className="logo-dot"> SS.</span>
         </NavLink>
 
-        <div className={`navbar-links ${menuOpen ? 'open' : ''}`}>
-          {links.map(l => (
+        <div
+          className={`navbar-links ${menuOpen ? 'open' : ''}`}
+          ref={listRef}
+          onMouseLeave={() => setHovered(null)}
+        >
+          <span
+            className="nav-pill"
+            aria-hidden="true"
+            style={{ left: pill.left, width: pill.width, opacity: pill.opacity }}
+          />
+          {links.map((l, i) => (
             <NavLink
               key={l.to}
               to={l.to}
               end={l.to === '/'}
+              ref={el => { itemRefs.current[i] = el; }}
               className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
               onClick={() => setMenuOpen(false)}
+              onMouseEnter={() => setHovered(i)}
             >
               {l.label}
             </NavLink>

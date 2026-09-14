@@ -286,15 +286,18 @@ export default function Home() {
                 <span></span>
                 <span></span>
               </div>
-              <img
-                src="/images/PP.jpeg"
-                alt={profile.name}
-                className="hero-photo"
-                fetchpriority="high"
-                decoding="async"
-                width={1200}
-                height={630}
-              />
+              <picture>
+                <source srcSet="/images/PP.webp" type="image/webp" />
+                <img
+                  src="/images/PP.optimized.jpeg"
+                  alt={profile.name}
+                  className="hero-photo"
+                  fetchpriority="high"
+                  decoding="async"
+                  width={640}
+                  height={853}
+                />
+              </picture>
               <div className="photo-scan" aria-hidden="true"></div>
               <div className="photo-chip photo-chip--top">
                 <span className="chip-dot"></span>

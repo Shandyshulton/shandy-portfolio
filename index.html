@@ -6,7 +6,8 @@
     <title>Shandy Shulton Shihab | Full Stack Developer Portfolio</title>
     <meta name="description" content="Portfolio Shandy Shulton Shihab, Full Stack Developer berpengalaman menggunakan React.js, Laravel, dan MySQL untuk membangun aplikasi web." />
     <link rel="canonical" href="https://shandy-shulton-shihab.vercel.app/" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Shandy Shulton Shihab Portfolio" />
     <meta property="og:url" content="https://shandy-shulton-shihab.vercel.app/" />
@@ -49,9 +50,22 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Non-blocking Google Fonts load: fetch as stylesheet but apply on load so it doesn't block render -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap"
+      />
+    </noscript>
     <link rel="preconnect" href="https://api.shandyshultonshihab.my.id" crossorigin />
     <link rel="dns-prefetch" href="https://api.shandyshultonshihab.my.id" />
-    <link rel="preload" as="image" href="/images/PP.jpeg" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/PP.webp" type="image/webp" fetchpriority="high" />
   </head>
   <body>
     <div id="root">

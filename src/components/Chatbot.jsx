@@ -14,7 +14,15 @@ const QUICK_ACTIONS = [
 ];
 
 const SharaAvatar = ({ className = '' }) => (
-  <img src="/shara.png" alt="Shara" className={`chatbot-shara-img ${className}`} />
+  <img
+    src="/shara.webp"
+    alt="Shara"
+    className={`chatbot-shara-img ${className}`}
+    width={128}
+    height={128}
+    loading="lazy"
+    decoding="async"
+  />
 );
 
 export default function Chatbot() {
