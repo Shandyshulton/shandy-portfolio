@@ -161,21 +161,34 @@ export default function Home() {
 
   useEffect(() => {
     let active = true;
+    let idleId;
 
-    Promise.allSettled([
-      fetchCms('/public/projects'),
-      fetchCms('/public/certifications'),
-    ]).then(([projects, certifications]) => {
-      if (!active) return;
+    // Statistik "About" berada di bawah fold dan sudah punya nilai default,
+    // jadi fetch-nya ditunda sampai browser idle agar tidak menghalangi
+    // pemuatan hero (LCP). Memakai endpoint ringan /public/stats yang hanya
+    // mengembalikan jumlah (bukan payload penuh projects + certifications).
+    const loadStats = () => {
+      fetchCms('/public/stats')
+        .then((data) => {
+          if (!active || !data) return;
+          setStats({
+            projects: typeof data.projects === 'number' ? `${data.projects}+` : '3+',
+            certs: typeof data.certifications === 'number' ? String(data.certifications) : '3',
+          });
+        })
+        .catch(() => { /* biarkan nilai default */ });
+    };
 
-      setStats({
-        projects: projects.status === 'fulfilled' && Array.isArray(projects.value) ? `${projects.value.length}+` : '3+',
-        certs: certifications.status === 'fulfilled' && Array.isArray(certifications.value) ? String(certifications.value.length) : '3',
-      });
-    });
+    if ('requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(loadStats, { timeout: 4000 });
+    } else {
+      idleId = window.setTimeout(loadStats, 1500);
+    }
 
     return () => {
       active = false;
+      if ('cancelIdleCallback' in window && idleId) window.cancelIdleCallback(idleId);
+      else window.clearTimeout(idleId);
     };
   }, []);
 
@@ -294,8 +307,8 @@ export default function Home() {
                   className="hero-photo"
                   fetchpriority="high"
                   decoding="async"
-                  width={640}
-                  height={853}
+                  width={480}
+                  height={640}
                 />
               </picture>
               <div className="photo-scan" aria-hidden="true"></div>

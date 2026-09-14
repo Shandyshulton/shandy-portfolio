@@ -79,6 +79,7 @@ export default function App() {
     return localStorage.getItem('theme') || 'light';
   });
   const [booted, setBooted] = useState(false);
+  const [chatReady, setChatReady] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -91,6 +92,28 @@ export default function App() {
     return () => window.clearTimeout(t);
   }, []);
 
+  // Tunda pemuatan Chatbot (chunk react-markdown ~160 KiB) sampai browser
+  // idle atau ada interaksi pertama, agar keluar dari jalur kritis LCP.
+  useEffect(() => {
+    let idleId;
+    const trigger = () => setChatReady(true);
+
+    const events = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach((e) => window.addEventListener(e, trigger, { once: true, passive: true }));
+
+    if ('requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(trigger, { timeout: 3000 });
+    } else {
+      idleId = window.setTimeout(trigger, 2000);
+    }
+
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, trigger));
+      if ('cancelIdleCallback' in window && idleId) window.cancelIdleCallback(idleId);
+      else window.clearTimeout(idleId);
+    };
+  }, []);
+
   const toggleTheme = () =>
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
 
@@ -98,9 +121,11 @@ export default function App() {
     <BrowserRouter>
       <RouteTransitionLoader />
       <Layout theme={theme} toggleTheme={toggleTheme} />
-      <Suspense fallback={null}>
-        <Chatbot />
-      </Suspense>
+      {chatReady && (
+        <Suspense fallback={null}>
+          <Chatbot />
+        </Suspense>
+      )}
       <ScrollTopButton />
       <Analytics />
       <SpeedInsights />

@@ -20,15 +20,12 @@ const publicDir = path.resolve(__dirname, '..', 'public');
  * }>}
  */
 const jobs = [
-  // Chatbot avatar: displayed at ~102px, keep 2x for retina => 256px.
-  { src: 'shara.png', out: 'shara.webp', width: 256, height: 256, format: 'webp', quality: 82 },
-  // Hero photo: displayed ~292x356, keep 2x => width 640.
-  { src: 'images/PP.jpeg', out: 'images/PP.webp', width: 640, format: 'webp', quality: 80 },
+  // Chatbot avatar: ditampilkan ~58px, 2x retina => 128px sudah cukup.
+  { src: 'shara.webp', out: 'shara.webp', width: 128, height: 128, format: 'webp', quality: 78 },
+  // Hero photo: ditampilkan ~220x293, 2x retina => width 480 sudah cukup.
+  { src: 'images/PP.jpeg', out: 'images/PP.webp', width: 480, format: 'webp', quality: 78 },
   // Also produce an optimized JPEG fallback for og:image / older clients.
   { src: 'images/PP.jpeg', out: 'images/PP.optimized.jpeg', width: 1200, format: 'jpeg', quality: 78 },
-  // Favicon: only needs to be small.
-  { src: 'favicon.png', out: 'favicon-32.png', width: 32, height: 32, format: 'png' },
-  { src: 'favicon.png', out: 'favicon-180.png', width: 180, height: 180, format: 'png' },
 ];
 
 async function run() {
@@ -37,7 +34,8 @@ async function run() {
     const outPath = path.join(publicDir, job.out);
     try {
       const before = (await fs.stat(srcPath)).size;
-      let pipeline = sharp(srcPath).resize({
+      const inputBuffer = await fs.readFile(srcPath);
+      let pipeline = sharp(inputBuffer).resize({
         width: job.width,
         height: job.height,
         fit: 'cover',
@@ -52,7 +50,7 @@ async function run() {
         pipeline = pipeline.png({ compressionLevel: 9, palette: true });
       }
 
-      await pipeline.toFile(outPath);
+      await fs.writeFile(outPath, await pipeline.toBuffer());
       const after = (await fs.stat(outPath)).size;
       const saved = before - after;
       console.log(
