@@ -1,18 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import Chatbot from './components/Chatbot';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { BootLoader, RouteLoader } from './components/Loader';
 import ScrollTopButton from './components/ScrollTopButton';
 import Home from './pages/Home';
-import Projects from './pages/Projects';
-import Education from './pages/Education';
-import Experience from './pages/Experience';
-import Contact from './pages/Contact';
 import './index.css';
+
+// Route-based code splitting: halaman selain Home dimuat saat dinavigasi,
+// sehingga bundle awal (Home) lebih kecil dan mengurangi JS tak terpakai.
+const Projects = lazy(() => import('./pages/Projects'));
+const Education = lazy(() => import('./pages/Education'));
+const Experience = lazy(() => import('./pages/Experience'));
+const Contact = lazy(() => import('./pages/Contact'));
+
+// Chatbot memuat react-markdown + remark-gfm (berat) dan bukan konten kritis,
+// jadi di-defer agar tidak membebani bundle awal.
+const Chatbot = lazy(() => import('./components/Chatbot'));
 
 function Layout({ theme, toggleTheme }) {
   const { pathname } = useLocation();
@@ -22,13 +28,15 @@ function Layout({ theme, toggleTheme }) {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       <main style={{ flex: 1 }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/education" element={<Education />} />
-          <Route path="/experience" element={<Experience />} />
-          <Route path="/contact" element={<Contact />} />
-        </Routes>
+        <Suspense fallback={<RouteLoader label="memuat halaman" />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/education" element={<Education />} />
+            <Route path="/experience" element={<Experience />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </Suspense>
       </main>
       {!isProjects && <Footer />}
     </div>
@@ -90,7 +98,9 @@ export default function App() {
     <BrowserRouter>
       <RouteTransitionLoader />
       <Layout theme={theme} toggleTheme={toggleTheme} />
-      <Chatbot />
+      <Suspense fallback={null}>
+        <Chatbot />
+      </Suspense>
       <ScrollTopButton />
       <Analytics />
       <SpeedInsights />
