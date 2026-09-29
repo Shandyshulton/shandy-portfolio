@@ -489,7 +489,8 @@
   }
 }
 
-/* Scroll indicator */
+/* Scroll indicator — menavigasi ke bagian berikutnya (lihat juga html
+   { scroll-behavior: smooth } di index.css yang membuat lompatannya halus) */
 .scroll-indicator {
   position: absolute;
   bottom: 36px;
@@ -500,14 +501,36 @@
   align-items: center;
   gap: 8px;
   opacity: 0.5;
-  z-index: 1;
+  z-index: 2;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+.scroll-indicator:hover,
+.scroll-indicator:focus-visible { opacity: 1; }
+.scroll-indicator:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+  border-radius: 4px;
 }
 .scroll-line {
   width: 1px;
   height: 40px;
-  background: linear-gradient(to bottom, var(--accent), transparent);
-  animation: pulse 1.5s ease infinite;
+  background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+  opacity: 0.6;
 }
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-line { animation: scroll-travel 1.8s ease-in-out infinite; }
+}
+@keyframes scroll-travel {
+  0%   { transform: translateY(-9px) scaleY(0.55); opacity: 0.15; }
+  50%  { opacity: 0.95; }
+  100% { transform: translateY(9px) scaleY(0.55); opacity: 0.15; }
+}
+
+/* Beri ruang agar judul bagian tidak tertutup navbar tetap (68px) */
+.skills-section,
+.about-strip { scroll-margin-top: 84px; }
 
 /* ============================================================
    SKILLS / TECH STACK MARQUEE

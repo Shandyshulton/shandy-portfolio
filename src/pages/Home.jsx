@@ -366,12 +366,12 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="scroll-indicator">
-          <div className="scroll-line"></div>
-          <span className="mono" style={{ fontSize: '10px', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
+        <a href="#skills" className="scroll-indicator">
+          <span className="scroll-line" aria-hidden="true"></span>
+          <span className="mono" style={{ fontSize: '10px', letterSpacing: '0.1em' }}>
             {t('home.scroll')}
           </span>
-        </div>
+        </a>
       </section>
 
       <section className="skills-section" id="skills">
