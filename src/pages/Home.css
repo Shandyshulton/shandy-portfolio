@@ -710,10 +710,23 @@
     50% { transform: translateY(226px); opacity: 0.9; }
   }
   .strip-grid { grid-template-columns: 1fr; }
-  /* Ruang bawah hero menyempit saat konten menumpuk; cukup teksnya saja yang
-     jadi target tap supaya tidak pernah bertabrakan dengan baris ikon sosial. */
-  .scroll-indicator { bottom: 20px; }
-  .scroll-line { display: none; }
+  /* Ruang bawah hero menyempit saat konten menumpuk, jadi indikatornya
+     didaratkan (garis pendek di kiri teks). Tingginya cuma ~16px sehingga
+     tidak pernah lagi bertabrakan dengan baris ikon sosial. */
+  .scroll-indicator { bottom: 20px; flex-direction: row; gap: 10px; }
+  .scroll-line {
+    width: 26px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--accent), transparent);
+  }
+}
+@media (max-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .scroll-line { animation: scroll-travel-x 1.8s ease-in-out infinite; }
+}
+@keyframes scroll-travel-x {
+  0%   { transform: translateX(-7px) scaleX(0.55); opacity: 0.15; }
+  50%  { opacity: 0.95; }
+  100% { transform: translateX(7px) scaleX(0.55); opacity: 0.15; }
 }
 
 @media (max-width: 600px) {
