@@ -84,7 +84,8 @@ function build(canvas, theme0, reduced) {
   const core = new Mesh(new IcosahedronGeometry(1.05, 1), coreMat);
   const shellMat = new MeshBasicMaterial({ wireframe: true, transparent: true });
   const shell = new Mesh(new IcosahedronGeometry(1.62, 1), shellMat);
-  const glowMat = new SpriteMaterial({ map: glowTexture(), color: '#ff6a3d', transparent: true, depthWrite: false, blending: AdditiveBlending });
+  const gtex = glowTexture();
+  const glowMat = new SpriteMaterial({ map: gtex, color: '#ff6a3d', transparent: true, depthWrite: false, blending: AdditiveBlending });
   const glow = new Sprite(glowMat); glow.scale.setScalar(6.5);
   const pl = new PointLight('#ff7a45', 55, 16, 2);
   coreG.add(core, shell, glow, pl);
@@ -107,8 +108,11 @@ function build(canvas, theme0, reduced) {
     body.add(new LineSegments(cage, lineMat));
     const hit = new Mesh(hitGeo, new MeshBasicMaterial({ visible: false })); hit.userData.id = it.id;
     const sp = new Sprite(new SpriteMaterial({ transparent: true, depthWrite: false, sizeAttenuation: false })); sp.position.set(0, -0.56, 0);
-    g.add(body, hit, sp); ring.spin.add(g); labelMats.push(sp.material);
-    return { it, g, body, hit, sp, lineMat, tex: null };
+    // Halo: cahaya berwarna di belakang node yang aktif (terlihat jelas di layar kecil)
+    const halo = new Sprite(new SpriteMaterial({ map: gtex, color: it.color, transparent: true, opacity: 0, depthWrite: false, blending: AdditiveBlending }));
+    halo.scale.setScalar(1.9); halo.visible = false;
+    g.add(halo, body, hit, sp); ring.spin.add(g); labelMats.push(sp.material);
+    return { it, g, body, hit, sp, lineMat, halo, tex: null };
   });
   const setLabels = (dark) => {
     nodes.forEach((n) => {
@@ -152,8 +156,18 @@ function build(canvas, theme0, reduced) {
   // Input
   let dirty = 8;
   const ptr = new Vector2(), ray = new Raycaster();
+  const touchOnly = window.matchMedia?.('(hover: none)').matches;
   const onMove = (e) => { ptr.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); dirty = 8; };
+  // Layar sentuh: tap pada node 3D = pilih node (tanpa hover)
+  const onDown = (e) => {
+    onMove(e);
+    if (e.pointerType === 'mouse' || !frame.isHome || frame.stage > 1.3) return;
+    ray.setFromCamera(ptr, camera);
+    const hit = ray.intersectObjects(nodes.map((n) => n.hit), false)[0];
+    if (hit) { setUi({ hovered: hit.object.userData.id }); window.dispatchEvent(new CustomEvent('stack-pick')); }
+  };
   window.addEventListener('pointermove', onMove, { passive: true });
+  window.addEventListener('pointerdown', onDown, { passive: true });
   const resize = () => {
     const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
     renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); dirty = 8;
@@ -217,18 +231,20 @@ function build(canvas, theme0, reduced) {
     const labelBase = frame.isHome ? c01(1 - (cur - 1) * 1.6) : 0;
     if (!reduced || dirty > 0) {
       let hov = null;
-      if (labelBase > 0.3 && !reduced) {
+      if (labelBase > 0.3 && !reduced && !touchOnly) {
         ray.setFromCamera(ptr, camera);
         const hit = ray.intersectObjects(nodes.map((n) => n.hit), false)[0];
         if (hit) hov = hit.object.userData.id;
       }
-      if (hov !== prevHover) { prevHover = hov; if (ui.hovered !== hov) setUi({ hovered: hov }); }
+      if (!touchOnly && hov !== prevHover) { prevHover = hov; if (ui.hovered !== hov) setUi({ hovered: hov }); }
     }
     nodes.forEach((n) => {
       const act = ui.hovered === n.it.id;
-      n.g.scale.setScalar(D(n.g.scale.x, act ? 1.4 : 1, reduced ? 1000 : 6, dt));
+      n.g.scale.setScalar(D(n.g.scale.x, act ? 1.55 : 1, reduced ? 1000 : 6, dt));
       if (!reduced) { n.body.rotation.x += dt * 0.35; n.body.rotation.y += dt * 0.5; }
       n.lineMat.opacity = act ? 1 : 0.7;
+      const ho = D(n.halo.material.opacity, act ? 0.9 : 0, reduced ? 1000 : 8, dt);
+      n.halo.material.opacity = ho; n.halo.visible = ho > 0.01;
       if (n.lastActive !== act) { n.lastActive = act; const t = act ? n.tex.a : n.tex.n; n.sp.material.map = t.tex; n.sp.material.needsUpdate = true; n.sp.scale.set(t.w * 0.00046, 64 * 0.00046, 1); }
       n.sp.material.opacity = labelBase; n.sp.visible = labelBase > 0.01;
     });
@@ -239,7 +255,7 @@ function build(canvas, theme0, reduced) {
   return {
     applyTheme,
     destroy() {
-      cancelAnimationFrame(raf); ro.disconnect(); offFrame(); window.removeEventListener('pointermove', onMove);
+      cancelAnimationFrame(raf); ro.disconnect(); offFrame(); window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerdown', onDown);
       scene.traverse((m) => { m.geometry?.dispose?.(); [m.material].flat().forEach((x) => { x?.map?.dispose?.(); x?.dispose?.(); }); });
       envRT.dispose(); pmrem.dispose(); renderer.dispose();
     },

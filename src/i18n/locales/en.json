@@ -18,6 +18,7 @@
       "label": "What I Do",
       "title": "Skills & Stack",
       "hint": "Hover a skill and its node lights up in the 3D scene.",
+      "hintTouch": "Tap a skill and its node lights up in the 3D scene.",
       "frontend": "Frontend",
       "backend": "Backend & tools"
     },

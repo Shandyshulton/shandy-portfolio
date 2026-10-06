@@ -18,6 +18,7 @@
       "label": "Yang Saya Lakukan",
       "title": "Keahlian & Stack",
       "hint": "Arahkan kursor ke skill, node-nya menyala di scene 3D.",
+      "hintTouch": "Ketuk sebuah skill dan node-nya menyala di scene 3D.",
       "frontend": "Frontend",
       "backend": "Backend & tools"
     },

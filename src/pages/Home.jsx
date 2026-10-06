@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { GitFork, Mail, Globe, Download, ArrowRight, MapPin } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms } from '../lib/cmsApi.js';
 import { useCmsSettings } from '../lib/useCmsProfile.js';
 import TiltCard from '../components/TiltCard.jsx';
-import { STACK_GROUPS } from '../three/stack.js';
-import { setUi, useSceneUi } from '../three/store.js';
+import { STACK_FLAT, STACK_GROUPS } from '../three/stack.js';
+import { getUi, setUi, useSceneUi } from '../three/store.js';
 import './Home.css';
 
 // ── Hook: efek ketik (typewriter), hormati prefers-reduced-motion ─────────────
@@ -86,12 +86,24 @@ function SplitName({ parts }) {
 
 function StackChip({ item }) {
   const active = useSceneUi((s) => s.hovered === item.id);
+  const pick = () => {
+    // Tap = pilih (tap lagi = lepas). Mouse tetap pakai hover.
+    setUi({ hovered: getUi().hovered === item.id ? null : item.id });
+    window.dispatchEvent(new CustomEvent('stack-pick'));
+  };
   return (
     <li
       className={`stack-chip ${active ? 'is-active' : ''}`}
       style={{ '--chip': item.color }}
-      onPointerEnter={() => setUi({ hovered: item.id })}
-      onPointerLeave={() => setUi({ hovered: null })}
+      tabIndex={0}
+      role="button"
+      aria-pressed={active}
+      onPointerEnter={(e) => e.pointerType === 'mouse' && setUi({ hovered: item.id })}
+      onPointerLeave={(e) => e.pointerType === 'mouse' && setUi({ hovered: null })}
+      onFocus={(e) => e.currentTarget.matches(':focus-visible') && setUi({ hovered: item.id })}
+      onBlur={() => setUi({ hovered: null })}
+      onClick={(e) => e.detail !== 0 && e.nativeEvent.pointerType !== 'mouse' && pick()}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), pick())}
     >
       <span className="stack-chip-dot" aria-hidden="true" />
       {item.label}
@@ -109,6 +121,51 @@ export default function Home() {
   const nameParts = useMemo(() => profile.name.split(' ').filter(Boolean), [profile.name]);
   const roleText = profile.headline || t('home.role');
   const { typed: typedRole, done: roleDone } = useTypewriter(roleText);
+
+  // Parallax mouse: tiap elemen hero bergeser dengan kedalaman berbeda (--mx/--my: -1..1).
+  const noHover = typeof window !== 'undefined' && !!window.matchMedia?.('(hover: none)').matches;
+  const heroRef = useRef(null);
+  useEffect(() => {
+    const el = heroRef.current;
+    const ok = window.matchMedia?.('(hover: hover) and (prefers-reduced-motion: no-preference)').matches;
+    if (!el || !ok) return undefined;
+    let raf = 0;
+    const move = (e) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        el.style.setProperty('--mx', ((e.clientX / window.innerWidth) * 2 - 1).toFixed(3));
+        el.style.setProperty('--my', ((e.clientY / window.innerHeight) * 2 - 1).toFixed(3));
+      });
+    };
+    window.addEventListener('pointermove', move, { passive: true });
+    return () => { window.removeEventListener('pointermove', move); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+
+  // Layar sentuh tidak punya hover: saat bagian Skills terlihat, node disorot bergiliran
+  // otomatis (berhenti sementara 6 detik setelah pengguna tap sendiri).
+  useEffect(() => {
+    const section = document.getElementById('skills');
+    const noHover = window.matchMedia?.('(hover: none)').matches;
+    if (!section || !noHover || !('IntersectionObserver' in window)) return undefined;
+    let timer = 0;
+    let idx = 0;
+    let lastPick = 0;
+    const onPick = () => { lastPick = Date.now(); };
+    const step = () => {
+      if (Date.now() - lastPick < 6000) return;
+      setUi({ hovered: STACK_FLAT[idx % STACK_FLAT.length].id });
+      idx += 1;
+    };
+    const io = new IntersectionObserver(([entry]) => {
+      window.clearInterval(timer);
+      if (entry.isIntersecting) { step(); timer = window.setInterval(step, 1700); }
+      else setUi({ hovered: null });
+    }, { threshold: 0.35 });
+    io.observe(section);
+    window.addEventListener('stack-pick', onPick);
+    return () => { io.disconnect(); window.clearInterval(timer); window.removeEventListener('stack-pick', onPick); };
+  }, []);
 
   // Bersihkan highlight node saat meninggalkan halaman.
   useEffect(() => () => setUi({ hovered: null }), []);
@@ -167,7 +224,7 @@ export default function Home() {
       </Helmet>
 
       {/* ── Hero: teks di kiri, scene 3D di kanan (canvas global di belakang) ── */}
-      <section className="hero" id="home">
+      <section className="hero" id="home" ref={heroRef}>
         <div className="hero-copy">
           <p className="hero-greeting mono">
             <span className="greeting-caret">❯</span> {homeContent.greeting || t('home.greeting')}
@@ -227,7 +284,7 @@ export default function Home() {
       <section className="skills" id="skills">
         <div className="skills-panel glass">
           <h2 className="skills-title">{t('home.skills.title')}</h2>
-          <p className="skills-hint">{t('home.skills.hint')}</p>
+          <p className="skills-hint">{noHover ? t('home.skills.hintTouch') : t('home.skills.hint')}</p>
 
           {STACK_GROUPS.map((group) => (
             <div className="skills-group" key={group.id}>

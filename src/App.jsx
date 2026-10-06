@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import { BootLoader, RouteLoader } from './components/Loader';
 import ScrollTopButton from './components/ScrollTopButton';
 import SceneHost from './three/SceneHost';
+import ParallaxBackdrop from './components/ParallaxBackdrop';
 import Home from './pages/Home';
 import './index.css';
 
@@ -122,6 +123,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <SceneHost theme={theme} />
+      <ParallaxBackdrop />
       <RouteTransitionLoader />
       <Layout theme={theme} toggleTheme={toggleTheme} />
       {chatReady && (

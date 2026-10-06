@@ -421,3 +421,26 @@
     }
   }
 }
+
+/* ── Parallax: mouse di hero + kedalaman saat scroll di About ── */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hero-greeting { transform: translate3d(calc(var(--mx, 0) * -4px),  calc(var(--my, 0) * -3px),  0); }
+  .hero-name     { transform: translate3d(calc(var(--mx, 0) * -14px), calc(var(--my, 0) * -9px),  0); }
+  .hero-role     { transform: translate3d(calc(var(--mx, 0) * -7px),  calc(var(--my, 0) * -5px),  0); }
+  .hero-bio      { transform: translate3d(calc(var(--mx, 0) * -4px),  calc(var(--my, 0) * -3px),  0); }
+  .hero-actions  { transform: translate3d(calc(var(--mx, 0) * -2px),  calc(var(--my, 0) * -1px),  0); }
+  .hero-greeting, .hero-name, .hero-role, .hero-bio, .hero-actions {
+    transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1);
+    will-change: transform;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes par-photo { from { transform: translateY(60px); } to { transform: translateY(-60px); } }
+    @keyframes par-chip-a { from { transform: translate3d(0, -34px, 46px); } to { transform: translate3d(0, 34px, 46px); } }
+    @keyframes par-chip-b { from { transform: translate3d(0, 40px, 60px); } to { transform: translate3d(0, -40px, 60px); } }
+    .about-photo { animation: par-photo linear both; animation-timeline: view(); animation-range: cover; }
+    .about-chip--top    { animation: par-chip-a linear both; animation-timeline: view(); animation-range: cover; }
+    .about-chip--bottom { animation: par-chip-b linear both; animation-timeline: view(); animation-range: cover; }
+  }
+}

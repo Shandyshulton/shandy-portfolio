@@ -679,15 +679,37 @@ a {
       animation-timeline: view();
       animation-range: entry 0% entry 60%;
     }
-    .exp-item:nth-child(odd) .exp-card, .contact-info {
+    .exp-row:nth-child(odd) .exp-card, .contact-info {
       animation: pg-left linear backwards;
       animation-timeline: view();
       animation-range: entry 0% entry 65%;
     }
-    .exp-item:nth-child(even) .exp-card, .contact-form-wrap {
+    .exp-row:nth-child(even) .exp-card, .contact-form-wrap {
       animation: pg-right linear backwards;
       animation-timeline: view();
       animation-range: entry 0% entry 65%;
     }
+  }
+}
+
+/* ── Parallax berlapis: Education & Experience ──
+   Memakai properti `translate` (terpisah dari `transform`) agar tidak bentrok
+   dengan reveal/animasi masuk yang sudah ada. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes plx-up   { from { translate: 0 var(--d, 60px); }  to { translate: 0 calc(var(--d, 60px) * -1); } }
+    @keyframes plx-down { from { translate: 0 calc(var(--d, 14px) * -1); } to { translate: 0 var(--d, 14px); } }
+    @keyframes plx-lag  { to { translate: 0 var(--d, 60px); } }
+
+    /* Judul halaman "tertinggal" saat scroll → kesan berada di lapisan belakang */
+    .exp-page .section-label, .edu-page .section-label { --d: 50px; animation: plx-lag linear both; animation-timeline: scroll(root block); animation-range: 0 70vh; }
+    .exp-page .section-title, .edu-page .section-title { --d: 90px; animation: plx-lag linear both; animation-timeline: scroll(root block); animation-range: 0 70vh; }
+
+    /* Lapisan dalam kartu: tiap elemen bergerak dengan kecepatan berbeda */
+    .exp-lineno, .edu-lineno                       { --d: 80px; animation: plx-up linear both;   animation-timeline: view(); animation-range: cover; }
+    .exp-dot, .edu-icon-wrap                       { --d: 14px; animation: plx-down linear both; animation-timeline: view(); animation-range: cover; }
+    .exp-type-badge, .edu-type-badge               { --d: 22px; animation: plx-up linear both;   animation-timeline: view(); animation-range: cover; }
+    .exp-meta, .edu-period                         { --d: 14px; animation: plx-down linear both; animation-timeline: view(); animation-range: cover; }
+    .exp-stack, .edu-highlights                    { --d: 10px; animation: plx-up linear both;   animation-timeline: view(); animation-range: cover; }
   }
 }
