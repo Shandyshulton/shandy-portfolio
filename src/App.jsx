@@ -6,6 +6,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { BootLoader, RouteLoader } from './components/Loader';
 import ScrollTopButton from './components/ScrollTopButton';
+import SceneHost from './three/SceneHost';
 import Home from './pages/Home';
 import './index.css';
 
@@ -76,7 +77,8 @@ function RouteTransitionLoader() {
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'light';
+    // Desain 3D baru dark-first; pilihan tema pengunjung tetap dihormati.
+    return localStorage.getItem('theme') || 'dark';
   });
   const [booted, setBooted] = useState(false);
   const [chatReady, setChatReady] = useState(false);
@@ -119,6 +121,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <SceneHost theme={theme} />
       <RouteTransitionLoader />
       <Layout theme={theme} toggleTheme={toggleTheme} />
       {chatReady && (

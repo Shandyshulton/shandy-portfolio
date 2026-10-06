@@ -1,58 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  GitFork, Mail, Globe, Download, ArrowRight,
-  Code2, Palette, Database, Braces, Server, Zap,
-  PenTool, Cloud, Boxes, Layers, Terminal,
-} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { GitFork, Mail, Globe, Download, ArrowRight, MapPin } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms } from '../lib/cmsApi.js';
 import { useCmsSettings } from '../lib/useCmsProfile.js';
+import TiltCard from '../components/TiltCard.jsx';
+import { STACK_GROUPS } from '../three/stack.js';
+import { setUi, useSceneUi } from '../three/store.js';
 import './Home.css';
 
-// ── Hook: deteksi elemen masuk viewport (untuk scroll-reveal) ────────────────
-function useInView() {
-  const ref = useRef(null);
-  // Kalau IntersectionObserver tidak didukung (browser lama), langsung anggap
-  // terlihat — tidak ada animasi reveal.
-  const supportsIo = typeof IntersectionObserver !== 'undefined';
-  const [inView, setInView] = useState(!supportsIo);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || inView) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -36px 0px' },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [inView]);
-
-  return [ref, inView];
-}
-
-// Wrapper reveal: elemen muncul halus saat di-scroll ke arahnya.
-function Reveal({ as: Tag = 'div', delay = 0, className = '', style, children }) {
-  const [ref, inView] = useInView();
-  return (
-    <Tag
-      ref={ref}
-      className={`rv ${inView ? 'rv-in' : ''} ${className}`}
-      style={{ transitionDelay: `${delay}ms`, ...style }}
-    >
-      {children}
-    </Tag>
-  );
-}
-
 // ── Hook: efek ketik (typewriter), hormati prefers-reduced-motion ─────────────
-function useTypewriter(text, speed = 82, startDelay = 700) {
+function useTypewriter(text, speed = 82, startDelay = 1100) {
   const [count, setCount] = useState(0);
   const prefersReduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 
@@ -103,24 +61,43 @@ function useTypewriter(text, speed = 82, startDelay = 700) {
   return { typed: prefersReduced ? text : text.slice(0, count), done: prefersReduced };
 }
 
-// Fragmen kode semu yang melayang di background hero.
-const FLOAT_TOKENS = [
-  { text: '</>', left: '4%', top: '22%', dur: 18, delay: -2, size: 17 },
-  { text: 'const', left: '88%', top: '30%', dur: 22, delay: -8, size: 14 },
-  { text: '=>', left: '12%', top: '62%', dur: 20, delay: -12, size: 20 },
-  { text: '{ }', left: '92%', top: '70%', dur: 16, delay: -4, size: 15 },
-  { text: 'fn()', left: '72%', top: '14%', dur: 24, delay: -14, size: 14 },
-  { text: 'await', left: '6%', top: '40%', dur: 26, delay: -18, size: 13 },
-  { text: '<div/>', left: '82%', top: '52%', dur: 19, delay: -6, size: 14 },
-  { text: 'import', left: '26%', top: '84%', dur: 21, delay: -10, size: 13 },
-  { text: 'dev:', left: '58%', top: '88%', dur: 17, delay: -1, size: 15 },
-  { text: '0xFF', left: '46%', top: '10%', dur: 23, delay: -16, size: 13 },
-];
-
 const SITE_URL = 'https://shandy-shulton-shihab.vercel.app/';
 const SEO_TITLE = 'Shandy Shulton Shihab | Full Stack Developer Portfolio';
 const SEO_DESCRIPTION = 'Portfolio Shandy Shulton Shihab, Full Stack Developer berpengalaman menggunakan React.js, Laravel, dan MySQL untuk membangun aplikasi web.';
 const PROFILE_IMAGE = 'https://www.shandyshultonshihab.my.id/images/PP.jpeg';
+
+/** Nama besar: tiap huruf naik satu per satu (satu-satunya animasi masuk di halaman). */
+function SplitName({ parts }) {
+  const offsets = parts.reduce((acc, part, i) => {
+    acc.push(i === 0 ? 0 : acc[i - 1] + [...parts[i - 1]].length);
+    return acc;
+  }, []);
+
+  return parts.map((part, pi) => (
+    <span className="name-line" key={`${part}-${pi}`} aria-hidden="true">
+      {[...part].map((ch, ci) => (
+        <span className="name-ch" style={{ '--i': offsets[pi] + ci }} key={ci}>
+          {ch}
+        </span>
+      ))}
+    </span>
+  ));
+}
+
+function StackChip({ item }) {
+  const active = useSceneUi((s) => s.hovered === item.id);
+  return (
+    <li
+      className={`stack-chip ${active ? 'is-active' : ''}`}
+      style={{ '--chip': item.color }}
+      onPointerEnter={() => setUi({ hovered: item.id })}
+      onPointerLeave={() => setUi({ hovered: null })}
+    >
+      <span className="stack-chip-dot" aria-hidden="true" />
+      {item.label}
+    </li>
+  );
+}
 
 export default function Home() {
   const { t } = useTranslation();
@@ -133,31 +110,8 @@ export default function Home() {
   const roleText = profile.headline || t('home.role');
   const { typed: typedRole, done: roleDone } = useTypewriter(roleText);
 
-  // Baris marquee tech stack (kiri & kanan saling berlawanan arah).
-  const stackRows = [
-    {
-      dir: 'left',
-      items: [
-        { label: 'React.js', icon: <Boxes size={15} /> },
-        { label: 'JavaScript', icon: <Braces size={15} /> },
-        { label: 'Tailwind CSS', icon: <Palette size={15} /> },
-        { label: 'Bootstrap', icon: <Layers size={15} /> },
-        { label: 'Vite', icon: <Zap size={15} /> },
-        { label: 'HTML & CSS', icon: <Code2 size={15} /> },
-      ],
-    },
-    {
-      dir: 'right',
-      items: [
-        { label: 'Laravel', icon: <Server size={15} /> },
-        { label: 'Golang', icon: <Code2 size={15} /> },
-        { label: 'MySQL', icon: <Database size={15} /> },
-        { label: 'PHP', icon: <Braces size={15} /> },
-        { label: 'REST API', icon: <Cloud size={15} /> },
-        { label: 'Figma', icon: <PenTool size={15} /> },
-      ],
-    },
-  ];
+  // Bersihkan highlight node saat meninggalkan halaman.
+  useEffect(() => () => setUi({ hovered: null }), []);
 
   useEffect(() => {
     let active = true;
@@ -165,8 +119,7 @@ export default function Home() {
 
     // Statistik "About" berada di bawah fold dan sudah punya nilai default,
     // jadi fetch-nya ditunda sampai browser idle agar tidak menghalangi
-    // pemuatan hero (LCP). Memakai endpoint ringan /public/stats yang hanya
-    // mengembalikan jumlah (bukan payload penuh projects + certifications).
+    // pemuatan hero (LCP).
     const loadStats = () => {
       fetchCms('/public/stats')
         .then((data) => {
@@ -192,6 +145,11 @@ export default function Home() {
     };
   }, []);
 
+  const groupLabels = {
+    frontend: t('home.skills.frontend'),
+    backend: t('home.skills.backend'),
+  };
+
   return (
     <div className="home-page">
       <Helmet>
@@ -208,227 +166,135 @@ export default function Home() {
         <meta name="twitter:image" content={PROFILE_IMAGE} />
       </Helmet>
 
+      {/* ── Hero: teks di kiri, scene 3D di kanan (canvas global di belakang) ── */}
       <section className="hero" id="home">
-        {/* Background "AI": grid + orb glow + token kode melayang */}
-        <div className="ai-bg" aria-hidden="true">
-          <div className="ai-grid" />
-          <div className="ai-orb ai-orb--1" />
-          <div className="ai-orb ai-orb--2" />
-          <div className="ai-orb ai-orb--3" />
-          {FLOAT_TOKENS.map((tk, i) => (
-            <span
-              key={`${tk.text}-${i}`}
-              className="ai-float"
-              style={{
-                left: tk.left,
-                top: tk.top,
-                fontSize: tk.size,
-                animationDuration: `${tk.dur}s`,
-                animationDelay: `${tk.delay}s`,
-              }}
-            >
-              {tk.text}
-            </span>
-          ))}
-        </div>
+        <div className="hero-copy">
+          <p className="hero-greeting mono">
+            <span className="greeting-caret">❯</span> {homeContent.greeting || t('home.greeting')}
+          </p>
 
-        <div className="hero-content">
-          <div className="hero-text">
-            <p className="hero-greeting animate-fadeUp">
-              <span className="mono greeting-tag">
-                <span className="greeting-caret">❯</span> {homeContent.greeting || t('home.greeting')}
-              </span>
-            </p>
-            <h1 className="hero-name animate-fadeUp delay-1">
-              {nameParts.map((part, index) => (
-                <span key={`${part}-${index}`}>
-                  {index === 1 ? <span className="name-accent">{part}</span> : part}
-                  {index < nameParts.length - 1 && <br />}
-                </span>
-              ))}
-              <span className="sr-only"> - Full Stack Developer</span>
-            </h1>
+          <h1 className="hero-name" aria-label={profile.name}>
+            <SplitName parts={nameParts} />
+          </h1>
 
-            <div className="hero-role animate-fadeUp delay-2">
-              <span className="role-badge">
-                <span className="role-prompt">$</span>
-                {typedRole}
-                {!roleDone && <span className="type-caret" />}
-              </span>
-              <span className="role-divider">/</span>
-              <span className="role-tag mono">Building smart web experiences</span>
-            </div>
+          <p className="hero-role mono">
+            <span className="role-prompt">$</span> {typedRole}
+            {!roleDone && <span className="type-caret" aria-hidden="true" />}
+          </p>
 
-            {profile.summary ? (
-              <p className="hero-bio animate-fadeUp delay-3">{profile.summary}</p>
-            ) : (
-              <p
-                className="hero-bio animate-fadeUp delay-3"
-                dangerouslySetInnerHTML={{ __html: t('home.bio') }}
-              />
-            )}
+          {profile.summary ? (
+            <p className="hero-bio">{profile.summary}</p>
+          ) : (
+            <p className="hero-bio" dangerouslySetInnerHTML={{ __html: t('home.bio') }} />
+          )}
 
-            <div className="hero-actions animate-fadeUp delay-4">
-              <a href="/CV_Shandy.pdf" download className="btn btn-primary">
-                <Download size={16} />
-                {t('home.downloadCV')}
-              </a>
-              <a href="/contact" className="btn btn-outline">
-                {t('home.getInTouch')} <ArrowRight size={16} />
-              </a>
-            </div>
-
-            <div className="hero-socials animate-fadeUp delay-5">
-              <a href={profile.github} target="_blank" rel="noreferrer" className="social-link" aria-label="GitHub">
-                <GitFork size={20} />
-              </a>
-              <a href={`mailto:${profile.email}`} className="social-link" aria-label="Email">
-                <Mail size={20} />
-              </a>
-              <a href={profile.linkedin} target="_blank" rel="noreferrer" className="social-link" aria-label="LinkedIn">
-                <Globe size={20} />
-              </a>
-            </div>
+          <div className="hero-actions">
+            <a href="/CV_Shandy.pdf" download className="btn btn-primary">
+              <Download size={16} />
+              {t('home.downloadCV')}
+            </a>
+            <a href="/contact" className="btn btn-outline">
+              {t('home.getInTouch')} <ArrowRight size={16} />
+            </a>
           </div>
 
-          <div className="hero-photo-wrap animate-fadeIn delay-2">
-            <div className="hero-photo-frame">
-              <div className="photo-aura" aria-hidden="true"></div>
-              <div className="photo-orbit" aria-hidden="true">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
+          <div className="hero-foot">
+            <div className="hero-socials">
+              <a href={profile.github} target="_blank" rel="noreferrer" className="social-link" aria-label="GitHub">
+                <GitFork size={19} />
+              </a>
+              <a href={`mailto:${profile.email}`} className="social-link" aria-label="Email">
+                <Mail size={19} />
+              </a>
+              <a href={profile.linkedin} target="_blank" rel="noreferrer" className="social-link" aria-label="LinkedIn">
+                <Globe size={19} />
+              </a>
+            </div>
+            <span className="hero-status">
+              <span className="status-dot" aria-hidden="true" />
+              {homeContent.available_text || t('home.available')}
+            </span>
+          </div>
+        </div>
+
+        <a href="#skills" className="scroll-indicator" aria-label={t('home.scroll')}>
+          <span className="scroll-line" aria-hidden="true" />
+          <span className="mono">{t('home.scroll')}</span>
+        </a>
+      </section>
+
+      {/* ── Skills: chip di kiri tersambung ke node 3D di kanan ── */}
+      <section className="skills" id="skills">
+        <div className="skills-panel glass">
+          <h2 className="skills-title">{t('home.skills.title')}</h2>
+          <p className="skills-hint">{t('home.skills.hint')}</p>
+
+          {STACK_GROUPS.map((group) => (
+            <div className="skills-group" key={group.id}>
+              <h3 className="skills-group-title">{groupLabels[group.id]}</h3>
+              <ul className="skills-list">
+                {group.items.map((item) => (
+                  <StackChip item={item} key={item.id} />
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── About ── */}
+      <section className="about" id="about">
+        <div className="about-grid">
+          <div className="about-copy">
+            <h2 className="about-title">
+              {(homeContent.about_title || t('home.about.title')).split('\n').map((line, index) => (
+                <span key={line} className="about-title-line">
+                  {line}
+                  {index === 0 && <br />}
+                </span>
+              ))}
+            </h2>
+            <p className="about-p">{homeContent.about_paragraph_1 || t('home.about.p1')}</p>
+            <p className="about-p">{homeContent.about_paragraph_2 || t('home.about.p2')}</p>
+
+            <dl className="about-stats">
+              {[
+                { num: stats.projects, label: t('home.about.stats.projects') },
+                { num: '2+', label: t('home.about.stats.years') },
+                { num: '5+', label: t('home.about.stats.stacks') },
+                { num: stats.certs, label: t('home.about.stats.certs') },
+              ].map((stat) => (
+                <div className="about-stat" key={stat.label}>
+                  <dt className="about-stat-label">{stat.label}</dt>
+                  <dd className="about-stat-num">{stat.num}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          <TiltCard className="about-card" max={10}>
+            <div className="about-photo glass">
               <picture>
                 <source srcSet="/images/PP.webp" type="image/webp" />
                 <img
                   src="/images/PP.optimized.jpeg"
                   alt={profile.name}
-                  className="hero-photo"
-                  fetchpriority="high"
+                  className="about-img"
+                  loading="lazy"
                   decoding="async"
                   width={480}
                   height={640}
                 />
               </picture>
-              <div className="photo-scan" aria-hidden="true"></div>
-              <div className="photo-chip photo-chip--top">
-                <span className="chip-dot"></span>
-                React.js
-              </div>
-              <div className="photo-chip photo-chip--bottom">
-                <span className="chip-dot"></span>
-                Laravel
-              </div>
-              <div className="photo-location mono">{profile.location || 'Jakarta, Indonesia'}</div>
-              <div className="photo-deco deco-1"></div>
-              <div className="photo-deco deco-2"></div>
+              <span className="about-chip about-chip--top">
+                <MapPin size={12} /> {profile.location || 'Jakarta, Indonesia'}
+              </span>
+              <span className="about-chip about-chip--bottom">
+                <span className="status-dot" aria-hidden="true" />
+                {homeContent.available_text || t('home.available')}
+              </span>
             </div>
-            <div className="photo-status">
-              <span className="status-dot"></span>
-              {homeContent.available_text || t('home.available')}
-            </div>
-
-            {/* Terminal mini ala IDE */}
-            <div className="dev-card" aria-hidden="true">
-              <div className="dev-card-head">
-                <span className="dev-dot dev-dot--r" />
-                <span className="dev-dot dev-dot--y" />
-                <span className="dev-dot dev-dot--g" />
-                <span className="dev-card-title">
-                  <Terminal size={11} /> shandy.config.js
-                </span>
-              </div>
-              <div className="dev-card-body">
-                <div className="dev-line" style={{ animationDelay: '0.35s' }}>
-                  <span className="tk-k">const</span> <span className="tk-v">profile</span> <span className="tk-p">=</span> <span className="tk-p">{'{'}</span>
-                </div>
-                <div className="dev-line dev-indent" style={{ animationDelay: '0.55s' }}>
-                  role<span className="tk-p">:</span> <span className="tk-s">'{roleText}'</span><span className="tk-p">,</span>
-                </div>
-                <div className="dev-line dev-indent" style={{ animationDelay: '0.75s' }}>
-                  stack<span className="tk-p">:</span> <span className="tk-s">'React · Laravel · Go'</span><span className="tk-p">,</span>
-                </div>
-                <div className="dev-line dev-indent" style={{ animationDelay: '0.95s' }}>
-                  location<span className="tk-p">:</span> <span className="tk-s">'{profile.location || 'Jakarta'}'</span><span className="tk-p">,</span>
-                </div>
-                <div className="dev-line dev-indent" style={{ animationDelay: '1.15s' }}>
-                  hiring<span className="tk-p">:</span> <span className="tk-b">true</span>
-                </div>
-                <div className="dev-line" style={{ animationDelay: '1.3s' }}>
-                  <span className="tk-p">{'};'}</span>
-                </div>
-                <div className="dev-line dev-caretline" style={{ animationDelay: '1.5s' }}>
-                  <span className="tk-caret">▍</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <a href="#skills" className="scroll-indicator">
-          <span className="scroll-line" aria-hidden="true"></span>
-          <span className="mono" style={{ fontSize: '10px', letterSpacing: '0.1em' }}>
-            {t('home.scroll')}
-          </span>
-        </a>
-      </section>
-
-      <section className="skills-section" id="skills">
-        <Reveal as="p" className="section-label">{t('home.skills.label')}</Reveal>
-        <Reveal as="h2" className="section-title">{t('home.skills.title')}</Reveal>
-
-        <div className="stack-marquee">
-          {stackRows.map((row, ri) => (
-            <Reveal key={row.dir} delay={ri * 120}>
-              <div className={`stack-row stack-row--${row.dir}`}>
-                <div className="stack-track">
-                  {[0, 1].map((dup) => (
-                    <div className="stack-track-group" key={dup}>
-                      {row.items.map((item) => (
-                        <span key={`${dup}-${item.label}`} className="stack-pill">
-                          {item.icon}
-                          {item.label}
-                        </span>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      <section className="about-strip" id="about">
-        <div className="strip-grid">
-          <div className="strip-left">
-            <Reveal as="p" className="section-label">{homeContent.about_label || t('home.about.label')}</Reveal>
-            <Reveal as="h2" delay={80} className="strip-title">
-              {(homeContent.about_title || t('home.about.title')).split('\n').map((line, index) => (
-                <span key={line}>{line}{index === 0 && <br />}</span>
-              ))}
-            </Reveal>
-            <Reveal as="p" delay={150} className="strip-p">
-              {homeContent.about_paragraph_1 || t('home.about.p1')}
-            </Reveal>
-            <Reveal as="p" delay={220} className="strip-p">
-              {homeContent.about_paragraph_2 || t('home.about.p2')}
-            </Reveal>
-          </div>
-          <div className="strip-stats">
-            {[
-              { num: stats.projects, label: t('home.about.stats.projects') },
-              { num: '2+', label: t('home.about.stats.years') },
-              { num: '5+', label: t('home.about.stats.stacks') },
-              { num: stats.certs, label: t('home.about.stats.certs') },
-            ].map((stat, si) => (
-              <Reveal key={stat.label} delay={si * 90} className="stat-item">
-                <span className="stat-num">{stat.num}</span>
-                <span className="stat-label">{stat.label}</span>
-              </Reveal>
-            ))}
-          </div>
+          </TiltCard>
         </div>
       </section>
     </div>

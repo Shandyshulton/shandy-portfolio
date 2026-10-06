@@ -16,7 +16,10 @@
     "scroll": "GULIR",
     "skills": {
       "label": "Yang Saya Lakukan",
-      "title": "Keahlian & Stack"
+      "title": "Keahlian & Stack",
+      "hint": "Arahkan kursor ke skill, node-nya menyala di scene 3D.",
+      "frontend": "Frontend",
+      "backend": "Backend & tools"
     },
     "about": {
       "label": "Tentang Saya",

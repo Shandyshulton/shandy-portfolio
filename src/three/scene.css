@@ -1,0 +1,27 @@
+/* Canvas WebGL permanen di belakang seluruh situs */
+.scene-host {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--bg);
+}
+.scene-canvas {
+  position: absolute !important;
+  inset: 0;
+}
+
+/* Saat WebGL aktif, ambient CSS lama tidak diperlukan (scene yang menggantikan) */
+html[data-scene='on'] .ai-bg {
+  display: none;
+}
+
+/* Ambient CSS lama di halaman konten juga tidak diperlukan saat scene aktif */
+html[data-scene='on'] .edu-page::before,
+html[data-scene='on'] .edu-page::after,
+html[data-scene='on'] .exp-page::before,
+html[data-scene='on'] .exp-page::after,
+html[data-scene='on'] .contact-page::before,
+html[data-scene='on'] .contact-page::after {
+  display: none;
+}

@@ -1,29 +1,34 @@
 .navbar {
   position: fixed;
-  top: 0;
+  top: 14px;
   left: 0;
   right: 0;
   z-index: 100;
-  background: transparent;
-  transition: background 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+  padding: 0 16px;
+  pointer-events: none; /* hanya kapsul di dalamnya yang menerima klik */
 }
 
-.navbar.scrolled {
-  background: var(--nav-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 1px 0 var(--border);
-}
-
+/* Kapsul kaca melayang di atas scene 3D */
 .navbar-inner {
-  max-width: 1100px;
+  pointer-events: auto;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 0 32px;
-  height: 68px;
+  padding: 0 10px 0 24px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  border-radius: 999px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  box-shadow: var(--glass-shadow);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.navbar.scrolled .navbar-inner {
+  background: color-mix(in srgb, var(--glass-bg) 70%, var(--bg));
 }
 
 .navbar-logo {
@@ -52,7 +57,7 @@
   top: 50%;
   height: 36px;
   transform: translateY(-50%);
-  border-radius: 10px;
+  border-radius: 999px;
   background: var(--accent-dim);
   border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent);
@@ -69,7 +74,7 @@
   font-weight: 500;
   color: var(--text-muted);
   padding: 8px 16px;
-  border-radius: 10px;
+  border-radius: 999px;
   transition: color 0.2s ease;
   position: relative;
   z-index: 1;
@@ -94,10 +99,11 @@
   align-items: center;
   gap: 5px;
   height: 38px;
-  padding: 0 10px;
-  border-radius: 8px;
-  border: 1.5px solid var(--border);
-  background: var(--surface);
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--glass-border);
+  background: transparent;
+  color: var(--text);
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s;
   flex-shrink: 0;
@@ -124,9 +130,9 @@
 .theme-btn {
   width: 38px;
   height: 38px;
-  border-radius: 8px;
-  border: 1.5px solid var(--border);
-  background: var(--surface);
+  border-radius: 50%;
+  border: 1.5px solid var(--glass-border);
+  background: transparent;
   color: var(--text);
   cursor: pointer;
   display: flex;
@@ -144,9 +150,9 @@
   display: none;
   width: 38px;
   height: 38px;
-  border-radius: 8px;
-  border: 1.5px solid var(--border);
-  background: var(--surface);
+  border-radius: 50%;
+  border: 1.5px solid var(--glass-border);
+  background: transparent;
   color: var(--text);
   cursor: pointer;
   align-items: center;
@@ -161,8 +167,9 @@
 @media (max-width: 768px) {
   .menu-btn { display: flex; }
 
+  .navbar { top: 10px; padding: 0 10px; }
   .navbar-inner {
-    padding: 0 16px;
+    padding: 0 8px 0 18px;
     gap: 8px;
   }
 
@@ -188,18 +195,20 @@
 
   .navbar-links {
     position: fixed;
-    top: 68px;
-    left: 0;
-    right: 0;
-    background: var(--nav-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
+    top: 76px;
+    left: 10px;
+    right: 10px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(1.3);
+    -webkit-backdrop-filter: blur(24px) saturate(1.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
+    box-shadow: var(--glass-shadow);
     flex-direction: column;
     align-items: flex-start;
     gap: 0;
-    padding: 12px 20px 20px;
-    transform: translateY(-100%);
+    padding: 12px;
+    transform: translateY(-12px);
     opacity: 0;
     pointer-events: none;
     transition: transform 0.3s ease, opacity 0.3s ease;
@@ -218,7 +227,7 @@
     width: 100%;
     padding: 12px 16px;
     font-size: 15px;
-    border-radius: 8px;
+    border-radius: 14px;
     border-left: 2px solid transparent;
   }
   .nav-link:hover,

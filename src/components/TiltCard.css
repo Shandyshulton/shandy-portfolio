@@ -1,0 +1,31 @@
+.tilt {
+  --rx: 0deg;
+  --ry: 0deg;
+  --gx: 50%;
+  --gy: 50%;
+  position: relative;
+  perspective: 900px;
+  border-radius: 22px;
+}
+.tilt-inner {
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 0.18s ease-out;
+  border-radius: inherit;
+}
+.tilt[data-active='false'] .tilt-inner {
+  transition-duration: 0.5s;
+}
+/* kilau yang mengikuti kursor */
+.tilt-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(260px circle at var(--gx) var(--gy), rgba(255, 255, 255, 0.16), transparent 60%);
+  transition: opacity 0.25s ease;
+}
+.tilt[data-active='true'] .tilt-glare {
+  opacity: 1;
+}

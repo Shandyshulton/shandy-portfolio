@@ -16,7 +16,10 @@
     "scroll": "SCROLL",
     "skills": {
       "label": "What I Do",
-      "title": "Skills & Stack"
+      "title": "Skills & Stack",
+      "hint": "Hover a skill and its node lights up in the 3D scene.",
+      "frontend": "Frontend",
+      "backend": "Backend & tools"
     },
     "about": {
       "label": "About Me",

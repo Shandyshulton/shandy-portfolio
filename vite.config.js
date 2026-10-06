@@ -7,6 +7,9 @@ export default defineConfig({
   build: {
     minify: 'oxc',
     cssMinify: true,
+    // Chunk Scene3D (Three.js + postprocessing) memang besar, tapi dimuat lazy
+    // setelah teks hero tampil, jadi tidak masuk jalur kritis.
+    chunkSizeWarningLimit: 1200,
   },
   server: {
     proxy: {
