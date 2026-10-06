@@ -375,3 +375,49 @@
   .name-ch { animation: none; }
   .scroll-line, .status-dot { animation: none; }
 }
+
+/* ── Scroll-driven 3D reveal (tanpa JS; browser tanpa dukungan tampil biasa) ── */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home-page { perspective: 1400px; }
+
+    @keyframes hero-away {
+      to { opacity: 0; transform: translate3d(0, -60px, -240px) rotateX(10deg); }
+    }
+    .hero-copy {
+      animation: hero-away linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 70%;
+      transform-origin: 50% 100%;
+    }
+
+    @keyframes rise-3d {
+      from { opacity: 0; transform: translate3d(0, 80px, -180px) rotateX(-14deg); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes fly-in-left {
+      from { opacity: 0; transform: translate3d(-90px, 0, -220px) rotateY(18deg); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes fly-in-right {
+      from { opacity: 0; transform: translate3d(90px, 0, -220px) rotateY(-18deg) scale(0.92); }
+      to   { opacity: 1; transform: none; }
+    }
+    .skills-panel,
+    .about-stat {
+      animation: rise-3d linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+    .about-copy {
+      animation: fly-in-left linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+    .about-card {
+      animation: fly-in-right linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}

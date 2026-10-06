@@ -92,6 +92,30 @@ export default function SceneHost({ theme }) {
     };
   }, [pathname]);
 
+  // Halaman selain Home: progres scroll (window atau container internal) → scene.
+  useEffect(() => {
+    if (pathname === '/') return undefined;
+    setFrame({ progress: 0 });
+    let raf = 0;
+    let el = null;
+    const read = () => {
+      raf = 0;
+      const t = el && el !== document ? el : document.scrollingElement;
+      const max = t.scrollHeight - t.clientHeight;
+      if (max <= 4) return; // scroller horizontal / tidak bisa di-scroll: abaikan
+      setFrame({ progress: Math.min(1, Math.max(0, t.scrollTop / max)) });
+    };
+    const onScroll = (e) => {
+      el = e.target;
+      if (!raf) raf = requestAnimationFrame(read);
+    };
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    return () => {
+      document.removeEventListener('scroll', onScroll, { capture: true });
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [pathname]);
+
   if (mode === 'off') return null;
 
   return (

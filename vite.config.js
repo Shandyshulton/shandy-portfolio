@@ -1,23 +1,29 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   build: {
     minify: 'oxc',
     cssMinify: true,
-    // Chunk Scene3D (Three.js + postprocessing) memang besar, tapi dimuat lazy
-    // setelah teks hero tampil, jadi tidak masuk jalur kritis.
-    chunkSizeWarningLimit: 1200,
+    target: 'es2022',
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 700,
+    rolldownOptions: {
+      output: {
+        // Vendor dipisah agar ter-cache lama & tidak ikut invalidasi saat kode berubah.
+        advancedChunks: {
+          groups: [
+            { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/ },
+            { name: 'i18n-vendor', test: /node_modules[\\/](i18next|react-i18next|i18next-browser-languagedetector)[\\/]/ },
+          ],
+        },
+      },
+    },
   },
   server: {
     proxy: {
-      // Di local, /api/chat dilayani oleh scripts/dev-api.mjs (npm run dev:api).
-      // Di production, Vercel Function yang melayani path ini.
       '/api/chat': 'http://localhost:8787',
-      // Proxy CMS lokal (Laravel di port 8000) untuk development.
-      // Aktif saat VITE_CMS_API_URL=/cms-api (hindari CORS lintas-origin).
       '/cms-api': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,

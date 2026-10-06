@@ -277,7 +277,7 @@ export default function Home() {
               <picture>
                 <source srcSet="/images/PP.webp" type="image/webp" />
                 <img
-                  src="/images/PP.optimized.jpeg"
+                  src="/images/PP-480.jpeg"
                   alt={profile.name}
                   className="about-img"
                   loading="lazy"

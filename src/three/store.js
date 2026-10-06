@@ -11,6 +11,7 @@ export const frame = {
   stage: 0,      // 0 = hero, 1 = skills, 2 = about (kontinu saat scroll)
   isHome: true,  // false di halaman selain Home
   route: '/',
+  progress: 0,   // 0..1 progres scroll di halaman selain Home
 };
 
 let ui = { hovered: null, theme: 'dark' };
@@ -48,3 +49,5 @@ function subscribe(cb) {
 export function useSceneUi(selector = (s) => s) {
   return useSyncExternalStore(subscribe, () => selector(ui));
 }
+
+export const getUi = () => ui;

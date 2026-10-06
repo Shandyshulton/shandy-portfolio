@@ -661,3 +661,33 @@ a {
   .devshell-status { display: none; }
   .devshell-tab { max-width: 75%; }
 }
+
+/* ── Scroll-driven 3D untuk halaman konten (CSS-only, progressive enhancement) ── */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes pg-rise {
+      from { opacity: 0; transform: perspective(900px) translate3d(0, 70px, -160px) rotateX(-14deg); }
+    }
+    @keyframes pg-left {
+      from { opacity: 0; transform: perspective(900px) translate3d(-80px, 0, -200px) rotateY(16deg); }
+    }
+    @keyframes pg-right {
+      from { opacity: 0; transform: perspective(900px) translate3d(80px, 0, -200px) rotateY(-16deg) scale(0.94); }
+    }
+    .edu-card, .cert-section, .projects-mobile-item, .projects-sidebar-item {
+      animation: pg-rise linear backwards;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+    .exp-item:nth-child(odd) .exp-card, .contact-info {
+      animation: pg-left linear backwards;
+      animation-timeline: view();
+      animation-range: entry 0% entry 65%;
+    }
+    .exp-item:nth-child(even) .exp-card, .contact-form-wrap {
+      animation: pg-right linear backwards;
+      animation-timeline: view();
+      animation-range: entry 0% entry 65%;
+    }
+  }
+}
