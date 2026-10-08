@@ -26,12 +26,31 @@
   opacity: 0;
 }
 
+/* Poster hero statis (facade). Mengisi seluruh scene-host, menyerupai scene 3D.
+   Jadi visual latar instan tanpa WebGL. Canvas (saat aktif) fade-in di atasnya. */
+.scene-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: -1;
+  opacity: 1;
+  transition: opacity 700ms ease;
+}
+/* Setelah canvas 3D siap, poster memudar agar scene live terlihat penuh. */
+.scene-host[data-canvas-ready='true'] .scene-poster {
+  opacity: 0;
+}
+
 .scene-canvas {
   position: absolute !important;
   inset: 0;
   width: 100%;
   height: 100%;
   display: block;
+  z-index: 0;
   /* Fade-in canvas saat scene siap (hindari "pop" mendadak, tanpa CLS). */
   opacity: 0;
   transition: opacity 600ms ease;
@@ -41,22 +60,29 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .scene-canvas,
-  .scene-fallback {
+  .scene-fallback,
+  .scene-poster {
     transition: none;
   }
 }
 
-/* Saat WebGL aktif, ambient CSS lama tidak diperlukan (scene yang menggantikan) */
-html[data-scene='on'] .ai-bg {
+/* Scene aktif ATAU poster statis → ambient CSS lama tidak diperlukan. */
+html[data-scene='on'] .ai-bg,
+html[data-scene='static'] .ai-bg {
   display: none;
 }
 
-/* Ambient CSS lama di halaman konten juga tidak diperlukan saat scene aktif */
 html[data-scene='on'] .edu-page::before,
 html[data-scene='on'] .edu-page::after,
 html[data-scene='on'] .exp-page::before,
 html[data-scene='on'] .exp-page::after,
 html[data-scene='on'] .contact-page::before,
-html[data-scene='on'] .contact-page::after {
+html[data-scene='on'] .contact-page::after,
+html[data-scene='static'] .edu-page::before,
+html[data-scene='static'] .edu-page::after,
+html[data-scene='static'] .exp-page::before,
+html[data-scene='static'] .exp-page::after,
+html[data-scene='static'] .contact-page::before,
+html[data-scene='static'] .contact-page::after {
   display: none;
 }

@@ -312,8 +312,12 @@ function build(canvas, theme0, reduced) {
     if (!firstFrameDone) {
       firstFrameDone = true;
       canvas.classList.add('is-ready');
-      const fb = canvas.parentNode?.querySelector('.scene-fallback');
-      if (fb) fb.dataset.faded = 'true';
+      const host = canvas.parentNode;
+      if (host) {
+        host.dataset.canvasReady = 'true'; // → poster facade fade-out
+        const fb = host.querySelector('.scene-fallback');
+        if (fb) fb.dataset.faded = 'true';
+      }
     }
   };
   raf = requestAnimationFrame(tick);

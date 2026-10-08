@@ -70,7 +70,9 @@
     </noscript>
     <link rel="preconnect" href="https://api.shandyshultonshihab.my.id" crossorigin />
     <link rel="dns-prefetch" href="https://api.shandyshultonshihab.my.id" />
-    <link rel="preload" as="image" href="/images/PP.webp" type="image/webp" fetchpriority="high" />
+    <!-- Poster hero (facade 3D) adalah latar above-the-fold → preload prioritas tinggi.
+         Foto profil "About" ada di bawah fold & sudah lazy-load, jadi tidak di-preload. -->
+    <link rel="preload" as="image" href="/images/hero-poster.webp" type="image/webp" fetchpriority="high" />
   </head>
   <body>
     <div id="root">

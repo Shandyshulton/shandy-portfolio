@@ -7,13 +7,56 @@ import './scene.css';
 // jadi teks hero tetap tampil duluan tanpa menunggu WebGL.
 const Scene3D = lazy(() => import('./Scene3D.jsx'));
 
-function supportsWebGL() {
+/**
+ * Deteksi kemampuan WebGL + apakah GPU asli tersedia.
+ * - `failIfMajorPerformanceCaveat: true` → context gagal dibuat bila browser
+ *   akan memakai renderer software (lambat). Ini kunci menghindari jalur
+ *   software yang memblokir main thread (kasus PageSpeed Insights/no-GPU).
+ * - WEBGL_debug_renderer_info → deteksi string SwiftShader/llvmpipe/Software
+ *   sebagai sabuk pengaman tambahan.
+ * Mengembalikan: 'none' | 'software' | 'gpu'
+ */
+function detectRenderer() {
+  if (typeof window === 'undefined') return 'none';
+  let c;
   try {
-    const c = document.createElement('canvas');
-    return !!(window.WebGL2RenderingContext && c.getContext('webgl2')) || !!c.getContext('webgl');
+    c = document.createElement('canvas');
   } catch {
-    return false;
+    return 'none';
   }
+  const opts = { failIfMajorPerformanceCaveat: true, powerPreference: 'high-performance' };
+  const gl =
+    (window.WebGL2RenderingContext && c.getContext('webgl2', opts)) ||
+    c.getContext('webgl', opts) ||
+    c.getContext('experimental-webgl', opts);
+
+  if (!gl) {
+    // Gagal dengan caveat aktif. Coba sekali lagi TANPA caveat hanya untuk tahu
+    // apakah WebGL ada sama sekali (→ 'software') atau benar-benar tidak ada.
+    const soft =
+      (window.WebGL2RenderingContext && c.getContext('webgl2')) ||
+      c.getContext('webgl') ||
+      c.getContext('experimental-webgl');
+    return soft ? 'software' : 'none';
+  }
+
+  // Context berhasil tanpa caveat → periksa nama renderer untuk memastikan.
+  try {
+    const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+    const r = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || '') : '';
+    if (/swiftshader|llvmpipe|software|microsoft basic|mesa offscreen/i.test(r)) {
+      return 'software';
+    }
+  } catch {
+    /* abaikan: anggap gpu bila tidak bisa membaca */
+  }
+  return 'gpu';
+}
+
+function prefersStatic() {
+  const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const saveData = navigator.connection?.saveData === true;
+  return reduced || saveData;
 }
 
 class SceneBoundary extends Component {
@@ -22,7 +65,9 @@ class SceneBoundary extends Component {
     return { failed: true };
   }
   componentDidCatch() {
-    document.documentElement.dataset.scene = 'off';
+    // WebGL gagal saat runtime (driver/GPU bermasalah) → perlakukan seperti mode
+    // 'static': poster facade tetap jadi latar, ambient CSS lama tetap tersembunyi.
+    document.documentElement.dataset.scene = 'static';
   }
   render() {
     return this.state.failed ? null : this.props.children;
@@ -45,30 +90,63 @@ function computeStage() {
 
 export default function SceneHost({ theme }) {
   const { pathname } = useLocation();
-  const [mode] = useState(() => {
-    if (typeof window === 'undefined' || !supportsWebGL()) return 'off';
-    // prefers-reduced-motion: jangan animasikan 3D sama sekali → fallback statis.
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) return 'reduced';
 
-    // Heuristik low-end. deviceMemory TIDAK tersedia di Safari/iOS & Firefox,
-    // jadi dipakai hanya bila ada; selebihnya pakai sinyal lain.
+  // Mode kualitas scene (ditentukan sekali saat mount):
+  //  'static'  → TIDAK PERNAH menjalankan WebGL live (poster saja). Dipakai bila
+  //              renderer software/no-GPU, prefers-reduced-motion, atau Save-Data.
+  //              Ini memangkas beban main thread di PSI/perangkat tanpa GPU.
+  //  'reduced' → GPU asli tapi perangkat lemah: scene hemat (render on-demand).
+  //  'full'    → GPU asli, perangkat normal: scene penuh.
+  const [mode] = useState(() => {
+    if (typeof window === 'undefined') return 'static';
+    const renderer = detectRenderer();
+    if (renderer === 'none' || renderer === 'software') return 'static';
+    if (prefersStatic()) return 'static';
+
+    // GPU asli: tentukan full vs reduced (perangkat lemah).
     const mem = navigator.deviceMemory;          // undefined di Safari/iOS
     const cores = navigator.hardwareConcurrency; // umum tersedia
     const dpr = window.devicePixelRatio || 1;
     const minSide = Math.min(window.screen?.width || 9999, window.screen?.height || 9999);
-
     const lowMem = typeof mem === 'number' && mem > 0 && mem < 4;
     const lowCores = typeof cores === 'number' && cores > 0 && cores <= 4;
-    // Layar kecil + DPR tinggi (ponsel) = banyak piksel di GPU lemah.
     const heavyMobile = minSide <= 420 && dpr >= 2;
-
-    const lowEnd = lowMem || lowCores || heavyMobile;
-    return lowEnd ? 'reduced' : 'full';
+    return (lowMem || lowCores || heavyMobile) ? 'reduced' : 'full';
   });
 
+  // Facade: scene live baru diaktifkan SETELAH poster tampil + ada sinyal bahwa
+  // pengguna kemungkinan akan melihat animasi (interaksi) atau idle cukup lama.
+  // Di 'static' tidak pernah aktif → canvas WebGL tidak pernah dibuat.
+  const [activate, setActivate] = useState(false);
   useEffect(() => {
-    document.documentElement.dataset.scene = mode === 'off' ? 'off' : 'on';
+    if (mode === 'static') return undefined;
+    let idleId;
+    let done = false;
+    const go = () => {
+      if (done) return;
+      done = true;
+      setActivate(true);
+    };
+    const events = ['pointerdown', 'touchstart', 'scroll', 'keydown'];
+    events.forEach((e) => window.addEventListener(e, go, { once: true, passive: true }));
+    // Desktop idle ~4 detik → aktifkan walau tanpa interaksi, agar scene tetap
+    // muncul untuk pengunjung pasif. Mobile menunggu interaksi saja.
+    const isDesktop = window.matchMedia?.('(hover: hover) and (pointer: fine)').matches;
+    if (isDesktop) {
+      if ('requestIdleCallback' in window) idleId = window.requestIdleCallback(go, { timeout: 4500 });
+      else idleId = window.setTimeout(go, 4000);
+    }
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, go));
+      if (idleId != null) {
+        if ('cancelIdleCallback' in window) window.cancelIdleCallback(idleId);
+        else window.clearTimeout(idleId);
+      }
+    };
+  }, [mode]);
+
+  useEffect(() => {
+    document.documentElement.dataset.scene = mode === 'static' ? 'static' : 'on';
   }, [mode]);
 
   useEffect(() => {
@@ -135,13 +213,29 @@ export default function SceneHost({ theme }) {
   if (mode === 'off') return null;
 
   return (
-    <div className="scene-host" aria-hidden="true" data-theme-scene={theme}>
+    <div className="scene-host" aria-hidden="true" data-theme-scene={theme} data-mode={mode}>
+      {/* Poster statis (facade). Selalu tampil sebagai latar; di mode 'static'
+          inilah satu-satunya visual (tanpa WebGL). Fade-out saat canvas siap. */}
+      <picture>
+        <source srcSet="/images/hero-poster.webp" type="image/webp" />
+        <img
+          className="scene-poster"
+          src="/images/hero-poster.webp"
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+          fetchPriority="high"
+          data-theme-poster={theme}
+        />
+      </picture>
       <div className="scene-fallback" aria-hidden="true" />
-      <SceneBoundary>
-        <Suspense fallback={null}>
-          <Scene3D theme={theme} reduced={mode === 'reduced'} />
-        </Suspense>
-      </SceneBoundary>
+      {mode !== 'static' && activate && (
+        <SceneBoundary>
+          <Suspense fallback={null}>
+            <Scene3D theme={theme} reduced={mode === 'reduced'} />
+          </Suspense>
+        </SceneBoundary>
+      )}
     </div>
   );
 }

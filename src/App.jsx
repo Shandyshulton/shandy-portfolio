@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import { BootLoader, RouteLoader } from './components/Loader';
 import ScrollTopButton from './components/ScrollTopButton';
 import ParallaxBackdrop from './components/ParallaxBackdrop';
+import SceneHost from './three/SceneHost';
 import Home from './pages/Home';
 import './index.css';
 
@@ -14,11 +15,13 @@ import './index.css';
 const Analytics = lazy(() => import('@vercel/analytics/react').then((m) => ({ default: m.Analytics })));
 const SpeedInsights = lazy(() => import('@vercel/speed-insights/react').then((m) => ({ default: m.SpeedInsights })));
 
-// Scene 3D (Three.js, ~555 KB) bukan konten kritis dan tidak boleh menghalangi
-// first paint hero. SceneHost di-lazy-load DAN mount-nya ditunda sampai setelah
-// paint pertama (requestIdleCallback / fallback setTimeout), sehingga chunk
-// three-vendor baru diunduh & dieksekusi di luar jalur kritis LCP/TBT.
-const SceneHost = lazy(() => import('./three/SceneHost'));
+// Catatan: SceneHost di-import statis (ringan, ~3 KB) agar POSTER hero (facade)
+// tampil pada first paint tanpa menunggu idle. Chunk berat three-vendor (~555 KB)
+// baru dimuat di dalam SceneHost HANYA bila GPU asli terdeteksi + ada interaksi/
+// idle (lazy import Scene3D). Jadi jalur kritis tetap bebas Three.js.
+
+// Scene 3D (Three.js, ~555 KB) dimuat lazy DI DALAM SceneHost (lihat catatan di
+// atas). three-vendor diunduh & dieksekusi di luar jalur kritis LCP/TBT.
 
 // Route-based code splitting: halaman selain Home dimuat saat dinavigasi,
 // sehingga bundle awal (Home) lebih kecil dan mengurangi JS tak terpakai.
@@ -105,9 +108,8 @@ export default function App() {
     return () => window.clearTimeout(t);
   }, []);
 
-  // Mulai memuat scene 3D (chunk three-vendor ~555 KB) hanya SETELAH paint
-  // pertama: tunggu browser idle agar hero/teks tampil lebih dulu. Fallback
-  // setTimeout untuk browser tanpa requestIdleCallback (Safari lama).
+  // Pemicu idle untuk telemetri non-kritis (Analytics/SpeedInsights): tunggu
+  // paint pertama + idle agar tidak menambah kerja di jalur kritis.
   useEffect(() => {
     let idleId;
     const start = () => setSceneReady(true);
@@ -149,11 +151,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      {sceneReady && (
-        <Suspense fallback={null}>
-          <SceneHost theme={theme} />
-        </Suspense>
-      )}
+      <SceneHost theme={theme} />
       <ParallaxBackdrop />
       <RouteTransitionLoader />
       <Layout theme={theme} toggleTheme={toggleTheme} />
