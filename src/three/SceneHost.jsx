@@ -47,8 +47,24 @@ export default function SceneHost({ theme }) {
   const { pathname } = useLocation();
   const [mode] = useState(() => {
     if (typeof window === 'undefined' || !supportsWebGL()) return 'off';
+    // prefers-reduced-motion: jangan animasikan 3D sama sekali → fallback statis.
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    return reduced ? 'reduced' : 'full';
+    if (reduced) return 'reduced';
+
+    // Heuristik low-end. deviceMemory TIDAK tersedia di Safari/iOS & Firefox,
+    // jadi dipakai hanya bila ada; selebihnya pakai sinyal lain.
+    const mem = navigator.deviceMemory;          // undefined di Safari/iOS
+    const cores = navigator.hardwareConcurrency; // umum tersedia
+    const dpr = window.devicePixelRatio || 1;
+    const minSide = Math.min(window.screen?.width || 9999, window.screen?.height || 9999);
+
+    const lowMem = typeof mem === 'number' && mem > 0 && mem < 4;
+    const lowCores = typeof cores === 'number' && cores > 0 && cores <= 4;
+    // Layar kecil + DPR tinggi (ponsel) = banyak piksel di GPU lemah.
+    const heavyMobile = minSide <= 420 && dpr >= 2;
+
+    const lowEnd = lowMem || lowCores || heavyMobile;
+    return lowEnd ? 'reduced' : 'full';
   });
 
   useEffect(() => {
@@ -120,6 +136,7 @@ export default function SceneHost({ theme }) {
 
   return (
     <div className="scene-host" aria-hidden="true" data-theme-scene={theme}>
+      <div className="scene-fallback" aria-hidden="true" />
       <SceneBoundary>
         <Suspense fallback={null}>
           <Scene3D theme={theme} reduced={mode === 'reduced'} />

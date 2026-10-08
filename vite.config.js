@@ -12,10 +12,13 @@ export default defineConfig({
     rolldownOptions: {
       output: {
         // Vendor dipisah agar ter-cache lama & tidak ikut invalidasi saat kode berubah.
+        // NB: "advancedChunks" memunculkan warning deprecation di versi ini, namun
+        // skema "codeSplitting" belum stabil → tetap pakai advancedChunks (berfungsi).
         advancedChunks: {
           groups: [
             { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/ },
             { name: 'i18n-vendor', test: /node_modules[\\/](i18next|react-i18next|i18next-browser-languagedetector)[\\/]/ },
+            { name: 'three-vendor', test: /node_modules[\\/]three[\\/]/ },
           ],
         },
       },

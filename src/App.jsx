@@ -1,15 +1,24 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { BootLoader, RouteLoader } from './components/Loader';
 import ScrollTopButton from './components/ScrollTopButton';
-import SceneHost from './three/SceneHost';
 import ParallaxBackdrop from './components/ParallaxBackdrop';
 import Home from './pages/Home';
 import './index.css';
+
+// Telemetri Vercel (Analytics + Speed Insights) tidak kritis untuk first paint.
+// Di-lazy-load & dimuat bersama scene (setelah idle) agar tidak menambah JS di
+// jalur awal / chunk index.
+const Analytics = lazy(() => import('@vercel/analytics/react').then((m) => ({ default: m.Analytics })));
+const SpeedInsights = lazy(() => import('@vercel/speed-insights/react').then((m) => ({ default: m.SpeedInsights })));
+
+// Scene 3D (Three.js, ~555 KB) bukan konten kritis dan tidak boleh menghalangi
+// first paint hero. SceneHost di-lazy-load DAN mount-nya ditunda sampai setelah
+// paint pertama (requestIdleCallback / fallback setTimeout), sehingga chunk
+// three-vendor baru diunduh & dieksekusi di luar jalur kritis LCP/TBT.
+const SceneHost = lazy(() => import('./three/SceneHost'));
 
 // Route-based code splitting: halaman selain Home dimuat saat dinavigasi,
 // sehingga bundle awal (Home) lebih kecil dan mengurangi JS tak terpakai.
@@ -83,6 +92,7 @@ export default function App() {
   });
   const [booted, setBooted] = useState(false);
   const [chatReady, setChatReady] = useState(false);
+  const [sceneReady, setSceneReady] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -93,6 +103,23 @@ export default function App() {
     // Sembunyikan splash begitu React siap & halaman pertama dirender.
     const t = window.setTimeout(() => setBooted(true), 120);
     return () => window.clearTimeout(t);
+  }, []);
+
+  // Mulai memuat scene 3D (chunk three-vendor ~555 KB) hanya SETELAH paint
+  // pertama: tunggu browser idle agar hero/teks tampil lebih dulu. Fallback
+  // setTimeout untuk browser tanpa requestIdleCallback (Safari lama).
+  useEffect(() => {
+    let idleId;
+    const start = () => setSceneReady(true);
+    if ('requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(start, { timeout: 2000 });
+    } else {
+      idleId = window.setTimeout(start, 400);
+    }
+    return () => {
+      if ('cancelIdleCallback' in window && idleId) window.cancelIdleCallback(idleId);
+      else window.clearTimeout(idleId);
+    };
   }, []);
 
   // Tunda pemuatan Chatbot (chunk react-markdown ~160 KiB) sampai browser
@@ -122,7 +149,11 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <SceneHost theme={theme} />
+      {sceneReady && (
+        <Suspense fallback={null}>
+          <SceneHost theme={theme} />
+        </Suspense>
+      )}
       <ParallaxBackdrop />
       <RouteTransitionLoader />
       <Layout theme={theme} toggleTheme={toggleTheme} />
@@ -132,8 +163,12 @@ export default function App() {
         </Suspense>
       )}
       <ScrollTopButton />
-      <Analytics />
-      <SpeedInsights />
+      {sceneReady && (
+        <Suspense fallback={null}>
+          <Analytics />
+          <SpeedInsights />
+        </Suspense>
+      )}
       {!booted && <BootLoader />}
     </BrowserRouter>
   );

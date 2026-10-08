@@ -55,7 +55,11 @@ function glowTexture() {
 
 function build(canvas, theme0, reduced) {
   const isMobile = window.innerWidth < 768;
-  let dprMax = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.75);
+  // Pixel ratio: mobile dibatasi lebih rendah (GPU lemah). Desktop maks 1.5.
+  let dprMax = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.5);
+  // Batas FPS: mobile 30fps, desktop 60fps → hemat GPU tanpa terlihat patah.
+  const fpsCap = reduced ? 30 : isMobile ? 30 : 60;
+  const minFrameMs = 1000 / fpsCap;
   const renderer = new WebGLRenderer({ canvas, antialias: !isMobile, alpha: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(dprMax);
   const scene = new Scene();
@@ -74,8 +78,11 @@ function build(canvas, theme0, reduced) {
     m.position.set(...p); if (rx) m.rotation.x = Math.PI / 2; else m.lookAt(0, 0, 0); envScene.add(m);
   });
   const pmrem = new PMREMGenerator(renderer);
-  const envRT = pmrem.fromScene(envScene, 0.04);
+  // Mobile: resolusi env sangat kecil (hemat GPU). Desktop: tetap halus.
+  const envRT = pmrem.fromScene(envScene, isMobile ? 0.4 : 0.04);
   scene.environment = envRT.texture;
+  // Bebaskan geometri/material env scene setelah PMREM dibuat (tidak dipakai lagi).
+  envScene.traverse((m) => { m.geometry?.dispose?.(); m.material?.dispose?.(); });
 
   // Rig = grup utama yang bergerak mengikuti scroll
   const rig = new Group(); scene.add(rig);
@@ -135,7 +142,7 @@ function build(canvas, theme0, reduced) {
   }
   scene.add(shards);
 
-  const grid = new GridHelper(60, 86, '#a8431f', '#1d2154'); grid.position.y = -3.9; scene.add(grid);
+  const grid = new GridHelper(60, isMobile ? 40 : 86, '#a8431f', '#1d2154'); grid.position.y = -3.9; scene.add(grid);
   const sp = new Float32Array((isMobile ? 50 : 110) * 3).map((_, i) => (i % 3 === 0 ? 18 : i % 3 === 1 ? 10 : 12) * (Math.random() - 0.5));
   const sGeo = new BufferGeometry(); sGeo.setAttribute('position', new Float32BufferAttribute(sp, 3));
   const sparks = new Points(sGeo, new PointsMaterial({ size: 0.05, transparent: true, opacity: 0.7 })); scene.add(sparks);
@@ -157,7 +164,8 @@ function build(canvas, theme0, reduced) {
   let dirty = 8;
   const ptr = new Vector2(), ray = new Raycaster();
   const touchOnly = window.matchMedia?.('(hover: none)').matches;
-  const onMove = (e) => { ptr.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); dirty = 8; };
+  let pointerMoved = false; // raycast hover hanya dihitung ulang saat pointer bergerak
+  const onMove = (e) => { ptr.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); dirty = 8; pointerMoved = true; };
   // Layar sentuh: tap pada node 3D = pilih node (tanpa hover)
   const onDown = (e) => {
     onMove(e);
@@ -174,17 +182,68 @@ function build(canvas, theme0, reduced) {
   };
   const ro = new ResizeObserver(resize); ro.observe(canvas); resize();
 
+  // ── Hemat daya: hentikan loop render saat tidak terlihat ──────────────────
+  // 1) Tab/browser disembunyikan (visibilitychange)
+  // 2) Canvas keluar dari viewport (IntersectionObserver)
+  // Saat tersembunyi, rAF dibatalkan total → 0% GPU/CPU untuk scene.
+  let visible = !document.hidden;
+  let onScreen = true;
+  let running = true;
+  const isActive = () => visible && onScreen;
+  const ensureRunning = () => {
+    if (running || !isActive()) return;
+    running = true;
+    last = performance.now();
+    dirty = 8;
+    raf = requestAnimationFrame(tick);
+  };
+  const stopLoop = () => {
+    if (!running) return;
+    running = false;
+    cancelAnimationFrame(raf);
+    raf = 0;
+  };
+  const onVisibility = () => { visible = !document.hidden; isActive() ? ensureRunning() : stopLoop(); };
+  document.addEventListener('visibilitychange', onVisibility);
+  const io = new IntersectionObserver(([e]) => {
+    onScreen = e.isIntersecting;
+    isActive() ? ensureRunning() : stopLoop();
+  }, { threshold: 0 });
+  io.observe(canvas);
+
   let prog = 0, raf = 0, last = performance.now(), slow = 0, cur = frame.stage, prevHover = null;
+  let firstFrameDone = false;
+  // Benchmark FPS singkat ~1.5s pertama: jika rata-rata < 24fps → turunkan
+  // kualitas otomatis (pixelRatio lebih kecil). Berguna di perangkat yang lolos
+  // heuristik tapi ternyata lemah (mis. iOS tanpa deviceMemory).
+  let probeFrames = 0, probeTime = 0, probeDone = reduced;
   const offFrame = onFrameChange(() => { dirty = 30; });
 
   const tick = (now) => {
     raf = requestAnimationFrame(tick);
-    const dt = Math.min((now - last) / 1000, 0.1); last = now;
+    // Batasi FPS: jika belum cukup waktu sejak frame terakhir, lewati render.
+    const elapsed = now - last;
+    if (elapsed < minFrameMs) return;
+    const dt = Math.min(elapsed / 1000, 0.1); last = now;
     if (reduced && dirty <= 0) return;
     dirty -= 1;
 
     // Auto-turunkan resolusi jika FPS buruk
     if (!reduced) { slow = dt > 0.034 ? slow + 1 : Math.max(0, slow - 1); if (slow > 45 && dprMax > 1) { dprMax = 1; renderer.setPixelRatio(1); slow = 0; } }
+
+    // Benchmark FPS awal (~1.5 detik). Jika rata-rata < 24fps, turunkan
+    // pixelRatio agresif (0.75) satu kali untuk menyelamatkan frame rate.
+    if (!probeDone) {
+      probeFrames += 1; probeTime += dt;
+      if (probeTime >= 1.5) {
+        probeDone = true;
+        const avgFps = probeFrames / probeTime;
+        if (avgFps < 24) {
+          dprMax = Math.min(dprMax, 0.75);
+          renderer.setPixelRatio(dprMax);
+        }
+      }
+    }
 
     const k = reduced ? 1000 : 2.6, ui = getUi();
     const L = innerWidth / innerHeight < 0.95 ? TALL : WIDE;
@@ -227,16 +286,17 @@ function build(canvas, theme0, reduced) {
     const pulse = 1 + (reduced ? 0 : Math.sin(now * 0.002) * 0.035) + vel * 0.03;
     core.scale.setScalar(pulse); glow.scale.setScalar(6.5 * pulse);
 
-    // Hover node (raycast ringan, hanya saat label terlihat)
+    // Hover node (raycast ringan: hanya saat pointer baru bergerak & label terlihat)
     const labelBase = frame.isHome ? c01(1 - (cur - 1) * 1.6) : 0;
     if (!reduced || dirty > 0) {
-      let hov = null;
-      if (labelBase > 0.3 && !reduced && !touchOnly) {
+      if (pointerMoved && labelBase > 0.3 && !reduced && !touchOnly) {
+        pointerMoved = false;
+        let hov = null;
         ray.setFromCamera(ptr, camera);
         const hit = ray.intersectObjects(nodes.map((n) => n.hit), false)[0];
         if (hit) hov = hit.object.userData.id;
+        if (hov !== prevHover) { prevHover = hov; if (ui.hovered !== hov) setUi({ hovered: hov }); }
       }
-      if (!touchOnly && hov !== prevHover) { prevHover = hov; if (ui.hovered !== hov) setUi({ hovered: hov }); }
     }
     nodes.forEach((n) => {
       const act = ui.hovered === n.it.id;
@@ -249,13 +309,21 @@ function build(canvas, theme0, reduced) {
       n.sp.material.opacity = labelBase; n.sp.visible = labelBase > 0.01;
     });
     renderer.render(scene, camera);
+    if (!firstFrameDone) {
+      firstFrameDone = true;
+      canvas.classList.add('is-ready');
+      const fb = canvas.parentNode?.querySelector('.scene-fallback');
+      if (fb) fb.dataset.faded = 'true';
+    }
   };
   raf = requestAnimationFrame(tick);
 
   return {
     applyTheme,
     destroy() {
-      cancelAnimationFrame(raf); ro.disconnect(); offFrame(); window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerdown', onDown);
+      cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); offFrame();
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerdown', onDown);
       scene.traverse((m) => { m.geometry?.dispose?.(); [m.material].flat().forEach((x) => { x?.map?.dispose?.(); x?.dispose?.(); }); });
       envRT.dispose(); pmrem.dispose(); renderer.dispose();
     },
