@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Sun, Moon, Menu, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { changeLanguage } from '../i18n/index.js';
 import './Navbar.css';
 
 const FlagID = () => (
@@ -119,7 +120,7 @@ export default function Navbar({ theme, toggleTheme }) {
           {/* Language Toggle */}
           <button
             className="lang-btn"
-            onClick={() => i18n.changeLanguage(currentLang === 'en' ? 'id' : 'en')}
+            onClick={() => changeLanguage(currentLang === 'en' ? 'id' : 'en')}
             aria-label="Toggle language"
             title={currentLang === 'en' ? 'Switch to Indonesian' : 'Switch to English'}
           >
