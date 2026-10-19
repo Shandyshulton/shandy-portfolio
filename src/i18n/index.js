@@ -52,33 +52,25 @@ async function loadLanguage(lng) {
   }
 }
 
-/** Inisialisasi i18n. EN selalu ter-bundle (resource awal). Jika bahasa awal =
- *  ID, coba muat dinamis; bila gagal/timeout, tetap render dengan EN (tidak kosong). */
-export async function initI18n() {
+/** Inisialisasi i18n SINKRON dengan EN (statis, sudah ter-bundle). Tidak ada
+ *  await/dynamic import di jalur ini → React bisa langsung render pada first
+ *  paint tanpa menunggu i18n-vendor/locale network. Mengembalikan bahasa awal
+ *  terdeteksi sehingga pemanggil bisa memuat locale non-default (ID) SETELAH
+ *  render pertama (di luar jalur kritis LCP). */
+export function setupI18nSync() {
   const initial = detectInitial();
 
-  // EN selalu ada sebagai resource dasar.
-  const resources = { en: { translation: en } };
-
-  // Jika bahasa awal ID, coba muat sebelum init agar render pertama berbahasa ID.
-  let startLng = initial;
-  if (initial === 'id') {
-    try {
-      const mod = await withTimeout(LOADERS.id(), LOAD_TIMEOUT);
-      resources.id = { translation: mod.default || mod };
-      loaded.add('id');
-    } catch {
-      startLng = FALLBACK; // gagal → mulai dengan EN (halaman tetap tampil)
-    }
-  }
-
+  // Selalu mulai dengan EN (resource dasar statis). Bila bahasa awal = ID,
+  // locale-nya dimuat setelah first paint via ensureLanguage() → render ulang
+  // otomatis oleh react-i18next saat bundle ID siap. Sampai itu terjadi,
+  // teks EN tampil (tidak ada key/teks kosong).
   try {
-    await i18n
+    i18n
       .use(LanguageDetector)
       .use(initReactI18next)
       .init({
-        lng: startLng,
-        resources,
+        lng: FALLBACK,
+        resources: { en: { translation: en } },
         fallbackLng: FALLBACK,
         supportedLngs: SUPPORTED,
         partialBundledLanguages: true,
@@ -88,18 +80,30 @@ export async function initI18n() {
           lookupLocalStorage: STORAGE_KEY,
         },
         interpolation: { escapeValue: false },
+        initImmediate: false, // sinkron: resource inline, tanpa backend async
       });
   } catch {
-    // Init pun gagal (sangat jarang): paksa init minimal EN agar app render.
-    await i18n.use(initReactI18next).init({
+    // Init gagal (sangat jarang): paksa init minimal EN agar app tetap render.
+    i18n.use(initReactI18next).init({
       lng: FALLBACK,
       resources: { en: { translation: en } },
       fallbackLng: FALLBACK,
       interpolation: { escapeValue: false },
+      initImmediate: false,
     });
   }
 
-  return i18n;
+  return { initial };
+}
+
+/** Pastikan locale bahasa awal termuat & aktif. Dipanggil SETELAH first paint.
+ *  Untuk EN tidak melakukan apa-apa (sudah aktif). Untuk ID, muat bundle lalu
+ *  aktifkan; bila gagal/timeout tetap EN (halaman tidak kosong). */
+export async function ensureLanguage(lng) {
+  const code = SUPPORTED.includes((lng || '').slice(0, 2)) ? lng.slice(0, 2) : FALLBACK;
+  if (code === FALLBACK) return;
+  const ok = await loadLanguage(code);
+  if (ok) await i18n.changeLanguage(code);
 }
 
 /** Ganti bahasa dengan aman: muat locale DULU, baru terapkan. Bila gagal/timeout,

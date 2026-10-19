@@ -204,6 +204,12 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+/* <li> pembungkus: tidak menghasilkan box agar .stack-chip di dalamnya tetap
+   menjadi flex item langsung dari .skills-list (layout identik). Semantik
+   listitem tetap terjaga untuk pembaca layar. */
+.stack-chip-item {
+  display: contents;
+}
 .stack-chip {
   display: inline-flex;
   align-items: center;

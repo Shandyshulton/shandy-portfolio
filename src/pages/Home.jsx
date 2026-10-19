@@ -91,22 +91,28 @@ function StackChip({ item }) {
     setUi({ hovered: getUi().hovered === item.id ? null : item.id });
     window.dispatchEvent(new CustomEvent('stack-pick'));
   };
+  // <li> tetap listitem murni (semantik daftar utuh); elemen interaktif
+  // (role="button") berada DI DALAM-nya. <li class="stack-chip-item"> memakai
+  // `display: contents` sehingga tidak menghasilkan box → layout/visual sama
+  // persis seperti sebelumnya (chip tetap jadi flex item langsung).
   return (
-    <li
-      className={`stack-chip ${active ? 'is-active' : ''}`}
-      style={{ '--chip': item.color }}
-      tabIndex={0}
-      role="button"
-      aria-pressed={active}
-      onPointerEnter={(e) => e.pointerType === 'mouse' && setUi({ hovered: item.id })}
-      onPointerLeave={(e) => e.pointerType === 'mouse' && setUi({ hovered: null })}
-      onFocus={(e) => e.currentTarget.matches(':focus-visible') && setUi({ hovered: item.id })}
-      onBlur={() => setUi({ hovered: null })}
-      onClick={(e) => e.detail !== 0 && e.nativeEvent.pointerType !== 'mouse' && pick()}
-      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), pick())}
-    >
-      <span className="stack-chip-dot" aria-hidden="true" />
-      {item.label}
+    <li className="stack-chip-item">
+      <span
+        className={`stack-chip ${active ? 'is-active' : ''}`}
+        style={{ '--chip': item.color }}
+        tabIndex={0}
+        role="button"
+        aria-pressed={active}
+        onPointerEnter={(e) => e.pointerType === 'mouse' && setUi({ hovered: item.id })}
+        onPointerLeave={(e) => e.pointerType === 'mouse' && setUi({ hovered: null })}
+        onFocus={(e) => e.currentTarget.matches(':focus-visible') && setUi({ hovered: item.id })}
+        onBlur={() => setUi({ hovered: null })}
+        onClick={(e) => e.detail !== 0 && e.nativeEvent.pointerType !== 'mouse' && pick()}
+        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), pick())}
+      >
+        <span className="stack-chip-dot" aria-hidden="true" />
+        {item.label}
+      </span>
     </li>
   );
 }
