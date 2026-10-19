@@ -5,10 +5,15 @@ import './index.css';
 import { setupI18nSync, ensureLanguage } from './i18n/index.js';
 import App from './App.jsx';
 
-// Buang splash statis dari index.html begitu React siap mengambil alih,
-// supaya tidak menumpuk dengan BootLoader yang dirender React.
-const bootSplash = document.getElementById('boot-splash');
-if (bootSplash) bootSplash.remove();
+// Buang pre-paint hero statis (index.html) tepat sebelum React mengambil alih
+// #root. Pre-paint sudah menjadi elemen LCP (paint instan). Set flag di <html>
+// agar animasi "char-rise" nama hero TIDAK diputar ulang pada first paint
+// (mencegah kesan nama ter-reset/animasi dobel). Navigasi berikutnya normal.
+const preHero = document.getElementById('pre-hero');
+if (preHero) {
+  document.documentElement.dataset.prepainted = '1';
+  preHero.remove();
+}
 
 // i18n di-init SINKRON dengan EN (statis). React langsung render tanpa menunggu
 // network/locale → first paint tidak lagi diblokir rantai i18n (LCP/FCP lebih

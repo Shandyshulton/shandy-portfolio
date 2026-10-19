@@ -53,21 +53,10 @@
         ]
       }
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Non-blocking Google Fonts load: fetch as stylesheet but apply on load so it doesn't block render -->
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap"
-      onload="this.onload=null;this.rel='stylesheet'"
-    />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap"
-      />
-    </noscript>
+    <!-- Font self-host (woff2 latin subset, @font-face di bundle CSS, display:swap).
+         Tidak di-preload: elemen LCP (teks hero) render-delay-bound oleh JS SPA,
+         bukan oleh font. Preload font justru merebut prioritas dari JS kritis →
+         memperlambat LCP. Teks tampil dengan fallback lalu di-swap ke webfont. -->
     <link rel="preconnect" href="https://api.shandyshultonshihab.my.id" crossorigin />
     <link rel="dns-prefetch" href="https://api.shandyshultonshihab.my.id" />
     <!-- Poster hero (facade 3D) adalah latar above-the-fold → preload prioritas tinggi.
@@ -76,16 +65,29 @@
   </head>
   <body>
     <div id="root">
-      <div class="boot-loader" id="boot-splash" role="status" aria-label="Loading">
-        <div class="loader-ring" aria-hidden="true">
-          <span class="loader-dot"></span>
-          <span class="loader-dot"></span>
-          <span class="loader-core"></span>
-        </div>
-        <div class="loader-text">
-          <span>memuat portfolio</span>
-          <span class="loader-caret">_</span>
-        </div>
+      <!-- Pre-paint hero statis (Opsi 1 prerender ringan). Markup & class identik
+           dengan hero React (src/pages/Home.jsx) sehingga paint instan sebagai
+           elemen LCP TANPA menunggu JS → menghapus ~500ms element render delay.
+           Dibuang oleh main.jsx tepat saat React mengambil alih #root (mekanisme
+           sama seperti boot-splash lama) → tanpa CLS, tanpa animasi dobel.
+           Teks = nilai statis EN/CMS fallback yang identik dengan render pertama. -->
+      <div id="pre-hero" class="home-page" data-prepaint>
+        <section class="hero" id="home">
+          <div class="hero-copy">
+            <p class="hero-greeting mono">
+              <span class="greeting-caret">&#10095;</span> &lt;hello world /&gt;
+            </p>
+            <h1 class="hero-name" aria-label="Shandy Shulton Shihab">
+              <span class="name-line" aria-hidden="true">Shandy</span>
+              <span class="name-line" aria-hidden="true">Shulton</span>
+              <span class="name-line" aria-hidden="true">Shihab</span>
+            </h1>
+            <p class="hero-role mono">
+              <span class="role-prompt">$</span> Full Stack Developer
+            </p>
+            <p class="hero-bio">Computer Science undergraduate at <strong>Binus University</strong> with hands-on experience in building responsive, high-performance web applications. Dedicated to delivering clean UI implementation, maintainable code structures, and scalable design systems that optimize user experience.</p>
+          </div>
+        </section>
       </div>
     </div>
     <script type="module" src="/src/main.jsx"></script>

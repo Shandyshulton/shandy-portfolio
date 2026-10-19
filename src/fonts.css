@@ -1,0 +1,47 @@
+/* Font self-host (woff2, subset latin, hanya weight yang dipakai).
+   Menggantikan Google Fonts: menghilangkan 3-hop jaringan (preconnect →
+   fonts.googleapis.com CSS → fonts.gstatic.com woff2) dari jalur render.
+   font-display: swap → teks tampil langsung dengan fallback, lalu di-swap. */
+
+/* Syne (heading, termasuk hero-name) — variable font, 1 file untuk 500..800 */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/syne-var.woff2') format('woff2');
+}
+
+/* Outfit (body + hero-bio = elemen LCP) — variable font, 1 file untuk 300..600 */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/outfit-var.woff2') format('woff2');
+}
+
+/* DM Mono (label mono) — statis per weight */
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/dm-mono-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/dm-mono-500.woff2') format('woff2');
+}
+
+/* Playfair Display (hanya .projects-tagline, di bawah fold) — 700 italic */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/playfair-700i.woff2') format('woff2');
+}

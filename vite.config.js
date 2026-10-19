@@ -1,8 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// Analisis bundle opsional: `ANALYZE=1 npm run build` → tulis dist/stats.html.
+// Tidak aktif pada build normal (tidak menambah overhead produksi).
+const analyze = process.env.ANALYZE === '1'
+const analyzePlugins = analyze
+  ? [(await import('rollup-plugin-visualizer')).visualizer({ filename: 'dist/stats.html', template: 'treemap', gzipSize: true, brotliSize: true })]
+  : []
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), ...analyzePlugins],
   build: {
     minify: 'oxc',
     cssMinify: true,

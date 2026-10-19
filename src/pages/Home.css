@@ -54,6 +54,13 @@
   animation: ch-rise 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   animation-delay: calc(0.2s + var(--i) * 48ms);
 }
+/* First paint yang berasal dari pre-paint statis (index.html): nama sudah
+   tampil di posisi final, jadi jangan putar ulang animasi rise (hindari kesan
+   nama ter-reset). Hanya berlaku sekali di muat awal; navigasi lain tetap
+   beranimasi karena flag ini hanya ada pada dokumen awal. */
+html[data-prepainted] .name-ch {
+  animation: none;
+}
 @keyframes ch-rise {
   from { transform: translateY(108%) rotate(4deg); }
   to   { transform: translateY(0) rotate(0); }
