@@ -1,21 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ExternalLink, GitFork, ArrowLeft, ArrowRight, Image as ImageIcon, ZoomIn, X, FolderOpen, FileCode2, ChevronRight } from 'lucide-react';
+import { ExternalLink, GitFork, ArrowLeft, ArrowRight, Image as ImageIcon, ZoomIn, X, Rocket, ChevronRight } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms, getTranslation } from '../lib/cmsApi.js';
-import Reveal from '../components/Reveal.jsx';
 import './Projects.css';
 
 const SITE_URL = 'https://shandy-shulton-shihab.vercel.app/';
 const PROFILE_IMAGE = 'https://www.shandyshultonshihab.my.id/images/PP.jpeg';
 
+// Palet aksen sci-fi (cyan / purple / emerald / indigo / teal / fuchsia).
 const ACCENT_PAIRS = [
-  { accent: '#2563eb', secondary: '#bfdbfe' },
-  { accent: '#7c3aed', secondary: '#ddd6fe' },
-  { accent: '#059669', secondary: '#a7f3d0' },
-  { accent: '#d97706', secondary: '#fde68a' },
-  { accent: '#9e2ac8', secondary: '#e9d5ff' },
-  { accent: '#c8522a', secondary: '#fecaca' },
+  { accent: '#38bdf8', secondary: '#7dd3fc' },
+  { accent: '#a855f7', secondary: '#d8b4fe' },
+  { accent: '#10b981', secondary: '#6ee7b7' },
+  { accent: '#818cf8', secondary: '#c7d2fe' },
+  { accent: '#22d3ee', secondary: '#a5f3fc' },
+  { accent: '#e879f9', secondary: '#f5d0fe' },
 ];
 
 // Cadangan data offline. Teks diambil dari i18n (projects.items.*) yang sudah
@@ -122,7 +122,7 @@ function normalizeCmsProject(project, locale, index) {
   };
 }
 
-// ─── Gambar proyek: responsif untuk ukuran berapa pun, tanpa stretch ─────────
+// ─── Gambar proyek: responsif, tanpa stretch ──────────────────────────────────
 
 function ProjectImage({ src, alt, className, onFail }) {
   const [failed, setFailed] = useState(false);
@@ -150,7 +150,7 @@ function ProjectImage({ src, alt, className, onFail }) {
   );
 }
 
-// ─── Detail panel (shared by mobile + desktop) ────────────────────────────────
+// ─── Detail panel (isi modal drawer) ──────────────────────────────────────────
 
 function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
   const screen = active.screens[activeScreen];
@@ -197,13 +197,13 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
   };
 
   return (
-    <div className="projects-detail">
+    <div className="projects-detail" style={{ '--accent': active.accent, '--secondary': active.secondary }}>
       {/* detail header */}
       <header className="projects-detail-header">
         <div className="projects-detail-heading">
-          <span className="projects-category" style={{ background: active.accent }}>{active.category}</span>
+          <span className="projects-category mono">{active.category}</span>
           <h2 className="projects-title">{active.title}</h2>
-          <p className="projects-role">{active.role} · {active.year}</p>
+          <p className="projects-role mono">{active.role} · {active.year}</p>
         </div>
         <div className="projects-header-actions">
           {active.github && (
@@ -212,14 +212,14 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
             </a>
           )}
           {active.live && (
-            <a href={active.live} target="_blank" rel="noopener noreferrer" className="btn btn-live" style={{ borderColor: active.accent, color: active.accent }}>
+            <a href={active.live} target="_blank" rel="noopener noreferrer" className="btn btn-live">
               <ExternalLink size={12} /> {t('projects.live')}
             </a>
           )}
         </div>
       </header>
 
-      {/* body — mengalir (scroll halaman di mobile, scroll area di desktop) */}
+      {/* body — mengalir (panel modal yang men-scroll) */}
       <div className="projects-detail-body">
         {/* ── Image slider (coverflow 3D) ── */}
         {hasScreens ? (
@@ -243,7 +243,6 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
                       type="button"
                       className={`projects-slide ${isActive ? 'is-active' : ''}`}
                       style={{
-                        '--slide-accent': active.accent,
                         transform: `perspective(1200px) rotateY(${offset * -55}deg) translateZ(${isActive ? 0 : -140}px) scale(${isActive ? 1 : 0.8})`,
                         opacity: Math.abs(offset) > 1 ? 0 : 1,
                         zIndex: isActive ? 3 : 2 - Math.abs(offset),
@@ -278,7 +277,7 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
                 <button type="button" className="projects-slider-arrow" onClick={() => goSlide(-1)} aria-label="Previous slide">
                   <ArrowLeft size={16} />
                 </button>
-                <span className="projects-slider-count">
+                <span className="projects-slider-count mono">
                   {String(activeScreen + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
                 </span>
                 <button type="button" className="projects-slider-arrow" onClick={() => goSlide(1)} aria-label="Next slide">
@@ -287,7 +286,7 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
               </div>
             )}
 
-            {screenLabel && <p className="projects-slider-label">{screenLabel}</p>}
+            {screenLabel && <p className="projects-slider-label mono">{screenLabel}</p>}
 
             <button type="button" className="projects-slider-hint" onClick={() => setLightbox(true)}>
               <ZoomIn size={13} />
@@ -312,12 +311,12 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
 
           <div className="projects-info-grid">
             <div>
-              <h3 className="projects-info-heading">{t('projects.features')}</h3>
+              <h3 className="projects-info-heading mono">{t('projects.features')}</h3>
               {active.highlights.length > 0 ? (
                 <ul className="projects-features">
                   {active.highlights.map((h, i) => (
                     <li key={i} className="projects-feature">
-                      <span className="projects-feature-mark" style={{ background: active.accent }} />
+                      <span className="projects-feature-mark" />
                       {h}
                     </li>
                   ))}
@@ -328,11 +327,11 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
             </div>
 
             <div>
-              <h3 className="projects-info-heading">{t('projects.techStack')}</h3>
+              <h3 className="projects-info-heading mono">{t('projects.techStack')}</h3>
               {active.stack.length > 0 ? (
                 <div className="projects-stack">
                   {active.stack.map((tech) => (
-                    <span key={tech} className="projects-stack-tag">{tech}</span>
+                    <span key={tech} className="projects-stack-tag mono">{tech}</span>
                   ))}
                 </div>
               ) : (
@@ -385,9 +384,9 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
               className="projects-lightbox-img"
             />
             <div className="projects-lightbox-meta">
-              <span className="projects-lightbox-label">{screenLabel}</span>
+              <span className="projects-lightbox-label mono">{screenLabel}</span>
               {total > 1 && (
-                <span className="projects-lightbox-count">
+                <span className="projects-lightbox-count mono">
                   {String(activeScreen + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
                 </span>
               )}
@@ -399,14 +398,78 @@ function DetailPanel({ t, active, activeScreen, setActiveScreen }) {
   );
 }
 
+// ─── Kartu project (Space Deck Card) ──────────────────────────────────────────
+
+function ProjectCard({ t, project, index, onOpen }) {
+  const hasScreens = project.screens.length > 0;
+  const first = project.screens[0];
+  const isLive = Boolean(project.live);
+
+  return (
+    <button
+      type="button"
+      className="deck-card"
+      style={{ '--accent': project.accent }}
+      onClick={onOpen}
+      aria-label={project.title}
+    >
+      <span className={`deck-pill mono ${isLive ? 'is-live' : ''}`}>
+        <span className="deck-pill-dot" />
+        {project.status}
+      </span>
+
+      <div className="deck-card-head">
+        <span className="deck-index mono">SYS-{String(index + 1).padStart(2, '0')}</span>
+        <span className="deck-cat mono">{project.category}</span>
+      </div>
+
+      <h2 className="deck-card-title">{project.title}</h2>
+      <p className="deck-card-sub mono">{project.role} · {project.year}</p>
+
+      {/* Visual screen container — browser mockup sci-fi */}
+      <div className="deck-screen">
+        <div className="deck-screen-bar">
+          <span className="deck-dot deck-dot--r" />
+          <span className="deck-dot deck-dot--y" />
+          <span className="deck-dot deck-dot--g" />
+          <span className="deck-screen-url mono">{project.slug}</span>
+        </div>
+        <div className="deck-screen-body">
+          {hasScreens ? (
+            <ProjectImage src={first.thumbSrc || first.src} alt={project.title} />
+          ) : (
+            <div className="projects-img-fallback">
+              <ImageIcon size={26} />
+              <span>{t('projects.noScreens')}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {project.stack.length > 0 && (
+        <div className="deck-chips">
+          {project.stack.map((tech) => (
+            <span key={tech} className="deck-chip mono">{tech}</span>
+          ))}
+        </div>
+      )}
+
+      <span className="deck-launch">
+        <Rocket size={15} />
+        <span className="mono">OPEN DECK</span>
+      </span>
+    </button>
+  );
+}
+
 // ─── Main Projects page ───────────────────────────────────────────────────────
 
 export default function Projects() {
   const { t, i18n } = useTranslation();
   const [cmsProjects, setCmsProjects] = useState(null);
-  const [activeId, setActiveId] = useState(null);
+  const [filter, setFilter] = useState('all');
+  const [openKey, setOpenKey] = useState(null);
   const [activeScreen, setActiveScreen] = useState(0);
-  const [mobileView, setMobileView] = useState('list');
 
   useEffect(() => {
     let active = true;
@@ -431,14 +494,33 @@ export default function Projects() {
     return cmsProjects.map((project, index) => normalizeCmsProject(project, i18n.language, index));
   }, [cmsProjects, i18n.language, t]);
 
-  const active = projects.find((p) => p.key === activeId) ?? projects[0];
-  const activeIndex = Math.max(projects.findIndex((p) => p.key === activeId), 0);
+  // Kategori diturunkan dari data (tidak mengubah data, hanya mengelompokkan).
+  const categories = useMemo(() => {
+    const out = [];
+    projects.forEach((p) => {
+      if (p.category && !out.includes(p.category)) out.push(p.category);
+    });
+    return out;
+  }, [projects]);
 
-  const handleSelect = (key) => {
-    setActiveId(key);
-    setActiveScreen(0);
-    setMobileView('detail');
-  };
+  const visible = filter === 'all' ? projects : projects.filter((p) => p.category === filter);
+  const active = openKey ? projects.find((p) => p.key === openKey) : null;
+  const liveCount = projects.filter((p) => p.live).length;
+
+  const openDeck = (key) => { setOpenKey(key); setActiveScreen(0); };
+
+  // Modal: ESC tutup + kunci scroll latar
+  useEffect(() => {
+    if (!openKey) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setOpenKey(null); };
+    window.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [openKey]);
 
   return (
     <div className="projects-page">
@@ -462,104 +544,78 @@ export default function Projects() {
           <p>{t('projects.loading')}</p>
         </div>
       ) : (
-        <>
-          {/* Mobile: list view (hanya saat mode list) */}
-          {mobileView === 'list' && (
-            <div className="projects-mobile-list">
-              <Reveal className="projects-mobile-head">
-                <p className="projects-explorer mono">
-                  <ChevronRight size={11} /> EXPLORER · PORTFOLIO
-                </p>
-                <h1 className="projects-heading">Projects</h1>
-                <p className="projects-count">{projects.length} {t('projects.selectedWorks')}</p>
-              </Reveal>
-              <div className="projects-mobile-items">
-                {projects.map((p, i) => (
-                  <button key={p.key} type="button" className="projects-mobile-item" onClick={() => handleSelect(p.key)}>
-                    <div className="projects-mobile-id" style={{ background: p.accent + '20' }}>
-                      <span style={{ color: p.accent }}>{String(i + 1).padStart(2, '0')}</span>
-                    </div>
-                    <div className="projects-mobile-meta">
-                      <p className="projects-mobile-title">{p.shortTitle || p.title}</p>
-                      <p className="projects-mobile-sub">{p.category} · {p.year}</p>
-                    </div>
-                    <div className="projects-mobile-right">
-                      <span className={`projects-status ${p.status === 'Live' ? 'is-live' : ''}`}>{p.status}</span>
-                      <ArrowRight size={14} className="projects-mobile-arrow" />
-                    </div>
-                  </button>
-                ))}
+        <div className="deck">
+          {/* Header breadcrumb + status tracker */}
+          <header className="deck-head">
+            <div className="deck-head-main">
+              <p className="deck-crumb mono">
+                <ChevronRight size={11} /> MISSION CONTROL · PROJECTS
+              </p>
+              <h1 className="deck-title">Projects</h1>
+            </div>
+
+            <div className="deck-tracker">
+              <div className="deck-stat">
+                <span className="deck-stat-num mono">{String(projects.length).padStart(2, '0')}</span>
+                <span className="deck-stat-label mono">{t('projects.selectedWorks')}</span>
+              </div>
+              <span className="deck-tracker-sep" />
+              <div className="deck-stat">
+                <span className="deck-stat-num is-live mono">{String(liveCount).padStart(2, '0')}</span>
+                <span className="deck-stat-label mono">ACTIVE SYSTEMS</span>
               </div>
             </div>
-          )}
+          </header>
 
-          {/* Mobile: detail view */}
-          {mobileView === 'detail' && (
-            <div className="projects-mobile-detail">
-              <div className="projects-mobile-backbar">
-                <button type="button" className="projects-back-btn" onClick={() => setMobileView('list')}>
-                  <ArrowLeft size={16} /> {t('projects.back')}
+          {/* Filter navigation bar (space tabs) */}
+          <nav className="deck-filters" aria-label="Filter projects">
+            <button
+              type="button"
+              className={`deck-tab mono ${filter === 'all' ? 'is-active' : ''}`}
+              onClick={() => setFilter('all')}
+            >
+              All <span className="deck-tab-count">{String(projects.length).padStart(2, '0')}</span>
+            </button>
+            {categories.map((c) => {
+              const n = projects.filter((p) => p.category === c).length;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  className={`deck-tab mono ${filter === c ? 'is-active' : ''}`}
+                  onClick={() => setFilter(c)}
+                >
+                  {c} <span className="deck-tab-count">{String(n).padStart(2, '0')}</span>
                 </button>
-                <span className="projects-mobile-count">{activeIndex + 1} / {projects.length}</span>
-              </div>
-              <DetailPanel
-                key={active.key}
-                t={t}
-                active={active}
-                activeScreen={activeScreen}
-                setActiveScreen={setActiveScreen}
-              />
-            </div>
-          )}
+              );
+            })}
+          </nav>
 
-          {/* Desktop: split panel */}
-          <div className="projects-desktop">
-            <aside className="projects-sidebar">
-              <Reveal className="projects-sidebar-head">
-                <p className="projects-explorer mono">
-                  <ChevronRight size={11} /> EXPLORER · PORTFOLIO
-                </p>
-                <h1 className="projects-heading">Projects</h1>
-                <p className="projects-count">{projects.length} {t('projects.selectedWorks')}</p>
-              </Reveal>
-
-              <div className="projects-sidebar-list">
-                {projects.map((p) => {
-                  const isActive = p.key === active.key;
-                  return (
-                    <button key={p.key} type="button" className={`projects-sidebar-item ${isActive ? 'is-active' : ''}`} onClick={() => handleSelect(p.key)}>
-                      <span className="projects-sidebar-folder">
-                        <FolderOpen size={13} />
-                      </span>
-                      <div className="projects-sidebar-meta">
-                        <p className="projects-sidebar-title">
-                          <FileCode2 size={12} className="projects-sidebar-fileicon" />
-                          {p.shortTitle || p.title}
-                        </p>
-                        <p className="projects-sidebar-cat">{p.category}</p>
-                      </div>
-                      <span className={`projects-status ${p.status === 'Live' ? 'is-live' : ''}`}>{p.status}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="projects-sidebar-foot">
-                <p>{active.screens.length} {t('projects.screens').toLowerCase()} · {active.stack.length} {t('projects.technologies').toLowerCase()}</p>
-              </div>
-            </aside>
-
-            <main className="projects-main">
-              <DetailPanel
-                key={active.key}
-                t={t}
-                active={active}
-                activeScreen={activeScreen}
-                setActiveScreen={setActiveScreen}
-              />
-            </main>
+          {/* Interactive grid */}
+          <div className="deck-grid" key={filter}>
+            {visible.map((p, i) => (
+              <ProjectCard key={p.key} t={t} project={p} index={i} onOpen={() => openDeck(p.key)} />
+            ))}
           </div>
-        </>
+        </div>
+      )}
+
+      {/* Modal drawer detail */}
+      {active && (
+        <div className="deck-modal" role="dialog" aria-modal="true" aria-label={active.title} onClick={() => setOpenKey(null)}>
+          <div className="deck-modal-panel" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="deck-modal-close" onClick={() => setOpenKey(null)} aria-label="Tutup">
+              <X size={18} />
+            </button>
+            <DetailPanel
+              key={active.key}
+              t={t}
+              active={active}
+              activeScreen={activeScreen}
+              setActiveScreen={setActiveScreen}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

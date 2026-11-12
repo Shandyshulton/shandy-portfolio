@@ -1,5 +1,4 @@
-// Sumber data tunggal untuk node 3D dan chip skill di halaman,
-// supaya hover di salah satunya bisa menyalakan yang lain.
+// Sumber data tunggal untuk chip skill di Home.
 export const STACK_GROUPS = [
   {
     id: 'frontend',

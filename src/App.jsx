@@ -5,7 +5,8 @@ import Footer from './components/Footer';
 import { BootLoader, RouteLoader } from './components/Loader';
 import ScrollTopButton from './components/ScrollTopButton';
 import ParallaxBackdrop from './components/ParallaxBackdrop';
-import SceneHost from './three/SceneHost';
+import Background from './background/Background';
+import SpaceShuttle from './components/SpaceShuttle';
 import Home from './pages/Home';
 import './index.css';
 
@@ -15,13 +16,8 @@ import './index.css';
 const Analytics = lazy(() => import('@vercel/analytics/react').then((m) => ({ default: m.Analytics })));
 const SpeedInsights = lazy(() => import('@vercel/speed-insights/react').then((m) => ({ default: m.SpeedInsights })));
 
-// Catatan: SceneHost di-import statis (ringan, ~3 KB) agar POSTER hero (facade)
-// tampil pada first paint tanpa menunggu idle. Chunk berat three-vendor (~555 KB)
-// baru dimuat di dalam SceneHost HANYA bila GPU asli terdeteksi + ada interaksi/
-// idle (lazy import Scene3D). Jadi jalur kritis tetap bebas Three.js.
-
-// Scene 3D (Three.js, ~555 KB) dimuat lazy DI DALAM SceneHost (lihat catatan di
-// atas). three-vendor diunduh & dieksekusi di luar jalur kritis LCP/TBT.
+// Latar antariksa (nebula CSS + bintang Canvas 2D) sangat ringan (~2 KB, tanpa
+// WebGL/dependensi) sehingga aman di jalur kritis.
 
 // Route-based code splitting: halaman selain Home dimuat saat dinavigasi,
 // sehingga bundle awal (Home) lebih kecil dan mengurangi JS tak terpakai.
@@ -151,7 +147,8 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <SceneHost theme={theme} />
+      <Background theme={theme} />
+      <SpaceShuttle />
       <ParallaxBackdrop />
       <RouteTransitionLoader />
       <Layout theme={theme} toggleTheme={toggleTheme} />

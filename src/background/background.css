@@ -1,0 +1,51 @@
+/* Latar antariksa ringan: nebula (CSS gradient, z=-2) + bintang/konstelasi
+   (Canvas 2D, z=-1). Fixed di belakang seluruh konten, pointer-events: none. */
+.bg-nebula {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  /* Nebula lembut: glow cyan (#38bdf8) + purple (#a855f7), gradien sangat halus. */
+  background:
+    radial-gradient(48% 42% at 22% 26%, rgba(56, 189, 248, 0.22), transparent 70%),
+    radial-gradient(44% 44% at 80% 30%, rgba(168, 85, 247, 0.22), transparent 72%),
+    radial-gradient(62% 55% at 54% 90%, rgba(56, 189, 248, 0.14), transparent 75%),
+    radial-gradient(36% 32% at 88% 82%, rgba(168, 85, 247, 0.16), transparent 72%),
+    var(--bg);
+}
+html[data-theme='light'] .bg-nebula {
+  background:
+    radial-gradient(48% 42% at 22% 26%, rgba(56, 189, 248, 0.3), transparent 70%),
+    radial-gradient(44% 44% at 80% 30%, rgba(168, 85, 247, 0.2), transparent 72%),
+    radial-gradient(62% 55% at 54% 90%, rgba(56, 189, 248, 0.16), transparent 75%),
+    var(--bg);
+}
+
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  pointer-events: none;
+}
+
+/* Bintang aktif → latar ambient lama & pseudo-element halaman tak diperlukan. */
+html[data-scene='on'] .ai-bg,
+html[data-scene='static'] .ai-bg {
+  display: none;
+}
+
+html[data-scene='on'] .edu-page::before,
+html[data-scene='on'] .edu-page::after,
+html[data-scene='on'] .exp-page::before,
+html[data-scene='on'] .exp-page::after,
+html[data-scene='on'] .contact-page::before,
+html[data-scene='on'] .contact-page::after,
+html[data-scene='static'] .edu-page::before,
+html[data-scene='static'] .edu-page::after,
+html[data-scene='static'] .exp-page::before,
+html[data-scene='static'] .exp-page::after,
+html[data-scene='static'] .contact-page::before,
+html[data-scene='static'] .contact-page::after {
+  display: none;
+}

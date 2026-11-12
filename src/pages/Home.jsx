@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { GitFork, Mail, Globe, Download, ArrowRight, MapPin } from 'lucide-react';
+import { GitFork, Mail, Globe, Download, ArrowRight, MapPin, Keyboard } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms } from '../lib/cmsApi.js';
 import { useCmsSettings } from '../lib/useCmsProfile.js';
 import TiltCard from '../components/TiltCard.jsx';
-import { STACK_FLAT, STACK_GROUPS } from '../three/stack.js';
-import { getUi, setUi, useSceneUi } from '../three/store.js';
+import { STACK_FLAT, STACK_GROUPS } from '../background/stack.js';
+import { getUi, setUi, useStackUi } from '../background/stackStore.js';
 import './Home.css';
 
 // ── Hook: efek ketik (typewriter), hormati prefers-reduced-motion ─────────────
@@ -85,16 +85,14 @@ function SplitName({ parts }) {
 }
 
 function StackChip({ item }) {
-  const active = useSceneUi((s) => s.hovered === item.id);
+  const active = useStackUi((s) => s.hovered === item.id);
   const pick = () => {
     // Tap = pilih (tap lagi = lepas). Mouse tetap pakai hover.
     setUi({ hovered: getUi().hovered === item.id ? null : item.id });
     window.dispatchEvent(new CustomEvent('stack-pick'));
   };
-  // <li> tetap listitem murni (semantik daftar utuh); elemen interaktif
-  // (role="button") berada DI DALAM-nya. <li class="stack-chip-item"> memakai
-  // `display: contents` sehingga tidak menghasilkan box → layout/visual sama
-  // persis seperti sebelumnya (chip tetap jadi flex item langsung).
+  // <li> tetap listitem murni; elemen interaktif berada di dalamnya. `display: contents`
+  // membuat chip tetap jadi flex item langsung.
   return (
     <li className="stack-chip-item">
       <span
@@ -148,7 +146,7 @@ export default function Home() {
     return () => { window.removeEventListener('pointermove', move); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
-  // Layar sentuh tidak punya hover: saat bagian Skills terlihat, node disorot bergiliran
+  // Layar sentuh tidak punya hover: saat bagian Skills terlihat, chip disorot bergiliran
   // otomatis (berhenti sementara 6 detik setelah pengguna tap sendiri).
   useEffect(() => {
     const section = document.getElementById('skills');
@@ -181,8 +179,7 @@ export default function Home() {
     let idleId;
 
     // Statistik "About" berada di bawah fold dan sudah punya nilai default,
-    // jadi fetch-nya ditunda sampai browser idle agar tidak menghalangi
-    // pemuatan hero (LCP).
+    // jadi fetch-nya ditunda sampai browser idle agar tidak menghalangi hero (LCP).
     const loadStats = () => {
       fetchCms('/public/stats')
         .then((data) => {
@@ -213,6 +210,13 @@ export default function Home() {
     backend: t('home.skills.backend'),
   };
 
+  const metrics = [
+    { num: stats.projects, label: t('home.about.stats.projects') },
+    { num: '2+', label: t('home.about.stats.years') },
+    { num: '5+', label: t('home.about.stats.stacks') },
+    { num: stats.certs, label: t('home.about.stats.certs') },
+  ];
+
   return (
     <div className="home-page">
       <Helmet>
@@ -229,7 +233,7 @@ export default function Home() {
         <meta name="twitter:image" content={PROFILE_IMAGE} />
       </Helmet>
 
-      {/* ── Hero: teks di kiri, scene 3D di kanan (canvas global di belakang) ── */}
+      {/* ── Hero: split grid 7:5 (teks kiri, orbital telemetry kanan) ── */}
       <section className="hero" id="home" ref={heroRef}>
         <div className="hero-copy">
           <p className="hero-greeting mono">
@@ -259,24 +263,54 @@ export default function Home() {
             <a href="/contact" className="btn btn-outline">
               {t('home.getInTouch')} <ArrowRight size={16} />
             </a>
-          </div>
-
-          <div className="hero-foot">
-            <div className="hero-socials">
+            <div className="hero-quick">
               <a href={profile.github} target="_blank" rel="noreferrer" className="social-link" aria-label="GitHub">
-                <GitFork size={19} />
-              </a>
-              <a href={`mailto:${profile.email}`} className="social-link" aria-label="Email">
-                <Mail size={19} />
+                <GitFork size={18} />
               </a>
               <a href={profile.linkedin} target="_blank" rel="noreferrer" className="social-link" aria-label="LinkedIn">
-                <Globe size={19} />
+                <Globe size={18} />
+              </a>
+              <a href={`mailto:${profile.email}`} className="social-link" aria-label="Email">
+                <Mail size={18} />
               </a>
             </div>
-            <span className="hero-status">
-              <span className="status-dot" aria-hidden="true" />
-              {homeContent.available_text || t('home.available')}
+          </div>
+
+          <span className="hero-status">
+            <span className="status-dot" aria-hidden="true" />
+            {homeContent.available_text || t('home.available')}
+          </span>
+        </div>
+
+        {/* Orbital telemetry — pengisi ruang kanan (desktop) */}
+        <div className="hero-visual" aria-hidden="true">
+          <div className="orbit">
+            <span className="orbit-ring orbit-ring--outer" />
+            <span className="orbit-ring orbit-ring--inner" />
+            <span className="orbit-node" />
+
+            <span className="orbit-pill orbit-pill--tl">
+              <span className="orbit-pill-dot" />React
             </span>
+            <span className="orbit-pill orbit-pill--br">
+              <span className="orbit-pill-dot orbit-pill-dot--red" />Laravel
+            </span>
+
+            <div className="telemetry-card">
+              <div className="telemetry-head">
+                <span className="telemetry-dots"><i /><i /><i /></span>
+                <span className="telemetry-file mono">telemetry.ts</span>
+              </div>
+              <div className="telemetry-code mono">
+                <div className="tl"><span className="tk-kw">const</span> <span className="tk-var">dev</span> <span className="tk-p">=</span> <span className="tk-p">{'{'}</span></div>
+                <div className="tl tl-in"><span className="tk-key">role</span><span className="tk-p">:</span> <span className="tk-amber">"Fullstack"</span><span className="tk-p">,</span></div>
+                <div className="tl tl-in"><span className="tk-key">uni</span><span className="tk-p">:</span> <span className="tk-green">"BINUS"</span><span className="tk-p">,</span></div>
+                <div className="tl tl-in"><span className="tk-key">focus</span><span className="tk-p">:</span> <span className="tk-amber">"Clean UI &amp; API"</span><span className="tk-p">,</span></div>
+                <div className="tl tl-in"><span className="tk-key">status</span><span className="tk-p">:</span> <span className="tk-teal">"Ready"</span></div>
+                <div className="tl"><span className="tk-p">{'}'}</span><span className="tk-p">;</span></div>
+              </div>
+              <span className="telemetry-key"><Keyboard size={14} /></span>
+            </div>
           </div>
         </div>
 
@@ -286,26 +320,30 @@ export default function Home() {
         </a>
       </section>
 
-      {/* ── Skills: chip di kiri tersambung ke node 3D di kanan ── */}
+      {/* ── Skills: 2-column glass deck (Full Width) ── */}
       <section className="skills" id="skills">
-        <div className="skills-panel glass">
-          <h2 className="skills-title">{t('home.skills.title')}</h2>
-          <p className="skills-hint">{noHover ? t('home.skills.hintTouch') : t('home.skills.hint')}</p>
+        <div className="skills-panel">
+          <div className="skills-head">
+            <h2 className="skills-title">{t('home.skills.title')}</h2>
+            <p className="skills-hint">{noHover ? t('home.skills.hintTouch') : t('home.skills.hint')}</p>
+          </div>
 
-          {STACK_GROUPS.map((group) => (
-            <div className="skills-group" key={group.id}>
-              <h3 className="skills-group-title">{groupLabels[group.id]}</h3>
-              <ul className="skills-list">
-                {group.items.map((item) => (
-                  <StackChip item={item} key={item.id} />
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div className="skills-deck">
+            {STACK_GROUPS.map((group) => (
+              <div className="skills-card glass" key={group.id}>
+                <h3 className="skills-card-title">{groupLabels[group.id]}</h3>
+                <ul className="skills-list">
+                  {group.items.map((item) => (
+                    <StackChip item={item} key={item.id} />
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── About ── */}
+      {/* ── About & Journey: split grid 7:5 ── */}
       <section className="about" id="about">
         <div className="about-grid">
           <div className="about-copy">
@@ -320,19 +358,14 @@ export default function Home() {
             <p className="about-p">{homeContent.about_paragraph_1 || t('home.about.p1')}</p>
             <p className="about-p">{homeContent.about_paragraph_2 || t('home.about.p2')}</p>
 
-            <dl className="about-stats">
-              {[
-                { num: stats.projects, label: t('home.about.stats.projects') },
-                { num: '2+', label: t('home.about.stats.years') },
-                { num: '5+', label: t('home.about.stats.stacks') },
-                { num: stats.certs, label: t('home.about.stats.certs') },
-              ].map((stat) => (
-                <div className="about-stat" key={stat.label}>
-                  <dt className="about-stat-label">{stat.label}</dt>
-                  <dd className="about-stat-num">{stat.num}</dd>
+            <div className="about-metrics">
+              {metrics.map((stat) => (
+                <div className="metric-card glass" key={stat.label}>
+                  <span className="metric-num">{stat.num}</span>
+                  <span className="metric-label">{stat.label}</span>
                 </div>
               ))}
-            </dl>
+            </div>
           </div>
 
           <TiltCard className="about-card" max={10}>

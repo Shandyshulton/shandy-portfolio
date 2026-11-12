@@ -1,0 +1,51 @@
+/* Lapisan pesawat ulang-alik (di belakang konten, di atas canvas bintang). */
+.shuttle-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  --sx: 0px;
+  --sy: 0px;
+}
+
+.shuttle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 54px;
+  height: 54px;
+  will-change: transform;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.8));
+  animation: spaceFlight var(--dur, 24s) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: var(--delay, 0s);
+  animation-fill-mode: backwards; /* saat delay: pakai state 0% (opacity 0) */
+}
+
+/* Terbang dari (x0,y0) ke (x1,y1); heading mengikuti --r; offset parallax kursor. */
+@keyframes spaceFlight {
+  0% {
+    transform: translate3d(calc(var(--x0) + var(--sx)), calc(var(--y0) + var(--sy)), 0) rotate(var(--r, 45deg)) scale(var(--sc, 0.7));
+    opacity: 0;
+  }
+  6% { opacity: 0.9; }
+  88% { opacity: 0.9; }
+  100% {
+    transform: translate3d(calc(var(--x1) + var(--sx)), calc(var(--y1) + var(--sy)), 0) rotate(var(--r, 45deg)) scale(var(--sc, 0.7));
+    opacity: 0;
+  }
+}
+
+/* Api dorongan berkedip (flicker). */
+.shuttle-flame {
+  transform-origin: 50% 66%;
+  animation: flameFlicker 0.15s infinite alternate;
+}
+@keyframes flameFlicker {
+  from { opacity: 0.7; transform: scaleY(0.85); }
+  to   { opacity: 1;   transform: scaleY(1.25); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shuttle { display: none; }
+}

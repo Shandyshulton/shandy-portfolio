@@ -10,7 +10,7 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(860px 420px at 80% 8%, rgba(232, 115, 90, 0.22), transparent 68%),
+    radial-gradient(860px 420px at 80% 8%, rgba(168, 85, 247, 0.22), transparent 68%),
     radial-gradient(560px 300px at 12% 82%, rgba(71, 191, 255, 0.09), transparent 72%),
     linear-gradient(120deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 44%);
 }
@@ -30,198 +30,245 @@
   mask-image: radial-gradient(ellipse 72% 58% at 70% 14%, #000 18%, transparent 76%);
 }
 
-.exp-timeline {
+/* ── Orbital Career Trajectory (riwayat pengalaman) ───────────────────────── */
+.exp-orb-timeline {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 26px;
+  padding-left: 56px; /* mobile: garis & node rapat ke kiri, kartu tetap maksimal */
 }
-
-/* Baris: nomor baris terminal + item */
-.exp-row {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: 12px;
-}
-.exp-lineno {
-  padding-top: 14px;
-  text-align: right;
-  font-size: 11px;
-  color: var(--text-muted);
-  opacity: 0.55;
-  user-select: none;
-}
-
-.exp-item {
-  display: grid;
-  grid-template-columns: 52px 1fr;
-  gap: 20px;
-}
-
-.exp-marker {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 6px;
-}
-
-.exp-dot {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: 2px solid;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  z-index: 1;
-  box-shadow:
-    0 0 0 6px color-mix(in srgb, currentColor 8%, transparent),
-    0 0 34px color-mix(in srgb, var(--accent) 28%, transparent);
-}
-
-.exp-connector {
+/* garis lintasan vertikal bercahaya (amber → cyan) */
+.exp-orb-timeline::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 23px;
   width: 2px;
-  flex: 1;
-  background: linear-gradient(to bottom, var(--accent), color-mix(in srgb, var(--border) 70%, transparent), transparent);
-  min-height: 40px;
-  margin-top: 8px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #fbbf24, #38bdf8);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.4);
+  pointer-events: none;
 }
 
-.exp-card {
-  padding-bottom: 32px;
+.exp-orb-row { position: relative; }
+
+/* Orbital Node Badge (rounded-2xl + neon glow) */
+.exp-orb-node {
+  position: absolute;
+  left: -56px;
+  top: 16px;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  color: var(--exp-accent, #38bdf8);
+  background: color-mix(in srgb, var(--exp-accent, #38bdf8) 14%, var(--node-bg));
+  border: 1.5px solid color-mix(in srgb, var(--exp-accent, #38bdf8) 70%, transparent);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--exp-accent, #38bdf8) 10%, transparent),
+    0 0 26px color-mix(in srgb, var(--exp-accent, #38bdf8) 45%, transparent);
+  z-index: 2;
 }
 
-.exp-card-top {
+/* Kartu experience glassmorphic */
+.exp-orb-card {
   position: relative;
   overflow: hidden;
-  background:
-    radial-gradient(500px 160px at 100% 0%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 72%),
-    linear-gradient(140deg, color-mix(in srgb, var(--surface) 94%, var(--accent-dim)), var(--surface) 62%);
-  border: 1.5px solid var(--card-border);
-  border-left: 3px solid;
-  border-radius: 0 16px 16px 0;
-  padding: 28px 28px 24px;
-  transition: box-shadow 0.2s, border-right-color 0.2s, transform 0.2s;
-  box-shadow: 0 14px 42px rgba(26, 23, 20, 0.06);
+  border-radius: 18px;
+  padding: 22px 24px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--exp-accent, #38bdf8);
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  box-shadow: var(--panel-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
-.exp-card-top::before {
+.exp-orb-card::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image:
-    linear-gradient(90deg, color-mix(in srgb, var(--accent) 7%, transparent) 1px, transparent 1px),
-    linear-gradient(color-mix(in srgb, var(--accent) 6%, transparent) 1px, transparent 1px);
-  background-size: 44px 44px;
-  opacity: 0.35;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 26%, #000 100%);
-  mask-image: linear-gradient(90deg, transparent, #000 26%, #000 100%);
+  background:
+    radial-gradient(420px 180px at 100% 0%, color-mix(in srgb, var(--exp-accent, #38bdf8) 14%, transparent), transparent 62%),
+    radial-gradient(320px 180px at 0% 100%, rgba(168, 85, 247, 0.07), transparent 66%);
 }
-.exp-card-top:hover {
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--accent) 16%, transparent),
-    0 18px 54px color-mix(in srgb, var(--accent) 16%, transparent),
-    var(--shadow);
+.exp-orb-card:hover {
+  border-color: var(--panel-border-hover);
+  box-shadow: var(--panel-shadow-hover), inset 0 1px 0 rgba(255, 255, 255, 0.07);
   transform: translateY(-2px);
 }
-.exp-card-top > * { position: relative; z-index: 1; }
+.exp-orb-card > * { position: relative; z-index: 1; }
 
-.exp-header {
+/* Meta badges: tipe pekerjaan + tanggal + lokasi */
+.exp-orb-badges {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 14px;
 }
-
-.exp-type-badge {
+.exp-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'DM Mono', monospace;
   font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 3px 10px;
-  border-radius: 4px;
-  border: 1px solid;
-  margin-bottom: 10px;
-  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 10%, transparent);
-}
-.exp-badge-mark {
-  font-weight: 700;
-}
-
-.exp-role {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.2rem;
-  color: var(--text);
-  margin-bottom: 6px;
-}
-.exp-company {
-  font-size: 15px;
   font-weight: 600;
-  color: var(--text-muted);
-}
-
-.exp-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;
-}
-.exp-meta-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pill-text);
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
   white-space: nowrap;
 }
-
-.exp-desc {
-  color: var(--text-muted);
-  font-size: 14px;
-  line-height: 1.75;
-  margin-bottom: 20px;
+.exp-pill--type {
+  color: var(--exp-accent, #38bdf8);
+  background: color-mix(in srgb, var(--exp-accent, #38bdf8) 12%, transparent);
+  border-color: color-mix(in srgb, var(--exp-accent, #38bdf8) 40%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--exp-accent, #38bdf8) 20%, transparent);
 }
 
-.exp-responsibilities {
+/* Judul + status misi */
+.exp-orb-title-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.exp-orb-role {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.4rem);
+  line-height: 1.25;
+  color: var(--text);
+}
+.exp-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.exp-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.exp-status.is-current {
+  color: var(--amber-text);
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.28);
+}
+.exp-status.is-current .exp-status-dot {
+  background: #fbbf24;
+  box-shadow: 0 0 8px 1px rgba(251, 191, 36, 0.9);
+  animation: expPulse 1.6s ease-in-out infinite;
+}
+.exp-status.is-done {
+  color: var(--live-text);
+  background: var(--live-bg);
+  border: 1px solid var(--live-border);
+}
+.exp-status.is-done .exp-status-dot {
+  background: #38bdf8;
+  box-shadow: 0 0 8px 1px rgba(56, 189, 248, 0.85);
+}
+@keyframes expPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.exp-orb-company {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--subheading);
+  margin-bottom: 12px;
+}
+
+.exp-orb-desc {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+/* Telemetry bullets — glowing dot sejajar baris pertama */
+.exp-telemetry {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 9px;
+  margin-bottom: 16px;
 }
-.exp-responsibilities li {
+.exp-telemetry li {
   display: flex;
+  align-items: flex-start;
   gap: 10px;
-  font-size: 14px;
+  font-size: 13.5px;
+  line-height: 1.55;
   color: var(--text-muted);
-  line-height: 1.5;
 }
-.resp-arrow {
-  font-family: 'DM Mono', monospace;
-  font-weight: 700;
+.exp-telemetry-dot {
   flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--exp-accent, #38bdf8);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--exp-accent, #38bdf8) 80%, transparent);
 }
 
-.exp-stack {
+/* Tech stack chips */
+.exp-orb-stack {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   padding-top: 16px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid rgba(56, 189, 248, 0.16);
+}
+.exp-chip {
+  font-size: 11px;
+  color: var(--chip-text);
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--exp-accent, #38bdf8) 7%, var(--chip-bg));
+  border: 1px solid var(--chip-border);
 }
 
-@media (max-width: 700px) {
-  .exp-item { grid-template-columns: 1fr; }
-  .exp-marker { display: none; }
-  .exp-card-top { border-left: 3px solid; border-radius: 12px; }
-  .exp-header { flex-direction: column; }
-  .exp-meta { align-items: flex-start; }
-  .exp-row { grid-template-columns: 1fr; }
-  .exp-lineno { display: none; }
+/* Tablet: badges sebaris, role + status sebaris */
+@media (min-width: 640px) {
+  .exp-orb-badges {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .exp-orb-title-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+}
+/* Desktop: ruang bernapas proporsional */
+@media (min-width: 768px) {
+  .exp-orb-timeline { padding-left: 96px; }
+  .exp-orb-timeline::before { left: 27px; }
+  .exp-orb-node { left: -96px; width: 56px; height: 56px; border-radius: 18px; top: 18px; }
+  .exp-orb-card { padding: 26px 30px; }
+}
+/* Layar sangat kecil: jaga ruang baca */
+@media (max-width: 380px) {
+  .exp-orb-timeline { padding-left: 48px; gap: 20px; }
+  .exp-orb-timeline::before { left: 19px; }
+  .exp-orb-node { left: -48px; width: 40px; height: 40px; border-radius: 14px; top: 14px; }
+  .exp-orb-card { padding: 18px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exp-status.is-current .exp-status-dot { animation: none; }
 }

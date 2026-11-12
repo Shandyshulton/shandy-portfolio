@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { GraduationCap, Award, Calendar, ChevronLeft, ChevronRight, X, ExternalLink, Play, Pause } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { GraduationCap, Award, Calendar, X, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms, formatPeriod, getTranslation } from '../lib/cmsApi.js';
 import AiBackground from '../components/AiBackground.jsx';
 import Reveal from '../components/Reveal.jsx';
-import DevShell from '../components/DevShell.jsx';
 import './Education.css';
 
 const SITE_URL = 'https://shandy-shulton-shihab.vercel.app/';
@@ -35,23 +35,24 @@ const fallbackCertifications = [
     titleKey: 'education.certs.bnsp.title',
     issuer: 'Telkom DigiUp',
     date: 'December 2022',
-    color: '#c8522a',
+    color: '#38bdf8', // cyan — sertifikat teknis/umum
   },
   {
     titleKey: 'education.certs.lia.title',
     issuer: 'LB LIA Language Institute',
     date: 'February 2024',
-    color: '#2a7cc8',
+    color: '#eab308', // golden — sertifikat bahasa
   },
   {
     titleKey: 'education.certs.ai.title',
     issuer: 'Dicoding Indonesia',
     date: 'December 2025',
-    color: '#8b2ac8',
+    color: '#a855f7', // purple — sertifikasi khusus
   },
 ];
 
-const certificationColors = ['#c8522a', '#2a7cc8', '#8b2ac8', '#2ac87a'];
+// Palet aksen sci-fi: cyan (umum/teknis), golden (bahasa), purple (khusus), emerald (verified).
+const certificationColors = ['#38bdf8', '#eab308', '#a855f7', '#10b981'];
 
 function normalizeCmsEducation(education, locale) {
   const translation = getTranslation(education, locale);
@@ -82,171 +83,180 @@ function normalizeCmsCertification(certification, locale, index) {
   };
 }
 
-// ── Coverflow slider sertifikat (nuansa terminal/developer) ───────────────────
-// Slide aktif besar di tengah, tetangga mengecil/miring ke belakang.
-// Autoplay jalan sampai user berinteraksi (hover/geser/klik).
+// ── Certificate Command Deck — kartu holografik + hologram viewer modal ──────
 
-function CertSlider({ items, t, prefersReduced }) {
-  const [index, setIndex] = useState(0);
-  const [lightbox, setLightbox] = useState(false);
-  const [playing, setPlaying] = useState(!prefersReduced);
-  const timerRef = useRef(null);
-  const touchX = useRef(null);
-  const total = items.length;
+function certTitle(cert, t) {
+  return cert.title ?? t(cert.titleKey, { defaultValue: cert.titleKey });
+}
 
-  const goTo = (i) => setIndex(((i % total) + total) % total);
-  const next = () => { setPlaying(false); goTo(index + 1); };
-  const prev = () => { setPlaying(false); goTo(index - 1); };
-
-  // Autoplay — jeda permanen saat user berinteraksi; hormati reduced-motion.
-  useEffect(() => {
-    if (!playing || lightbox || total <= 1) return undefined;
-    timerRef.current = setTimeout(() => {
-      setIndex((i) => (i + 1) % total);
-    }, 4200);
-    return () => clearTimeout(timerRef.current);
-  }, [playing, lightbox, index, total]);
-
-  // Keyboard: panah kiri/kanan saat slider terlihat.
-  useEffect(() => {
-    const onKey = (e) => {
-      if (lightbox && e.key === 'Escape') { setLightbox(false); return; }
-      if (lightbox) return;
-      if (e.key === 'ArrowRight') next();
-      if (e.key === 'ArrowLeft') prev();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, lightbox, total]);
-
-  const active = items[index];
-  const title = active?.title ?? active?.titleKey;
+function CertCard({ cert, t, index, onOpen }) {
+  const title = certTitle(cert, t);
+  const hasImage = Boolean(cert.badgeUrl);
+  // Rotasi kecil bergantian → terasa seperti kartu yang digantung di tali.
+  const rot = index % 2 === 0 ? -1.8 : 1.5;
 
   return (
-    <div className="cert-slider">
-      {/* Bar terminal */}
-      <div className="cert-slider-term">
-        <span className="term-dot term-dot--r" />
-        <span className="term-dot term-dot--y" />
-        <span className="term-dot term-dot--g" />
-        <span className="term-title">certs --show {String(index + 1).padStart(2, '0')}/{String(total).padStart(2, '0')}</span>
-        <button
-          type="button"
-          className="term-play"
-          onClick={() => setPlaying((p) => !p)}
-          aria-label={playing ? t('education.pauseSlider') : t('education.playSlider')}
-        >
-          {playing ? <Pause size={12} /> : <Play size={12} />}
+    <button
+      type="button"
+      className="cert-hang"
+      style={{ '--cert-accent': cert.color, '--rot': `${rot}deg`, '--i': index }}
+      onClick={onOpen}
+      aria-label={title}
+    >
+      <span className="cert-peg" aria-hidden="true" />
+      <span className="cert-card">
+        <span className="cert-crest" aria-hidden="true">
+          <Award size={26} />
+        </span>
+
+        <span className="cert-tag mono">{cert.issuer}</span>
+        <span className="cert-title">{title}</span>
+        <span className="cert-date mono"><Calendar size={12} /> {cert.date}</span>
+
+        {/* Preview: gambar badge, atau layar holografik bila belum diunggah */}
+        <span className="cert-preview">
+          {hasImage ? (
+            <img src={cert.badgeUrl} alt={title} loading="lazy" decoding="async" />
+          ) : (
+            <span className="cert-holo">
+              <Award size={44} />
+              <span className="cert-holo-grid" />
+            </span>
+          )}
+        </span>
+
+        <span className="cert-open mono">
+          <ExternalLink size={13} /> VIEW CREDENTIAL
+        </span>
+      </span>
+    </button>
+  );
+}
+
+function CertViewer({ cert, t, onClose }) {
+  const title = certTitle(cert, t);
+
+  return (
+    <div
+      className="cert-modal"
+      style={{ '--cert-accent': cert.color }}
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
+      <div className="cert-modal-panel" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="cert-modal-close" onClick={onClose} aria-label={t('chat.close')}>
+          <X size={18} />
         </button>
-      </div>
 
-      {/* Stage coverflow — semua slide berpusat; offset diatur CSS via --i */}
-      <div
-        className="cert-stage"
-        onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
-        onTouchEnd={(e) => {
-          if (touchX.current === null) return;
-          const dx = e.changedTouches[0].clientX - touchX.current;
-          touchX.current = null;
-          if (Math.abs(dx) > 40) { setPlaying(false); goTo(index + (dx < 0 ? 1 : -1)); }
-        }}
-      >
-        {items.map((c, i) => {
-          const offset = i - index;
-          const isActive = i === index;
-          const cTitle = c.title ?? t(c.titleKey, { defaultValue: c.titleKey });
-          const hasImage = Boolean(c.badgeUrl);
-          return (
-            <button
-              key={c.id ?? c.titleKey ?? i}
-              type="button"
-              className={`cert-slide ${isActive ? 'is-active' : ''}`}
-              style={{
-                '--cert-accent': c.color,
-                transform: `translateY(-50%) translateX(${offset * 210}px) translateZ(${offset * -150}px) rotateY(${offset * -26}deg) scale(${isActive ? 1 : 0.82})`,
-                opacity: isActive ? 1 : 0.55,
-                zIndex: isActive ? 5 : 5 - Math.min(Math.abs(offset), 3),
-                pointerEvents: Math.abs(offset) > 1 ? 'none' : 'auto',
-              }}
-              data-offset={offset}
-              onClick={() => { setPlaying(false); if (isActive) setLightbox(true); else goTo(i); }}
-              aria-label={`${cTitle} — ${isActive ? t('education.openCert') : t('education.goToCert')}`}
-            >
-              <span className="cert-slide-media">
-                {hasImage ? (
-                  <img
-                    src={c.badgeUrl}
-                    alt={cTitle}
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                ) : (
-                  <span className="cert-slide-fallback" style={{ background: c.color + '18', color: c.color }}>
-                    <Award size={30} />
-                  </span>
-                )}
-              </span>
-              <span className="cert-slide-cap">
-                <span className="cert-slide-title">{cTitle}</span>
-                <span className="cert-slide-issuer">{c.issuer}</span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
+        <span className="cert-modal-crest"><Award size={28} /></span>
+        <p className="cert-modal-issuer mono">ISSUED BY {cert.issuer}</p>
+        <h3 className="cert-modal-title">{title}</h3>
+        {cert.description && <p className="cert-modal-desc">{cert.description}</p>}
 
-      {/* Nav */}
-      {total > 1 && (
-        <div className="cert-slider-ui">
-          <button type="button" className="cert-nav" onClick={prev} aria-label={t('education.prevCert')}>
-            <ChevronLeft size={18} />
-          </button>
-          <button type="button" className="cert-nav" onClick={next} aria-label={t('education.nextCert')}>
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      )}
-
-      {/* Keterangan slide aktif di bawah */}
-      <p className="cert-hint mono">
-        <span className="cert-hint-caret">❯</span> {t('education.sliderHint')}
-      </p>
-
-      {/* Lightbox detail */}
-      {lightbox && active && (
-        <div className="cert-lightbox" onClick={() => setLightbox(false)} role="dialog" aria-modal="true">
-          <div className="cert-lightbox-panel" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="cert-lightbox-close" onClick={() => setLightbox(false)} aria-label={t('chat.close')}>
-              <X size={20} />
-            </button>
-            <div className="cert-lightbox-media">
-              {active.badgeUrl ? (
-                <img src={active.badgeUrl} alt={title} />
-              ) : (
-                <div className="cert-lightbox-fallback" style={{ background: active.color + '18', color: active.color }}>
-                  <Award size={64} />
-                </div>
-              )}
-            </div>
-            <div className="cert-lightbox-body">
-              <span className="cert-lightbox-issuer mono">{active.issuer}</span>
-              <h3 className="cert-lightbox-title">{title}</h3>
-              {active.description && <p className="cert-lightbox-desc">{active.description}</p>}
-              <div className="cert-lightbox-meta">
-                <span className="cert-date mono"><Calendar size={12} /> {active.date}</span>
-                {active.credentialUrl && (
-                  <a href={active.credentialUrl} target="_blank" rel="noopener noreferrer" className="cert-verify">
-                    <ExternalLink size={12} /> {t('education.verifyCert')}
-                  </a>
-                )}
-              </div>
-            </div>
+        <dl className="cert-modal-meta">
+          <div>
+            <dt className="mono">ISSUED</dt>
+            <dd>{cert.date}</dd>
           </div>
+          {cert.credentialId && (
+            <div>
+              <dt className="mono">CREDENTIAL ID</dt>
+              <dd className="mono">{cert.credentialId}</dd>
+            </div>
+          )}
+        </dl>
+
+        <div className="cert-modal-media">
+          {cert.badgeUrl ? (
+            <img src={cert.badgeUrl} alt={title} />
+          ) : (
+            <div className="cert-holo">
+              <Award size={64} />
+              <span className="cert-holo-grid" />
+            </div>
+          )}
         </div>
-      )}
+
+        <div className="cert-modal-actions">
+          {cert.credentialUrl && (
+            <a href={cert.credentialUrl} target="_blank" rel="noopener noreferrer" className="cert-btn cert-btn--verify">
+              <ExternalLink size={13} /> {t('education.verifyCert')}
+            </a>
+          )}
+          {cert.badgeUrl && (
+            <a href={cert.badgeUrl} target="_blank" rel="noopener noreferrer" className="cert-btn">
+              VIEW HIGH-RES CERTIFICATE
+            </a>
+          )}
+        </div>
+      </div>
     </div>
+  );
+}
+
+function CertDeck({ items, t }) {
+  const [openIndex, setOpenIndex] = useState(null);
+  const trackRef = useRef(null);
+  const active = openIndex === null ? null : items[openIndex];
+
+  // Modal: ESC tutup + kunci scroll latar
+  useEffect(() => {
+    if (openIndex === null) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setOpenIndex(null); };
+    window.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [openIndex]);
+
+  // Geser tali jemuran (scroll halus).
+  const nudge = (dir) => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * Math.max(260, el.clientWidth * 0.6), behavior: 'smooth' });
+  };
+
+  return (
+    <>
+      <div className="clothesline">
+        <span className="clothesline-rope" aria-hidden="true" />
+
+        <div className="clothesline-track" ref={trackRef}>
+          {items.map((c, i) => (
+            <CertCard
+              key={c.id ?? c.titleKey ?? i}
+              cert={c}
+              t={t}
+              index={i}
+              onOpen={() => setOpenIndex(i)}
+            />
+          ))}
+        </div>
+
+        {items.length > 1 && (
+          <div className="clothesline-nav">
+            <button type="button" className="cert-nav-btn" onClick={() => nudge(-1)} aria-label={t('education.prevCert')}>
+              <ChevronLeft size={16} />
+            </button>
+            <button type="button" className="cert-nav-btn" onClick={() => nudge(1)} aria-label={t('education.nextCert')}>
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Portal ke <body> → modal selalu center di viewport, tidak terpengaruh
+          transform/animasi ancestor (section punya scroll-timeline transform). */}
+      {active && createPortal(
+        <CertViewer cert={active} t={t} onClose={() => setOpenIndex(null)} />,
+        document.body,
+      )}
+    </>
   );
 }
 
@@ -254,9 +264,6 @@ export default function Education() {
   const { t, i18n } = useTranslation();
   const [cmsEducation, setCmsEducation] = useState([]);
   const [cmsCertifications, setCmsCertifications] = useState([]);
-  const [prefersReduced] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches,
-  );
 
   useEffect(() => {
     let active = true;
@@ -305,54 +312,58 @@ export default function Education() {
       <Reveal as="p" className="section-label">{t('education.sectionLabel')}</Reveal>
       <Reveal as="h1" delay={80} className="section-title">{t('education.title')}</Reveal>
 
-      <Reveal delay={120}>
-        <DevShell file="~/education.md" status={t('education.ready')} right={{ ln: education.length + 6, branch: 'academic' }}>
-          <div className="edu-list">
-            {education.map((e, i) => {
-              const desc = e.desc ?? t(e.descKey, { defaultValue: '' });
-              const highlights = e.highlights ?? t(e.highlightsKey, { returnObjects: true, defaultValue: [] });
-              return (
-                <div key={e.id ?? e.degree} className="edu-row">
-                  <div className="edu-lineno mono" aria-hidden="true">
-                    {String(i + 1).padStart(2, '0')}
-                  </div>
-                  <Reveal delay={i * 90} className="edu-card">
-                    <div className="edu-timeline">
-                      <div className="edu-icon-wrap">
-                        <GraduationCap size={22} />
-                      </div>
-                      <div className="edu-line" />
-                    </div>
-                    <div className="edu-content">
-                      <span className="edu-type-badge"><span className="edu-badge-mark">#</span> {e.type}</span>
-                      <h2 className="edu-degree">{e.degree}</h2>
-                      <p className="edu-institution">{e.institution}</p>
-                      <div className="edu-period">
-                        <Calendar size={13} />
-                        {e.period}
-                      </div>
-                      <p className="edu-desc">{desc}</p>
-                      <ul className="edu-highlights">
-                        {(Array.isArray(highlights) ? highlights : []).map(h => (
-                          <li key={h}><span className="hl-dot" /> {h}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </Reveal>
-                </div>
-              );
-            })}
-          </div>
-        </DevShell>
+      <Reveal delay={120} className="orb-timeline">
+        {education.map((e, i) => {
+          const desc = e.desc ?? t(e.descKey, { defaultValue: '' });
+          const highlights = e.highlights ?? t(e.highlightsKey, { returnObjects: true, defaultValue: [] });
+          // Hierarki visual: universitas (aktif) = cyan, jenjang sebelumnya = purple.
+          const accent = i === 0 ? '#38bdf8' : '#a855f7';
+          return (
+            <Reveal
+              key={e.id ?? e.degree}
+              delay={i * 90}
+              className="orb-row"
+              style={{ '--orb-accent': accent }}
+            >
+              <span className="orb-node" aria-hidden="true">
+                <GraduationCap size={22} />
+              </span>
+
+              <article className="orb-card">
+                <header className="orb-card-head">
+                  <span className="orb-type mono">{e.type}</span>
+                  <span className="orb-date mono"><Calendar size={13} /> {e.period}</span>
+                </header>
+                <h2 className="orb-degree">{e.degree}</h2>
+                <p className="orb-institution">{e.institution}</p>
+                <p className="orb-desc">{desc}</p>
+                <ul className="orb-highlights">
+                  {(Array.isArray(highlights) ? highlights : []).map((h) => (
+                    <li key={h} className="orb-chip">
+                      <span className="orb-chip-dot" aria-hidden="true" /> {h}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            </Reveal>
+          );
+        })}
       </Reveal>
 
-      {/* Certifications */}
+      {/* Certifications — Space Hologram Badge Grid */}
       <Reveal className="cert-section" delay={100} style={{ marginTop: 56 }}>
         <p className="section-label" style={{ marginTop: 0 }}>{t('education.certLabel')}</p>
-        <h2 style={{ fontFamily: 'Syne', fontSize: '1.8rem', marginBottom: 32 }}>{t('education.certTitle')}</h2>
-        <DevShell file="certs --gallery" status={t('education.ready')} right={{ ln: certifications.length + 2, branch: 'credentials' }}>
-          <CertSlider items={certifications} t={t} prefersReduced={prefersReduced} />
-        </DevShell>
+
+        <div className="cert-head">
+          <h2 className="cert-title-lg">{t('education.certTitle')}</h2>
+          <span className="cert-verified mono">
+            <span className="cert-verified-dot" /> VERIFIED CREDENTIALS · {String(certifications.length).padStart(2, '0')}
+          </span>
+        </div>
+
+        <p className="cert-deck-tag mono">SPACE ACADEMY · CERTIFICATION LOG</p>
+
+        <CertDeck items={certifications} t={t} />
       </Reveal>
     </div>
   );

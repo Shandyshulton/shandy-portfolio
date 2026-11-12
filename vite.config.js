@@ -25,7 +25,6 @@ export default defineConfig({
           groups: [
             { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/ },
             { name: 'i18n-vendor', test: /node_modules[\\/](i18next|react-i18next|i18next-browser-languagedetector)[\\/]/ },
-            { name: 'three-vendor', test: /node_modules[\\/]three[\\/]/ },
           ],
         },
       },

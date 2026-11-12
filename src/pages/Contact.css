@@ -1,3 +1,8 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   CONTACT — Space Communication Deck / Subspace Transmission
+   Light & Dark harmonis via token (panel, field, status).
+   ════════════════════════════════════════════════════════════════════════════ */
+
 .contact-page {
   position: relative;
   isolation: isolate;
@@ -10,8 +15,8 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(860px 420px at 78% 12%, rgba(232, 115, 90, 0.22), transparent 68%),
-    radial-gradient(560px 300px at 10% 82%, rgba(71, 191, 255, 0.1), transparent 72%),
+    radial-gradient(860px 420px at 78% 12%, rgba(168, 85, 247, 0.18), transparent 68%),
+    radial-gradient(560px 300px at 10% 82%, rgba(56, 189, 248, 0.12), transparent 72%),
     linear-gradient(120deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 44%);
 }
 
@@ -21,7 +26,7 @@
   inset: 68px 0 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.34;
+  opacity: 0.28;
   background-image:
     linear-gradient(color-mix(in srgb, var(--accent) 12%, transparent) 1px, transparent 1px),
     linear-gradient(90deg, color-mix(in srgb, var(--accent) 10%, transparent) 1px, transparent 1px);
@@ -30,18 +35,69 @@
   mask-image: radial-gradient(ellipse 72% 58% at 75% 16%, #000 18%, transparent 76%);
 }
 
-.contact-grid {
+/* ─── Breadcrumb + status koneksi ─────────────────────────────────────────── */
+
+.contact-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.contact-crumb {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.crumb-sep { color: var(--text-muted); margin: 0 6px; }
+.contact-signal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ok-text);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--ok-bg);
+  border: 1px solid var(--ok-border);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.2);
+}
+.contact-signal-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px 1px rgba(16, 185, 129, 0.9);
+  animation: contactPulse 1.8s ease-in-out infinite;
+}
+@keyframes contactPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* ─── Split grid asimetris 5 : 7 ──────────────────────────────────────────── */
+
+.contact-deck {
   display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 48px;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 32px;
   align-items: start;
 }
 
+/* ─── Kolom kiri: kanal komunikasi ────────────────────────────────────────── */
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
 .contact-intro {
   color: var(--text-muted);
   font-size: 15px;
   line-height: 1.8;
-  margin-bottom: 36px;
+  margin-bottom: 24px;
 }
 .shell-prompt {
   color: var(--accent);
@@ -49,122 +105,146 @@
   margin-right: 6px;
 }
 
-.contact-list {
+.contact-channels {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 36px;
+  gap: 12px;
+  margin-bottom: 22px;
 }
-.contact-item {
+.chan-card {
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  padding: 10px;
-  border-radius: 14px;
-  transition: background 0.2s, transform 0.2s;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--panel-shadow);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
-.contact-item:hover {
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
-  transform: translateX(2px);
+.chan-card:hover {
+  border-color: var(--panel-border-hover);
+  box-shadow: var(--panel-shadow-hover);
+  transform: translateY(-2px);
 }
-.contact-item-body {
-  min-width: 0;
-}
-.contact-item-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: var(--accent-dim);
-  color: var(--accent);
-  border: 1px solid rgba(200,82,42,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.chan-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   flex-shrink: 0;
-  box-shadow:
-    0 0 0 5px color-mix(in srgb, var(--accent) 7%, transparent),
-    0 0 26px color-mix(in srgb, var(--accent) 20%, transparent);
-}
-.contact-item-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 3px;
-}
-.contact-item-caret {
+  display: grid;
+  place-items: center;
   color: var(--accent);
-  font-weight: 700;
-  margin-right: 2px;
+  background: var(--accent-dim);
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 16%, transparent);
 }
-.contact-item-value {
+.chan-body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.chan-label {
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.chan-value {
   font-size: 14px;
-  color: var(--text);
   font-weight: 500;
+  color: var(--text);
   word-break: break-word;
 }
-.contact-item-value.link {
+.chan-value.link {
   color: var(--accent);
   transition: opacity 0.2s;
 }
-.contact-item-value.link:hover { opacity: 0.75; }
+.chan-value.link:hover { opacity: 0.75; }
+.chan-copy {
+  flex-shrink: 0;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+}
+.chan-copy:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 30%, transparent);
+}
 
 .contact-socials {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 .social-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 500;
-  border: 1.5px solid var(--border);
-  background:
-    radial-gradient(120px 70px at 100% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%),
-    var(--surface-2);
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: var(--text);
   transition: all 0.2s;
 }
 .social-btn:hover {
-  border-color: var(--text);
+  border-color: var(--panel-border-hover);
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 13%, transparent);
+  box-shadow: var(--panel-shadow-hover);
 }
 .social-btn-linkedin {
   color: #0a66c2;
-  border-color: #0a66c222;
-  background: #0a66c20e;
+  border-color: rgba(10, 102, 194, 0.24);
+  background: rgba(10, 102, 194, 0.08);
 }
 .social-btn-linkedin:hover {
-  border-color: #0a66c2;
-  background: #0a66c218;
+  border-color: #fff;
+  background: rgba(10, 102, 194, 0.16);
+}
+/* Dark mode: ikon + teks LinkedIn jadi putih agar kontras di latar gelap. */
+[data-theme="dark"] .social-btn-linkedin {
+  color: #fff;
 }
 
-/* Form */
+/* ─── Kolom kanan: kartu form transmisi ───────────────────────────────────── */
+
 .contact-form-wrap {
   position: relative;
   overflow: hidden;
-  background:
-    radial-gradient(560px 190px at 100% 0%, color-mix(in srgb, var(--accent) 15%, transparent), transparent 72%),
-    linear-gradient(140deg, color-mix(in srgb, var(--surface) 94%, var(--accent-dim)), var(--surface) 62%);
-  border: 1.5px solid var(--card-border);
-  border-radius: 20px;
-  padding: 36px;
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent),
-    0 22px 64px color-mix(in srgb, var(--accent) 13%, transparent),
-    var(--shadow);
+  border-radius: 24px;
+  padding: clamp(22px, 3vw, 32px);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  box-shadow: var(--panel-shadow);
 }
 .contact-form-wrap::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.38;
+  opacity: 0.35;
   background-image:
     linear-gradient(90deg, color-mix(in srgb, var(--accent) 9%, transparent) 1px, transparent 1px),
     linear-gradient(color-mix(in srgb, var(--accent) 7%, transparent) 1px, transparent 1px);
@@ -174,15 +254,39 @@
 }
 .contact-form-wrap > * { position: relative; z-index: 1; }
 
+.form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.form-head-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.form-head-sub {
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .contact-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 }
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 
@@ -192,53 +296,62 @@
   gap: 8px;
 }
 .form-group label {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12.5px;
+  font-weight: 600;
   color: var(--text-muted);
   font-family: 'DM Mono', monospace;
+  letter-spacing: 0.02em;
 }
 .form-group input,
 .form-group textarea {
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface) 62%, transparent), transparent),
-    var(--bg-2);
-  border: 1.5px solid var(--border);
+  background: var(--field-bg);
+  border: 1.5px solid var(--field-border);
   border-radius: 10px;
-  padding: 12px 16px;
-  font-family: 'Outfit', sans-serif;
+  padding: 12px 14px;
+  font-family: 'Inter', 'Outfit', sans-serif;
   font-size: 14px;
-  color: var(--text);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  color: var(--field-text);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   outline: none;
   resize: none;
 }
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: var(--text-muted);
-  opacity: 0.6;
+  color: var(--field-placeholder);
 }
 .form-group input:focus,
 .form-group textarea:focus {
   border-color: var(--accent);
-  box-shadow:
-    0 0 0 3px var(--accent-dim),
-    0 0 24px color-mix(in srgb, var(--accent) 15%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 .submit-btn {
-  align-self: flex-start;
-  padding: 14px 28px;
-  font-size: 15px;
+  align-self: stretch;
+  justify-content: center;
+  padding: 14px 24px;
+  font-size: 14.5px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(120deg, #38bdf8, #6366f1);
+  box-shadow: 0 12px 30px rgba(56, 189, 248, 0.35);
+  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+}
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(79, 70, 229, 0.4);
+  filter: brightness(1.05);
 }
 .submit-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+  transform: none;
 }
 
 .spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.35);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -262,16 +375,25 @@
   font-size: 15px;
 }
 
-/* Contact info (reveal ditangani .rv) */
-.contact-info {
-  display: flex;
-  flex-direction: column;
+/* ─── Responsif ───────────────────────────────────────────────────────────── */
+
+/* 2 kolom untuk nama + email mulai tablet */
+@media (min-width: 640px) {
+  .form-row { grid-template-columns: 1fr 1fr; }
 }
 
-@media (max-width: 900px) {
-  .contact-grid { grid-template-columns: 1fr; }
-  .form-row { grid-template-columns: 1fr; }
+/* Desktop: tetap 5:7; tablet & mobile: tumpuk 1 kolom */
+@media (max-width: 1023px) {
+  .contact-deck { grid-template-columns: 1fr; gap: 28px; }
 }
-@media (max-width: 600px) {
-  .contact-form-wrap { padding: 24px 20px; }
+
+@media (max-width: 400px) {
+  .chan-card { padding: 12px; gap: 10px; }
+  .chan-icon { width: 38px; height: 38px; border-radius: 10px; }
+  .chan-copy { padding: 5px 8px; }
+  .submit-btn { font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-signal-dot { animation: none; }
 }

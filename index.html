@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#070816" />
+    <meta name="theme-color" content="#030712" />
     <script>
       // Terapkan tema sebelum render agar tidak berkedip (default: dark).
       try { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark'); } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
@@ -59,9 +59,6 @@
          memperlambat LCP. Teks tampil dengan fallback lalu di-swap ke webfont. -->
     <link rel="preconnect" href="https://api.shandyshultonshihab.my.id" crossorigin />
     <link rel="dns-prefetch" href="https://api.shandyshultonshihab.my.id" />
-    <!-- Poster hero (facade 3D) adalah latar above-the-fold → preload prioritas tinggi.
-         Foto profil "About" ada di bawah fold & sudah lazy-load, jadi tidak di-preload. -->
-    <link rel="preload" as="image" href="/images/hero-poster.webp" type="image/webp" fetchpriority="high" />
   </head>
   <body>
     <div id="root">

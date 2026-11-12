@@ -7,69 +7,170 @@
 }
 
 :root {
-  /* Light: kertas biru-dingin (scene 3D tetap menjadi latar) */
-  --bg: #e8ecf7;
-  --bg-2: #dde3f2;
+  /* Light: Daylight Cosmic Glass */
+  --bg: #f1f5f9;
+  --bg-2: #e2e8f0;
   --surface: #ffffff;
-  --surface-2: #f1f4fb;
-  --border: #c9d1ea;
-  --text: #12152e;
-  --text-muted: #545b80;
-  --accent: #e0552a;
-  --accent-light: #ff7a4d;
-  --accent-dim: rgba(224, 85, 42, 0.12);
+  --surface-2: #f8fafc;
+  --muted: #e6ecf8;
+  --border: rgba(14, 165, 233, 0.22);
+  --text: #0f172a;
+  --text-muted: #334155;
+  --subheading: #0284c7;
+  --accent: #0284c7;
+  --accent-light: #38bdf8;
+  --accent-dim: rgba(2, 132, 199, 0.12);
   /* Aksen lebih gelap yang lolos WCAG AA (>=4.5:1) untuk teks/tombol di latar terang. */
-  --accent-strong: #b8401a;
-  --accent-strong-hover: #a03514;
+  --accent-strong: #0369a1;
+  --accent-strong-hover: #075985;
+  --accent-2: #7c3aed;
   --on-accent: #ffffff;
-  --nav-bg: rgba(232, 236, 247, 0.72);
-  --shadow: 0 4px 24px rgba(18, 21, 46, 0.1);
-  --shadow-lg: 0 12px 48px rgba(18, 21, 46, 0.16);
-  --tag-bg: #dfe4f4;
-  --tag-text: #3a4170;
-  --card-border: #cbd3ec;
+  --nav-bg: rgba(255, 255, 255, 0.7);
+  --shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 48px rgba(15, 23, 42, 0.12);
+  --tag-bg: #e0f2fe;
+  --tag-text: #0369a1;
+  --card-border: rgba(14, 165, 233, 0.22);
 
-  /* Glass (dipakai navbar, panel, kartu di atas scene 3D) */
-  --glass-bg: rgba(255, 255, 255, 0.62);
-  --glass-border: rgba(60, 75, 160, 0.2);
-  --glass-shadow: 0 20px 50px rgba(18, 21, 46, 0.14);
+  /* Glass (navbar, panel, kartu) */
+  --glass-bg: rgba(255, 255, 255, 0.82);
+  --glass-border: rgba(14, 165, 233, 0.22);
+  --glass-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06);
+
+  /* Komponen kaca/layar/pill/chip/node — dipakai Projects, Education, Experience */
+  --panel-bg: rgba(255, 255, 255, 0.82);
+  --panel-bg-strong: rgba(255, 255, 255, 0.95);
+  --panel-border: rgba(14, 165, 233, 0.22);
+  --panel-border-hover: rgba(2, 132, 199, 0.5);
+  --panel-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06);
+  --panel-shadow-hover: 0 0 24px rgba(2, 132, 199, 0.16), 0 16px 36px -8px rgba(15, 23, 42, 0.12);
+  --screen-bg: #eaf1fb;
+  --screen-bar: rgba(255, 255, 255, 0.9);
+  --screen-border: rgba(14, 165, 233, 0.22);
+  --pill-bg: rgba(241, 245, 249, 0.92);
+  --pill-text: #334155;
+  --pill-border: rgba(148, 163, 184, 0.7);
+  --chip-bg: rgba(224, 242, 254, 0.85);
+  --chip-text: #0369a1;
+  --chip-border: rgba(125, 211, 252, 0.9);
+  --node-bg: #ffffff;
+  --timeline-gradient: linear-gradient(180deg, #fbbf24, #38bdf8 50%, #a855f7);
+
+  /* Form field (Contact) */
+  --field-bg: rgba(248, 250, 252, 0.9);
+  --field-border: #e2e8f0;
+  --field-text: #0f172a;
+  --field-placeholder: #94a3b8;
+
+  /* Status badge tokens */
+  --ok-bg: rgba(16, 185, 129, 0.12);
+  --ok-text: #047857;
+  --ok-border: rgba(16, 185, 129, 0.4);
+  --live-bg: rgba(56, 189, 248, 0.14);
+  --live-text: #0369a1;
+  --live-border: rgba(56, 189, 248, 0.5);
+  --amber-bg: rgba(251, 191, 36, 0.16);
+  --amber-text: #b45309;
+  --amber-border: rgba(251, 191, 36, 0.5);
 }
 
 [data-theme="dark"] {
-  --bg: #070816;
-  --bg-2: #0d1024;
-  --surface: #11142e;
-  --surface-2: #171b3b;
-  --border: #232850;
-  --text: #eef1ff;
-  --text-muted: #9aa2c8;
-  --accent: #ff6a3d;
-  --accent-light: #ff9066;
-  --accent-dim: rgba(255, 106, 61, 0.16);
+  /* Deep Space / Futuristic Cosmos */
+  --bg: #030712;
+  --bg-2: #060d1f;
+  --surface: #0f172a;
+  --surface-2: #131d33;
+  --muted: rgba(56, 189, 248, 0.12);
+  --border: rgba(56, 189, 248, 0.15);
+  --text: #e6edf7;
+  --text-muted: #8ea0c0;
+  --subheading: #7dd3fc;
+  --accent: #38bdf8;
+  --accent-light: #7dd3fc;
+  --accent-dim: rgba(56, 189, 248, 0.14);
   /* Di dark mode aksennya terang, jadi teks tombol memakai foreground gelap. */
-  --accent-strong: #ff6a3d;
-  --accent-strong-hover: #ff8460;
-  --on-accent: #1a0a05;
-  --nav-bg: rgba(7, 8, 22, 0.6);
-  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.55);
-  --tag-bg: #1a1e42;
-  --tag-text: #b5bde6;
-  --card-border: #232850;
+  --accent-strong: #38bdf8;
+  --accent-strong-hover: #5cc9fb;
+  --accent-2: #a855f7;
+  --on-accent: #03121e;
+  --nav-bg: rgba(15, 23, 42, 0.7);
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.6);
+  --tag-bg: rgba(56, 189, 248, 0.1);
+  --tag-text: #9fd8f5;
+  --card-border: rgba(56, 189, 248, 0.16);
 
-  --glass-bg: rgba(14, 17, 44, 0.55);
-  --glass-border: rgba(159, 184, 255, 0.16);
-  --glass-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  --glass-bg: rgba(15, 23, 42, 0.7);
+  --glass-border: rgba(56, 189, 248, 0.15);
+  --glass-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+
+  --panel-bg: rgba(15, 23, 42, 0.7);
+  --panel-bg-strong: rgba(15, 23, 42, 0.95);
+  --panel-border: rgba(56, 189, 248, 0.2);
+  --panel-border-hover: rgba(56, 189, 248, 0.6);
+  --panel-shadow: 0 16px 40px rgba(0, 0, 0, 0.42);
+  --panel-shadow-hover: 0 0 30px rgba(56, 189, 248, 0.24), 0 20px 46px rgba(0, 0, 0, 0.46);
+  --screen-bg: #060d1f;
+  --screen-bar: rgba(15, 23, 42, 0.85);
+  --screen-border: rgba(56, 189, 248, 0.18);
+  --pill-bg: rgba(15, 23, 42, 0.6);
+  --pill-text: #8ea0c0;
+  --pill-border: rgba(56, 189, 248, 0.2);
+  --chip-bg: rgba(15, 23, 42, 0.6);
+  --chip-text: #e6edf7;
+  --chip-border: rgba(56, 189, 248, 0.24);
+  --node-bg: rgba(6, 13, 31, 0.92);
+  --timeline-gradient: linear-gradient(180deg, #fbbf24, #38bdf8);
+
+  --field-bg: rgba(2, 6, 23, 0.7);
+  --field-border: #1e293b;
+  --field-text: #ffffff;
+  --field-placeholder: #64748b;
+
+  --ok-bg: rgba(16, 185, 129, 0.12);
+  --ok-text: #7ef0c2;
+  --ok-border: rgba(16, 185, 129, 0.45);
+  --live-bg: rgba(56, 189, 248, 0.14);
+  --live-text: #bfe8ff;
+  --live-border: rgba(56, 189, 248, 0.55);
+  --amber-bg: rgba(251, 191, 36, 0.12);
+  --amber-text: #fcd34d;
+  --amber-border: rgba(251, 191, 36, 0.45);
 }
 
-/* Panel kaca: dipakai di atas scene WebGL */
+/* Panel kaca (glassmorphism): semi-transparan + blur, border neon cyan yang
+   menyala saat di-hover. */
 .glass {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 22px;
-  backdrop-filter: blur(18px) saturate(1.25);
-  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
   box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.glass:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.2), var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Light Mode: badge/ikon beraksen digelapkan agar kontras cukup di latar terang.
+   (Aksen seperti #38bdf8 terlalu terang untuk teks di atas putih.) */
+html[data-theme='light'] .orb-type,
+html[data-theme='light'] .orb-node,
+html[data-theme='light'] .exp-pill--type,
+html[data-theme='light'] .exp-orb-node,
+html[data-theme='light'] .deck-index,
+html[data-theme='light'] .deck-cat,
+html[data-theme='light'] .cert-crest,
+html[data-theme='light'] .cert-modal-crest,
+html[data-theme='light'] .cert-holo {
+  color: color-mix(in srgb, var(--orb-accent, var(--exp-accent, var(--cert-accent, var(--accent)))) 58%, #0f172a);
+}
+html[data-theme='light'] .deck-launch,
+html[data-theme='light'] .cert-open,
+html[data-theme='light'] .btn-live {
+  color: var(--accent-strong);
 }
 
 html {
@@ -77,7 +178,7 @@ html {
 }
 
 body {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', 'Outfit', sans-serif;
   background-color: var(--bg);
   color: var(--text);
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -190,11 +291,11 @@ a {
   z-index: 9999;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--bg, #111010) 86%, transparent);
+  background: color-mix(in srgb, var(--bg, #030712) 86%, transparent);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
-.boot-loader { background: var(--bg, #111010); }
+.boot-loader { background: var(--bg, #030712); }
 .boot-loader.done,
 .route-loader.done {
   animation: loader-fade-out 0.45s ease forwards;
@@ -217,16 +318,16 @@ a {
   border-radius: 50%;
 }
 .loader-ring::before {
-  border: 3px solid color-mix(in srgb, var(--accent, #e8735a) 22%, transparent);
-  border-top-color: var(--accent, #e8735a);
-  filter: drop-shadow(0 0 6px var(--accent, #e8735a));
+  border: 3px solid color-mix(in srgb, var(--accent, #38bdf8) 22%, transparent);
+  border-top-color: var(--accent, #38bdf8);
+  filter: drop-shadow(0 0 6px var(--accent, #38bdf8));
   animation: loader-spin 0.9s linear infinite;
 }
 .loader-ring::after {
   inset: 10px;
   border: 2px solid transparent;
-  border-top-color: var(--accent-light, #f2967e);
-  filter: drop-shadow(0 0 4px var(--accent-light, #f2967e));
+  border-top-color: var(--accent-light, #7dd3fc);
+  filter: drop-shadow(0 0 4px var(--accent-light, #7dd3fc));
   animation: loader-spin 1.3s linear infinite reverse;
 }
 
@@ -235,8 +336,8 @@ a {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--accent, #e8735a);
-  box-shadow: 0 0 12px 2px var(--accent, #e8735a), 0 0 32px 8px color-mix(in srgb, var(--accent, #e8735a) 55%, transparent);
+  background: var(--accent, #38bdf8);
+  box-shadow: 0 0 12px 2px var(--accent, #38bdf8), 0 0 32px 8px color-mix(in srgb, var(--accent, #38bdf8) 55%, transparent);
   animation: loader-pulse-glow 1.4s ease-in-out infinite;
 }
 
@@ -246,8 +347,8 @@ a {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--accent-light, #f2967e);
-  box-shadow: 0 0 8px 1px var(--accent-light, #f2967e);
+  background: var(--accent-light, #7dd3fc);
+  box-shadow: 0 0 8px 1px var(--accent-light, #7dd3fc);
   animation: loader-orbit 2.2s linear infinite;
 }
 .loader-dot:nth-child(2) { top: -4px;  left: 50%; margin-left: -3px; }
@@ -264,7 +365,7 @@ a {
   text-align: center;
 }
 .loader-text .loader-caret {
-  color: var(--accent, #e8735a);
+  color: var(--accent, #38bdf8);
   animation: blink 1s step-end infinite;
 }
 
@@ -276,8 +377,8 @@ a {
   height: 3px;
   z-index: 10000;
   width: 0%;
-  background: linear-gradient(90deg, var(--accent-light, #f2967e), var(--accent, #e8735a));
-  box-shadow: 0 0 12px 1px color-mix(in srgb, var(--accent, #e8735a) 70%, transparent);
+  background: linear-gradient(90deg, var(--accent-light, #7dd3fc), var(--accent, #38bdf8));
+  box-shadow: 0 0 12px 1px color-mix(in srgb, var(--accent, #38bdf8) 70%, transparent);
   transition: width 0.2s ease, opacity 0.3s ease;
 }
 .route-progress.done { opacity: 0; width: 100%; }
@@ -423,7 +524,7 @@ a {
   gap: 8px;
   padding: 12px 24px;
   border-radius: 999px;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', 'Outfit', sans-serif;
   font-weight: 500;
   font-size: 14px;
   cursor: pointer;
@@ -465,7 +566,9 @@ a {
   border-radius: 14px;
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   box-shadow: 0 10px 34px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  /* clip (bukan hidden): tetap memotong sudut, TAPI bukan scroll container —
+     agar animation-timeline: view() anak-anaknya mengukur ke scroll halaman. */
+  overflow: clip;
   isolation: isolate;
 }
 .devshell::before {
@@ -664,7 +767,12 @@ a {
   .devshell-tab { max-width: 75%; }
 }
 
-/* ── Scroll-driven 3D untuk halaman konten (CSS-only, progressive enhancement) ── */
+/* ── Scroll-driven 3D untuk halaman konten (CSS-only, progressive enhancement) ──
+   Entry (masuk) + exit (keluar) dikendalikan posisi scroll via animation-timeline:
+   view() — tanpa JS. Setiap elemen punya dua animasi: satu untuk range `entry`
+   (fill backwards → tersembunyi sebelum masuk) dan satu untuk `exit` (fill
+   forwards → tetap menjauh setelah lewat). Tanpa dukungan timeline / reduced
+   motion → konten tampil normal. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     @keyframes pg-rise {
@@ -676,20 +784,31 @@ a {
     @keyframes pg-right {
       from { opacity: 0; transform: perspective(900px) translate3d(80px, 0, -200px) rotateY(-16deg) scale(0.94); }
     }
-    .edu-card, .cert-section, .projects-mobile-item, .projects-sidebar-item {
-      animation: pg-rise linear backwards;
-      animation-timeline: view();
-      animation-range: entry 0% entry 60%;
+    /* exit — konten menjauh & memudar saat meninggalkan viewport */
+    @keyframes pg-away {
+      to { opacity: 0; transform: perspective(900px) translate3d(0, -70px, -220px) rotateX(9deg); }
+    }
+    @keyframes pg-away-left {
+      to { opacity: 0; transform: perspective(900px) translate3d(-70px, 0, -200px) rotateY(-14deg); }
+    }
+    @keyframes pg-away-right {
+      to { opacity: 0; transform: perspective(900px) translate3d(70px, 0, -200px) rotateY(14deg); }
+    }
+
+    .edu-card, .cert-section {
+      animation: pg-rise linear backwards, pg-away linear forwards;
+      animation-timeline: view(), view();
+      animation-range: entry 0% entry 55%, exit 0% exit 100%;
     }
     .exp-row:nth-child(odd) .exp-card, .contact-info {
-      animation: pg-left linear backwards;
-      animation-timeline: view();
-      animation-range: entry 0% entry 65%;
+      animation: pg-left linear backwards, pg-away-left linear forwards;
+      animation-timeline: view(), view();
+      animation-range: entry 0% entry 60%, exit 0% exit 100%;
     }
     .exp-row:nth-child(even) .exp-card, .contact-form-wrap {
-      animation: pg-right linear backwards;
-      animation-timeline: view();
-      animation-range: entry 0% entry 65%;
+      animation: pg-right linear backwards, pg-away-right linear forwards;
+      animation-timeline: view(), view();
+      animation-range: entry 0% entry 60%, exit 0% exit 100%;
     }
   }
 }

@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { TerminalSquare, Calendar, MapPin } from 'lucide-react';
+import { Laptop, Film, Languages, Users, Calendar, MapPin } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { fetchCms, formatPeriod, getTranslation } from '../lib/cmsApi.js';
 import AiBackground from '../components/AiBackground.jsx';
 import Reveal from '../components/Reveal.jsx';
-import DevShell from '../components/DevShell.jsx';
 import './Experience.css';
 
 const SITE_URL = 'https://shandy-shulton-shihab.vercel.app/';
@@ -63,6 +62,15 @@ const fallbackExperiences = [
 ];
 
 const experienceColors = ['#c8522a', '#2a7cc8', '#2ac87a', '#8b2ac8'];
+
+// Ikon node disesuaikan dengan bidang peran (developer / video / bahasa / organisasi).
+function pickCareerIcon(exp) {
+  const hay = `${(exp.stack || []).join(' ')} ${exp.type ?? ''}`.toLowerCase();
+  if (/premiere|after effects|figma|video|content|media/.test(hay)) return Film;
+  if (/english|communication|writing|presentation|language/.test(hay)) return Languages;
+  if (/jira|collaboration|management|organization|team/.test(hay)) return Users;
+  return Laptop;
+}
 
 function normalizeCmsExperience(experience, locale, index) {
   const translation = getTranslation(experience, locale);
@@ -126,72 +134,63 @@ export default function Experience() {
       <Reveal as="p" className="section-label">{t('experience.sectionLabel')}</Reveal>
       <Reveal as="h1" delay={80} className="section-title">{t('experience.title')}</Reveal>
 
-      <Reveal delay={120}>
-        <DevShell file="~/experience.log" status={t('experience.ready')} right={{ ln: experiences.length + 4, branch: 'career' }}>
-          <div className="exp-timeline">
-            {experiences.map((exp, i) => {
-              const role = exp.role ?? t(exp.roleKey, { defaultValue: exp.roleKey });
-              const type = exp.type ?? t(exp.typeKey, { defaultValue: exp.typeKey });
-              const desc = exp.desc ?? t(exp.descKey, { defaultValue: '' });
-              const responsibilities = exp.responsibilities ?? t(exp.responsibilitiesKey, { returnObjects: true, defaultValue: [] });
+      <Reveal delay={120} className="exp-orb-timeline">
+        {experiences.map((exp, i) => {
+          const role = exp.role ?? t(exp.roleKey, { defaultValue: exp.roleKey });
+          const type = exp.type ?? t(exp.typeKey, { defaultValue: exp.typeKey });
+          const desc = exp.desc ?? t(exp.descKey, { defaultValue: '' });
+          const responsibilities = exp.responsibilities ?? t(exp.responsibilitiesKey, { returnObjects: true, defaultValue: [] });
+          const isCurrent = /present|sekarang/i.test(exp.period || '');
+          const accent = isCurrent ? '#fbbf24' : '#38bdf8';
+          const Icon = pickCareerIcon(exp);
 
-              return (
-                <div key={exp.id} className="exp-row">
-                  <div className="exp-lineno mono" aria-hidden="true">
-                    {String(i + 1).padStart(2, '0')}
-                  </div>
-                  <Reveal delay={i * 80} className="exp-item">
-                    <div className="exp-marker">
-                      <div className="exp-dot" style={{ borderColor: exp.color, background: exp.color + '20' }}>
-                        <TerminalSquare size={16} style={{ color: exp.color }} />
-                      </div>
-                      {i < experiences.length - 1 && <div className="exp-connector" />}
-                    </div>
+          return (
+            <Reveal
+              key={exp.id}
+              delay={i * 80}
+              className="exp-orb-row"
+              style={{ '--exp-accent': accent }}
+            >
+              <span className="exp-orb-node" aria-hidden="true">
+                <Icon size={22} />
+              </span>
 
-                    <div className="exp-card">
-                      <div className="exp-card-top" style={{ borderLeftColor: exp.color }}>
-                        <div className="exp-header">
-                          <div>
-                            <span className="exp-type-badge" style={{ background: exp.color + '18', color: exp.color, borderColor: exp.color + '44' }}>
-                              <span className="exp-badge-mark" style={{ color: exp.color }}>$</span> {type}
-                            </span>
-                            <h2 className="exp-role">{role}</h2>
-                            <p className="exp-company">{exp.company}</p>
-                          </div>
-                          <div className="exp-meta">
-                            <span className="exp-meta-item">
-                              <Calendar size={13} /> {exp.period}
-                            </span>
-                            <span className="exp-meta-item">
-                              <MapPin size={13} /> {exp.location}
-                            </span>
-                          </div>
-                        </div>
-
-                        <p className="exp-desc">{desc}</p>
-
-                        <ul className="exp-responsibilities">
-                          {(Array.isArray(responsibilities) ? responsibilities : []).map(r => (
-                            <li key={r}>
-                              <span className="resp-arrow" style={{ color: exp.color }}>→</span>
-                              {r}
-                            </li>
-                          ))}
-                        </ul>
-
-                        <div className="exp-stack">
-                          {exp.stack.map(s => (
-                            <span key={s} className="tag">{s}</span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </Reveal>
+              <article className="exp-orb-card">
+                <div className="exp-orb-badges">
+                  <span className="exp-pill exp-pill--type mono">{type}</span>
+                  <span className="exp-pill mono"><Calendar size={12} /> {exp.period}</span>
+                  <span className="exp-pill mono"><MapPin size={12} /> {exp.location}</span>
                 </div>
-              );
-            })}
-          </div>
-        </DevShell>
+
+                <div className="exp-orb-title-row">
+                  <h2 className="exp-orb-role">{role}</h2>
+                  <span className={`exp-status mono ${isCurrent ? 'is-current' : 'is-done'}`}>
+                    <span className="exp-status-dot" aria-hidden="true" />
+                    {isCurrent ? 'CURRENT ROLE' : 'COMPLETED MISSION'}
+                  </span>
+                </div>
+                <p className="exp-orb-company">{exp.company}</p>
+
+                <p className="exp-orb-desc">{desc}</p>
+
+                <ul className="exp-telemetry">
+                  {(Array.isArray(responsibilities) ? responsibilities : []).map((r) => (
+                    <li key={r}>
+                      <span className="exp-telemetry-dot" aria-hidden="true" />
+                      {r}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="exp-orb-stack">
+                  {exp.stack.map((s) => (
+                    <span key={s} className="exp-chip mono">{s}</span>
+                  ))}
+                </div>
+              </article>
+            </Reveal>
+          );
+        })}
       </Reveal>
     </div>
   );
