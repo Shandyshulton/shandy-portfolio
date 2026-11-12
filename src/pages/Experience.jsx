@@ -135,7 +135,7 @@ export default function Experience() {
       <Reveal as="h1" delay={80} className="section-title">{t('experience.title')}</Reveal>
 
       <Reveal delay={120} className="exp-orb-timeline">
-        {experiences.map((exp, i) => {
+        {experiences.map((exp) => {
           const role = exp.role ?? t(exp.roleKey, { defaultValue: exp.roleKey });
           const type = exp.type ?? t(exp.typeKey, { defaultValue: exp.typeKey });
           const desc = exp.desc ?? t(exp.descKey, { defaultValue: '' });
@@ -145,9 +145,8 @@ export default function Experience() {
           const Icon = pickCareerIcon(exp);
 
           return (
-            <Reveal
+            <div
               key={exp.id}
-              delay={i * 80}
               className="exp-orb-row"
               style={{ '--exp-accent': accent }}
             >
@@ -188,7 +187,7 @@ export default function Experience() {
                   ))}
                 </div>
               </article>
-            </Reveal>
+            </div>
           );
         })}
       </Reveal>

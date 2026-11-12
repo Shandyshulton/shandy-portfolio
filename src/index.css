@@ -795,17 +795,19 @@ a {
       to { opacity: 0; transform: perspective(900px) translate3d(70px, 0, -200px) rotateY(14deg); }
     }
 
-    .edu-card, .cert-section {
-      animation: pg-rise linear backwards, pg-away linear forwards;
+    /* Education (orbital timeline) + certifications */
+    .orb-card, .cert-section {
+      animation: pg-left linear backwards, pg-away-right linear forwards;
       animation-timeline: view(), view();
       animation-range: entry 0% entry 55%, exit 0% exit 100%;
     }
-    .exp-row:nth-child(odd) .exp-card, .contact-info {
+    /* Experience (orbital) & Contact: masuk/keluar dari samping (kiri/kanan) */
+    .exp-orb-row:nth-child(odd) .exp-orb-card, .contact-info {
       animation: pg-left linear backwards, pg-away-left linear forwards;
       animation-timeline: view(), view();
       animation-range: entry 0% entry 60%, exit 0% exit 100%;
     }
-    .exp-row:nth-child(even) .exp-card, .contact-form-wrap {
+    .exp-orb-row:nth-child(even) .exp-orb-card, .contact-form-wrap {
       animation: pg-right linear backwards, pg-away-right linear forwards;
       animation-timeline: view(), view();
       animation-range: entry 0% entry 60%, exit 0% exit 100%;

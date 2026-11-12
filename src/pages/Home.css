@@ -530,7 +530,7 @@ html[data-prepainted] .name-ch { animation: none; }
     .home-page { perspective: 1400px; }
 
     @keyframes hero-away {
-      to { opacity: 0; transform: translate3d(0, -60px, -240px) rotateX(10deg); }
+      to { opacity: 0; transform: translate3d(-150px, 0, -200px) rotateY(14deg); }
     }
     .hero-copy {
       animation: hero-away linear both;
@@ -543,8 +543,13 @@ html[data-prepainted] .name-ch { animation: none; }
       from { opacity: 0; transform: translate3d(0, 80px, -180px) rotateX(-14deg); }
       to   { opacity: 1; transform: none; }
     }
-    @keyframes skills-away {
-      to { opacity: 0; transform: translate3d(0, -70px, -220px) rotateX(9deg); }
+    /* entry dari kiri, exit ke kanan (horizontal) */
+    @keyframes skills-in {
+      from { opacity: 0; transform: translate3d(-140px, 0, -220px) rotateY(16deg); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes skills-out {
+      to { opacity: 0; transform: translate3d(140px, 0, -220px) rotateY(-16deg); }
     }
     @keyframes fly-in-left {
       from { opacity: 0; transform: translate3d(-90px, 0, -220px) rotateY(18deg); }
@@ -554,26 +559,27 @@ html[data-prepainted] .name-ch { animation: none; }
       from { opacity: 0; transform: translate3d(90px, 0, -220px) rotateY(-18deg) scale(0.92); }
       to   { opacity: 1; transform: none; }
     }
-    /* Skills & Stack: masuk (rise) lalu menjauh saat keluar (exit) */
-    .skills-panel {
-      animation: rise-3d linear backwards, skills-away linear forwards;
-      animation-timeline: view(), view();
-      animation-range: entry 0% entry 55%, exit 0% exit 100%;
+    @keyframes fly-out-left {
+      to { opacity: 0; transform: translate3d(-120px, 0, -200px) rotateY(-16deg); }
     }
-    .metric-card {
-      animation: rise-3d linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 55%;
+    @keyframes fly-out-right {
+      to { opacity: 0; transform: translate3d(120px, 0, -200px) rotateY(16deg); }
+    }
+    /* Skills & Stack: geser masuk dari kiri, keluar ke kanan */
+    .skills-panel {
+      animation: skills-in linear backwards, skills-out linear forwards;
+      animation-timeline: view(), view();
+      animation-range: entry 0% entry 60%, exit 0% exit 100%;
     }
     .about-copy {
-      animation: fly-in-left linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 60%;
+      animation: fly-in-left linear backwards, fly-out-left linear forwards;
+      animation-timeline: view(), view();
+      animation-range: entry 0% entry 60%, exit 0% exit 100%;
     }
     .about-card {
-      animation: fly-in-right linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 60%;
+      animation: fly-in-right linear backwards, fly-out-right linear forwards;
+      animation-timeline: view(), view();
+      animation-range: entry 0% entry 60%, exit 0% exit 100%;
     }
   }
 }

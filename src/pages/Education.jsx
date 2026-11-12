@@ -319,9 +319,8 @@ export default function Education() {
           // Hierarki visual: universitas (aktif) = cyan, jenjang sebelumnya = purple.
           const accent = i === 0 ? '#38bdf8' : '#a855f7';
           return (
-            <Reveal
+            <div
               key={e.id ?? e.degree}
-              delay={i * 90}
               className="orb-row"
               style={{ '--orb-accent': accent }}
             >
@@ -345,7 +344,7 @@ export default function Education() {
                   ))}
                 </ul>
               </article>
-            </Reveal>
+            </div>
           );
         })}
       </Reveal>
